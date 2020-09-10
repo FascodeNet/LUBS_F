@@ -1,0 +1,264 @@
+#!/usr/bin/env bash
+
+# SPDX-License-Identifier: GPL-3.0
+#
+# kokkiemouse
+# Twitter: @kokkiemouse
+# Email  : kokkiemouse@gmail.com
+#
+# lfbs
+#
+
+set -e
+# set -u
+
+export LANG=C
+
+script_path=$(readlink -f "${0%/*}")
+cache_dir="${script_path}/cache"
+
+work_dir="${script_path}/work"
+channels_dir="${script_path}/channels"
+codename="32"
+os_name="Fedora"
+iso_name="Fedora"
+
+arch=amd64
+
+out_dir="${script_path}/out"
+iso_label="${os_name}_${codename}_${arch}"
+iso_publisher='Fascode Network <https://fascode.net>'
+iso_application="${os_name} Live/Rescue CD"
+iso_version="${codename}-$(date +%Y.%m.%d)"
+iso_filename="${iso_name}-${iso_version}-${arch}.iso"
+
+username="liveuser"
+usershell="/bin/bash"
+
+debug=false
+cache_only=false
+
+
+start_time="$(date +%s)"
+
+_msg_common() {
+    if [[ "${debug}" = true ]]; then
+        local _current_time
+        local _time
+        _current_time="$(date +%s)"
+        _time="$(("${_current_time}"-"${start_time}"))"
+
+        if [[ "${_time}" -ge 3600 ]]; then
+            echo "[$(date -d @${_time} +%H:%M.%S)]$("${script_path}/echo_color" -t 6 "[LUBS Core]")"
+        elif [[ "${_time}" -ge 60 ]]; then
+            echo "[00:$(date -d @${_time} +%M.%S)]$("${script_path}/echo_color" -t 6 "[LUBS Core]")"
+        else
+            echo "[00:00.$(date -d @${_time} +%S)] $("${script_path}/echo_color" -t 6 "[LUBS Core]")"
+        fi
+    else
+        "${script_path}/echo_color" -t 6 "[LUBS Core]"
+    fi
+}
+
+# Show an INFO message
+# _msg_info <message>
+_msg_info() {
+    local _msg
+    _msg="${@}"
+    echo "$(_msg_common)  $("${script_path}/echo_color" -t 2 "Info:") ${_msg}"
+}
+
+# Show an debug message
+# _msg_debug <message>
+_msg_debug() {
+    if [[ "${debug}" = true ]]; then
+        local _msg
+        _msg="${@}"
+        echo "$(_msg_common)  $("${script_path}/echo_color" -t 3 "Debug:") ${_msg}"
+    fi
+}
+
+# Show an ERROR message then exit with status
+# _msg_error <message> <exit code>
+_msg_error() {
+    local _msg
+    local _error
+    _msg="${1}"
+    _error=${2}
+    echo "$(_msg_common)  $("${script_path}/echo_color" -t 1 "Error:") ${_msg}"
+
+    if [[ ! ${_error} = 0 ]]; then
+        exit ${_error}
+    fi
+}
+
+# Unmount chroot dir
+umount_chroot () {
+    local mount
+
+    for mount in $(mount | awk '{print $3}' | grep "$(realpath "${work_dir}")" | sort -r); do
+        _msg_info "Unmounting ${mount}"
+        umount -fl "${mount}"
+    done
+}
+
+# Helper function to run make_*() only one time.
+run_once() {
+    local name
+    umount_chroot
+    name="$1"
+
+    if [[ ! -e "${work_dir}/build.${name}" ]]; then
+        _msg_info "$(echo $name | sed "s@_@ @g") is starting."
+        "${1}"
+        _msg_info "$(echo $name | sed "s@_@ @g") was done!"
+        touch "${work_dir}/build.${name}"
+    fi
+}
+
+run_cmd() {
+    local mount
+
+    for mount in "dev" "dev/pts" "proc" "sys" "run/systemd/resolve/stub-resolv.conf"; do
+        if [[ "${mount}" == "run/systemd/resolve/stub-resolv.conf" ]]; then
+            mount --bind /etc/resolv.conf "${work_dir}/airootfs/${mount}"
+        else
+            mount --bind /${mount} "${work_dir}/airootfs/${mount}"
+        fi
+    done
+    
+    chroot "${work_dir}/airootfs" "${@}"
+
+    for mount in $(mount | awk '{print $3}' | grep "$(realpath "${work_dir}")" | sort -r); do
+        umount -fl "${mount}"
+    done
+}
+
+_apt_install() {
+    run_cmd apt-get --no-install-recommends --yes install ${@}
+}
+
+# rm helper
+# Delete the file if it exists.
+# For directories, rm -rf is used.
+# If the file does not exist, skip it.
+# remove <file> <file> ...
+remove() {
+    local _list
+    local _file
+    _list=($(echo "$@"))
+
+    for _file in "${_list[@]}"; do
+        _msg_debug "Removeing ${_file}"
+
+        if [[ -f ${_file} ]]; then
+            rm -f "${_file}"
+        elif [[ -d ${_file} ]]; then
+            rm -rf "${_file}"
+        fi
+    done
+}
+
+# Show help
+_usage () {
+    echo "usage ${0} [options] [channel]"
+    echo
+    echo " General options:"
+    echo
+    echo "    -a | --arch <str>      Set architecture"
+    echo "                           Default: ${arch}"
+    echo "    -c | --codename <str>  Set ubuntu codename"
+    echo "                           Default: ${codename}"
+    echo "    -m | --mirror <url>    Set apt mirror server."
+    echo "                           Default: ${mirror}"
+    echo "    -o | --out <out_dir>   Set the output directory"
+    echo "                           Default: ${out_dir}"
+    echo "    -w | --work <work_dir> Set the working directory"
+    echo "                           Default: ${work_dir}"
+    echo
+    echo "    -d | --debug           "
+    echo "    -h | --help            This help message and exit"
+    echo
+    echo "You can switch between installed packages, files included in images, etc. by channel."
+    echo
+    echo " Channel:"
+    
+    local _channel
+    local channel_list
+    local description
+
+    for _channel in $(ls -l "${channels_dir}" | awk '$1 ~ /d/ {print $9 }'); do
+        if [[ -n $(ls "${channels_dir}/${_channel}") ]] && [[ ! "${_channel}" = "share" ]]; then
+            channel_list+=( "${_channel}" )
+        fi
+    done
+
+    for _channel in ${channel_list[@]}; do
+        if [[ -f "${channels_dir}/${_channel}/description.txt" ]]; then
+            description=$(cat "${channels_dir}/${_channel}/description.txt")
+        else
+            description="This channel does not have a description.txt."
+        fi
+
+        echo -ne "    ${_channel}"
+
+        for i in $( seq 1 $(( 23 - ${#_channel} )) ); do
+            echo -ne " "
+        done
+        
+        echo -ne "${description}\n"
+    done
+}
+
+
+prepare_build() {
+    if [[ ${EUID} -ne 0 ]]; then
+        _msg_error "This script must be run as root." 1
+    fi
+
+    [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
+    [[ ! -d "${out_dir}" ]] && mkdir -p "${out_dir}"
+    umount_chroot
+
+    # Check codename
+    if [[ -z $(grep -h -v ^'#' ${channels_dir}/${channel_name}/codename.${arch} | grep -x ${codename}) ]]; then
+        _msg_error "This codename (${channel_name}) is not supported on this channel (${codename})."
+    fi
+
+}
+
+make_basefs() {
+    local dnf_status
+    statusfile="${cache_dir}/${codename}/status"
+
+    dnf_status() {
+        if [[ ! -d "$(dirname ${statusfile})" ]]; then
+            mkdir -p "$(dirname ${statusfile})"
+        fi
+        echo "${1}" > "${statusfile}"
+    }
+
+    if [[ -f "${statusfile}" ]] && [[ $(cat "${statusfile}" 2> /dev/null) = "Done" ]]; then
+        _msg_info "${codename} cache is found."
+    else
+        remove "${cache_dir}/${codename}"
+        dnf_status "Running"
+        _msg_info "Installing Fedora to '${cache_dir}/${codename}/airootfs'..."
+        mkdir -p "${cache_dir}/${codename}/airootfs"
+        dnf install dnf --releasever=32=${codename} --installroot="${cache_dir}/${codename}/airootfs"  -y
+        _msg_info "${codename} installed successfully!"
+        dnf_status "Done"
+    fi
+
+    if [[ "${cache_only}" = true ]]; then
+        exit 0
+    fi
+
+    rm -rf "${work_dir}/airootfs" && mkdir -p "${work_dir}/airootfs"
+    _msg_info "copy base files from '${cache_dir}/${codename}/airootfs' to '${work_dir}/airootfs'..."
+    rsync  -au "${cache_dir}/${codename}/airootfs/" "${work_dir}/airootfs"
+    echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}' >> "${work_dir}/airootfs/etc/bash.bashrc"
+    #run_cmd apt-get update
+    # run_cmd apt-get upgrade
+}
+make_basefs
