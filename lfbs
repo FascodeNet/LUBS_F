@@ -262,5 +262,5 @@ make_basefs() {
     run_cmd dnf upgrade -y
     # run_cmd apt-get upgrade
 }
-run_once make_basefs
-run_once umount_chroot
+make_basefs
+umount_chroot
