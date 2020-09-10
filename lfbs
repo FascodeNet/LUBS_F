@@ -119,12 +119,13 @@ run_once() {
 run_cmd() {
     local mount
 
-    for mount in "dev" "dev/pts" "proc" "sys" "run/systemd/resolve/stub-resolv.conf"; do
-        if [[ "${mount}" == "run/systemd/resolve/stub-resolv.conf" ]]; then
-            mount --bind /etc/resolv.conf "${work_dir}/airootfs/${mount}"
-        else
+    #for mount in "dev" "dev/pts" "proc" "sys" "run/systemd/resolve/stub-resolv.conf"; do
+    for mount in "dev" "dev/pts" "proc" "sys" ; do
+        #if [[ "${mount}" == "run/systemd/resolve/stub-resolv.conf" ]]; then
+        #    mount --bind /etc/resolv.conf "${work_dir}/airootfs/${mount}"
+        #else
             mount --bind /${mount} "${work_dir}/airootfs/${mount}"
-        fi
+        #fi
     done
     
     chroot "${work_dir}/airootfs" "${@}"
@@ -134,8 +135,8 @@ run_cmd() {
     done
 }
 
-_apt_install() {
-    run_cmd apt-get --no-install-recommends --yes install ${@}
+_dnf_install() {
+    run_cmd dnf install -y ${@}
 }
 
 # rm helper
@@ -258,7 +259,8 @@ make_basefs() {
     _msg_info "copy base files from '${cache_dir}/${codename}/airootfs' to '${work_dir}/airootfs'..."
     rsync  -au "${cache_dir}/${codename}/airootfs/" "${work_dir}/airootfs"
     echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}' >> "${work_dir}/airootfs/etc/bash.bashrc"
-    #run_cmd apt-get update
+    run_cmd dnf upgrade -y
     # run_cmd apt-get upgrade
 }
-make_basefs
+run_once make_basefs
+run_once umount_chroot
