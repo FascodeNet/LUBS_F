@@ -245,7 +245,7 @@ make_basefs() {
         dnf_status "Running"
         _msg_info "Installing Fedora to '${cache_dir}/${codename}/airootfs'..."
         mkdir -p "${cache_dir}/${codename}/airootfs"
-        dnf install dnf --releasever=32=${codename} --installroot="${cache_dir}/${codename}/airootfs"  -y
+        dnf install dnf --releasever=${codename} --installroot="${cache_dir}/${codename}/airootfs"  -y
         _msg_info "${codename} installed successfully!"
         dnf_status "Done"
     fi
