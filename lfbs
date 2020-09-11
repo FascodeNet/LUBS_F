@@ -230,7 +230,7 @@ make_basefs() {
     remove "${work_dir}/${codename}"
     _msg_info "Installing Fedora to '${work_dir}/${codename}/airootfs'..."
     mkdir -p "${work_dir}/${codename}/airootfs"
-    dnf groupinstall core --releasever=${codename} --nogpgcheck --installroot="${work_dir}/${codename}/airootfs"  -y
+    dnf --installroot="${work_dir}/${codename}/airootfs" $(${script_path}/system/repository-json-parser.py ${script_path}/system/repository.json) groupinstall core -y
     _msg_info "${codename} installed successfully!"
     
     echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}' >> "${work_dir}/airootfs/etc/bash.bashrc"

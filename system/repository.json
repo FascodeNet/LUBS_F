@@ -1,0 +1,8 @@
+{
+    "repo":[
+        {
+            "name":"centos",
+            "url":"http://mirror.centos.org/centos/8.2.2004/BaseOS/x86_64/os/"
+        }
+    ]
+}
