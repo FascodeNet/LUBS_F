@@ -15,8 +15,6 @@ set -e
 export LANG=C
 
 script_path=$(readlink -f "${0%/*}")
-cache_dir="${script_path}/cache"
-
 work_dir="${script_path}/work"
 channels_dir="${script_path}/channels"
 codename="32"
@@ -49,14 +47,14 @@ _msg_common() {
         _time="$(("${_current_time}"-"${start_time}"))"
 
         if [[ "${_time}" -ge 3600 ]]; then
-            echo "[$(date -d @${_time} +%H:%M.%S)]$("${script_path}/echo_color" -t 6 "[LUBS Core]")"
+            echo "[$(date -d @${_time} +%H:%M.%S)]$("${script_path}/echo_color" -t 6 "[LFBS Core]")"
         elif [[ "${_time}" -ge 60 ]]; then
-            echo "[00:$(date -d @${_time} +%M.%S)]$("${script_path}/echo_color" -t 6 "[LUBS Core]")"
+            echo "[00:$(date -d @${_time} +%M.%S)]$("${script_path}/echo_color" -t 6 "[LFBS Core]")"
         else
-            echo "[00:00.$(date -d @${_time} +%S)] $("${script_path}/echo_color" -t 6 "[LUBS Core]")"
+            echo "[00:00.$(date -d @${_time} +%S)] $("${script_path}/echo_color" -t 6 "[LFBS Core]")"
         fi
     else
-        "${script_path}/echo_color" -t 6 "[LUBS Core]"
+        "${script_path}/echo_color" -t 6 "[LFBS Core]"
     fi
 }
 
@@ -229,35 +227,12 @@ prepare_build() {
 }
 
 make_basefs() {
-    local dnf_status
-    statusfile="${cache_dir}/${codename}/status"
-
-    dnf_status() {
-        if [[ ! -d "$(dirname ${statusfile})" ]]; then
-            mkdir -p "$(dirname ${statusfile})"
-        fi
-        echo "${1}" > "${statusfile}"
-    }
-
-    if [[ -f "${statusfile}" ]] && [[ $(cat "${statusfile}" 2> /dev/null) = "Done" ]]; then
-        _msg_info "${codename} cache is found."
-    else
-        remove "${cache_dir}/${codename}"
-        dnf_status "Running"
-        _msg_info "Installing Fedora to '${cache_dir}/${codename}/airootfs'..."
-        mkdir -p "${cache_dir}/${codename}/airootfs"
-        dnf install dnf --releasever=${codename} --installroot="${cache_dir}/${codename}/airootfs"  -y
-        _msg_info "${codename} installed successfully!"
-        dnf_status "Done"
-    fi
-
-    if [[ "${cache_only}" = true ]]; then
-        exit 0
-    fi
-
-    rm -rf "${work_dir}/airootfs" && mkdir -p "${work_dir}/airootfs"
-    _msg_info "copy base files from '${cache_dir}/${codename}/airootfs' to '${work_dir}/airootfs'..."
-    rsync  -au "${cache_dir}/${codename}/airootfs/" "${work_dir}/airootfs"
+    remove "${work_dir}/${codename}"
+    _msg_info "Installing Fedora to '${work_dir}/${codename}/airootfs'..."
+    mkdir -p "${work_dir}/${codename}/airootfs"
+    dnf install dnf --releasever=${codename} --installroot="${work_dir}/${codename}/airootfs"  -y
+    _msg_info "${codename} installed successfully!"
+    
     echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}' >> "${work_dir}/airootfs/etc/bash.bashrc"
     run_cmd dnf upgrade -y
     # run_cmd apt-get upgrade
