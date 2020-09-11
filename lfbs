@@ -262,5 +262,138 @@ make_basefs() {
     run_cmd dnf upgrade -y
     # run_cmd apt-get upgrade
 }
-make_basefs
-umount_chroot
+
+# 引数解析（）
+# 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
+
+_opt_short="w:o:ha:-:m:c:d"
+_opt_long="help,arch:,codename:,debug,help,mirror:,out:,work,cache-only"
+OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
+
+if [[ ${?} != 0 ]]; then
+    exit 1
+fi
+
+eval set -- "${OPT}"
+
+while :; do
+    case ${1} in
+        -a | --arch)
+            if [[ -z ${2} ]]; then
+                _msg_error "Please specify the architecture."
+                exit 1
+            else
+                arch="${2}"
+            fi
+            shift 2
+            ;;
+        -c | --codename)
+            if [[ -z ${2} ]]; then
+                _msg_error "Please specify the codename."
+                exit 1
+            else
+                codename="${2}"
+            fi
+            shift 2
+            ;;
+        -d | --debug)
+            debug=true
+            shift 1
+            ;;
+        -h | --help)
+            _usage
+            exit 0
+            ;;
+        -m | --mirror)
+            if [[ -z ${2} ]]; then
+                _msg_error "Please specify the mirror server."
+                exit 1
+            else
+                mirror="${2}"
+            fi
+
+            shift 2
+            ;;
+        -o | --out)
+            if [[ -z ${2} ]]; then
+                _msg_error "Please specify the out dir."
+                exit 1
+            else
+                out_dir="${2}"
+            fi
+
+            shift 2
+            ;;
+        -w | --work)
+            if [[ -z ${2} ]]; then
+                _msg_error "Please specify the out dir."
+                exit 1
+            else
+                work_dir="${2}"
+            fi
+
+            shift 2
+            ;;
+        --cache-only)
+            cache_only=true
+            shift 1
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            _msg_error "Invalid argument '${1}'"
+            _usage 1
+            ;;
+    esac
+done
+
+bootfiles_dir="${work_dir}/bootfiles"
+trap  umount_chroot 0 2 15
+
+if [[ -n "${1}" ]]; then
+    channel_name="${1}"
+
+    check_channel() {
+        local channel_list
+        local i
+        channel_list=()
+
+        for _channel in $(ls -l "${channels_dir}" | awk '$1 ~ /d/ {print $9 }'); do
+            if [[ -n $(ls "${channels_dir}/${_channel}") ]] && [[ ! "${_channel}" = "share" ]]; then
+                channel_list+=( "${_channel}" )
+            fi
+        done
+
+        for i in ${channel_list[@]}; do
+            if [[ "${i}" = "${channel_name}" ]]; then
+                echo -n "true"
+                return 0
+            fi
+        done
+
+        echo -n "false"
+        return 1
+    }
+
+    if [[ $(check_channel ${channel_name}) = false ]]; then
+        _msg_error "Invalid channel ${channel_name}"
+        exit 1
+    fi
+fi
+
+
+prepare_build
+run_once make_basefs
+run_once make_sourcelist
+run_once make_systemd
+run_once make_apt_packages
+run_once make_config
+run_once make_add_user
+run_once make_clean
+run_once make_squashfs
+run_once make_nfb
+run_once make_efi
+run_once make_iso
+run_once make_checksum
