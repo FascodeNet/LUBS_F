@@ -23,7 +23,7 @@ codename="32"
 os_name="Fedora"
 iso_name="Fedora"
 
-arch=amd64
+arch=x86_64
 
 out_dir="${script_path}/out"
 iso_label="${os_name}_${codename}_${arch}"
@@ -261,6 +261,23 @@ make_basefs() {
     echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}' >> "${work_dir}/airootfs/etc/bash.bashrc"
     run_cmd dnf upgrade -y
     # run_cmd apt-get upgrade
+}
+
+
+prepare_build() {
+    if [[ ${EUID} -ne 0 ]]; then
+        _msg_error "This script must be run as root." 1
+    fi
+
+    [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
+    [[ ! -d "${out_dir}" ]] && mkdir -p "${out_dir}"
+    umount_chroot
+
+    # Check codename
+    if [[ -z $(grep -h -v ^'#' ${channels_dir}/${channel_name}/codename.${arch} | grep -x ${codename}) ]]; then
+        _msg_error "This codename (${channel_name}) is not supported on this channel (${codename})."
+    fi
+
 }
 
 # 引数解析（）
