@@ -245,6 +245,10 @@ prepare_build() {
         _msg_error "This script must be run as root." 1
     fi
     umount_chroot_airootfs
+    # Check codename
+    if [[ -z $(grep -h -v ^'#' ${channels_dir}/${channel_name}/codename.${arch} | grep -x ${codename}) ]]; then
+        _msg_error "This codename (${channel_name}) is not supported on this channel (${codename})."
+    fi
     if [[ -d "${work_dir}/squashfsroot/LiveOS/" ]]; then
         mkdir -p "${work_dir}/squashfsroot/LiveOS/"
         mkdir -p "${work_dir}/airootfs/"
@@ -252,10 +256,6 @@ prepare_build() {
         mkfs.ext4 -F "${work_dir}/squashfsroot/LiveOS/rootfs.img"
     fi
     mount -o loop,rw,sync "${work_dir}/squashfsroot/LiveOS/rootfs.img" "${work_dir}/airootfs"
-    # Check codename
-    if [[ -z $(grep -h -v ^'#' ${channels_dir}/${channel_name}/codename.${arch} | grep -x ${codename}) ]]; then
-        _msg_error "This codename (${channel_name}) is not supported on this channel (${codename})."
-    fi
 
 }
 
