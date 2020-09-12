@@ -250,6 +250,8 @@ prepare_build() {
         _msg_error "This codename (${channel_name}) is not supported on this channel (${codename})."
     fi
     if [[ -d "${work_dir}/squashfsroot/LiveOS/" ]]; then
+        :
+    else
         mkdir -p "${work_dir}/squashfsroot/LiveOS/"
         mkdir -p "${work_dir}/airootfs/"
         truncate -s 4G "${work_dir}/squashfsroot/LiveOS/rootfs.img"
