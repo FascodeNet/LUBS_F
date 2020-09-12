@@ -103,6 +103,15 @@ umount_chroot () {
     done
 }
 
+# Unmount chroot dir and airootfs
+umount_chroot_airootfs () {
+    local mount
+
+    for mount in $(mount | awk '{print $3}' | grep "$(realpath "${work_dir}")" | sort -r); do
+        _msg_info "Unmounting ${mount}"
+        umount -fl "${mount}"
+    done
+}
 # Helper function to run make_*() only one time.
 run_once() {
     local name
@@ -453,8 +462,7 @@ if [[ -n "${1}" ]]; then
         exit 1
     fi
 fi
-
-umount -f "${work_dir}/airootfs"
+umount_chroot_airootfs
 
 prepare_build
 run_once make_basefs
