@@ -235,6 +235,8 @@ make_basefs() {
     
     echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}' > "${work_dir}/airootfs/etc/bash.bashrc"
     run_cmd dnf upgrade -y
+    run_cmd dnf -y remove $(run_cmd dnf repoquery --installonly --latest-limit=-1 -q)
+    run_cmd dnf clean all
     # run_cmd apt-get upgrade
 }
 
@@ -262,23 +264,23 @@ make_systemd() {
     run_cmd ln -sf /etc/machine-id /var/lib/dbus/machine-id
 }
 make_dnf_packages() {
-    remove "${work_dir}/airootfs/aptpkglist"
-    dnf initramfs-tools
-    run_cmd env -i bash -c 'DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade --yes'
+    remove "${work_dir}/airootfs/dnfpkglist"
+    #_apt_install initramfs-tools
+    # run_cmd env -i bash -c 'DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade --yes'
 
     if [[ -f "${channels_dir}/share/packages.${arch}" ]]; then
-        grep -h -v ^'#' "${channels_dir}/share/packages.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/aptpkglist"
+        grep -h -v ^'#' "${channels_dir}/share/packages.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfpkglist"
     fi
 
     if [[ -f "${channels_dir}/${channel_name}/packages.${arch}" ]]; then
-        grep -h -v ^'#' "${channels_dir}/${channel_name}/packages.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/aptpkglist"
+        grep -h -v ^'#' "${channels_dir}/${channel_name}/packages.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfpkglist"
     fi
 
-    if [[ -s "${work_dir}/airootfs/aptpkglist" ]]; then
-        run_cmd env -i bash -c 'DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends --yes install $(echo $(<aptpkglist))'
+    if [[ -s "${work_dir}/airootfs/dnfpkglist" ]]; then
+        run_cmd env -i bash -c 'dnf -y --nogpgcheck install $(echo $(<dnfpkglist))'
     fi
 
-    remove "${work_dir}/airootfs/aptpkglist"
+    remove "${work_dir}/airootfs/dnfpkglist"
 }
 
 # 引数解析（）
