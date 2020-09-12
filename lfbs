@@ -291,15 +291,29 @@ make_cp_airootfs() {
 }
 
 make_config() {
-    run_cmd truncate -s 0 /etc/machine-id
     if [ -f ${work_dir}/airootfs/root/customize_airootfs.sh ]; then
         run_cmd /root/customize_airootfs.sh
     fi
+    run_cmd truncate -s 0 /etc/machine-id
 }
 make_clean() {
     run_cmd dnf -y remove $(run_cmd dnf repoquery --installonly --latest-limit=-1 -q)
     run_cmd dnf clean all
 }
+
+make_squashfs() {
+    # prepare
+    [[ -d "${bootfiles_dir}" ]] && rm -r "${bootfiles_dir}"
+    mkdir -p "${bootfiles_dir}"/{isolinux,fedora,boot}
+
+    #generate initrd
+    run_cmd dracut --xz --add "dmsquash-live convertfs pollcdrom" --omit plymouth --no-hostonly --no-early-microcode /boot/initrd0 `run_cmd ls /lib/modules`
+    cp ${work_dir}/airootfs/boot/vmlinuz-$(run_cmd ls /lib/modules) ${bootfiles_dir}/boot/vmlinuz
+    mv ${work_dir}/airootfs/boot/initrd0 ${bootfiles_dir}/boot/initrd
+    # make squashfs
+    mksquashfs "${work_dir}/airootfs" "${bootfiles_dir}/fedora/airootfs.sfs"
+}
+
 # 引数解析（）
 # 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
 

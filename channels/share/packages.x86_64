@@ -1,2 +1,6 @@
 # base
 kernel
+squashfs-tools
+dump
+isomd5sum
+dracut-live
