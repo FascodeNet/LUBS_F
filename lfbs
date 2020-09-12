@@ -324,7 +324,7 @@ make_squashfs() {
 
 make_nfb() {
     touch "${bootfiles_dir}/fedora_lfbs"
-    sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/grub.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" | "${bootfiles_dir}/isolinux/grub.cfg"
+    sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/grub.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" > "${bootfiles_dir}/grub/grub.cfg"
 }
 # 引数解析（）
 # 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
