@@ -117,13 +117,13 @@ run_once() {
 run_cmd() {
     local mount
 
-    #for mount in "dev" "dev/pts" "proc" "sys" "run/systemd/resolve/stub-resolv.conf"; do
-    for mount in "dev" "dev/pts" "proc" "sys" ; do
-        #if [[ "${mount}" == "run/systemd/resolve/stub-resolv.conf" ]]; then
-        #    mount --bind /etc/resolv.conf "${work_dir}/airootfs/${mount}"
-        #else
+    for mount in "dev" "dev/pts" "proc" "sys" "etc/resolv.conf"; do
+    #for mount in "dev" "dev/pts" "proc" "sys" ; do
+        if [[ "${mount}" == "etc/resolv.conf" ]]; then
+            mount --bind /etc/resolv.conf "${work_dir}/airootfs/${mount}"
+        else
             mount --bind /${mount} "${work_dir}/airootfs/${mount}"
-        #fi
+        fi
     done
     
     chroot "${work_dir}/airootfs" "${@}"
@@ -228,12 +228,12 @@ prepare_build() {
 
 make_basefs() {
     remove "${work_dir}/${codename}"
-    _msg_info "Installing Fedora to '${work_dir}/${codename}/airootfs'..."
-    mkdir -p "${work_dir}/${codename}/airootfs"
-    dnf --installroot="${work_dir}/${codename}/airootfs" $(${script_path}/system/repository-json-parser.py ${script_path}/system/repository.json) groupinstall core -y
+    _msg_info "Installing Fedora to '${work_dir}/airootfs'..."
+    mkdir -p "${work_dir}/airootfs"
+    dnf --installroot="${work_dir}/airootfs" $(${script_path}/system/repository-json-parser.py ${script_path}/system/repository.json) groupinstall core -y
     _msg_info "${codename} installed successfully!"
     
-    echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}' >> "${work_dir}/airootfs/etc/bash.bashrc"
+    echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}' > "${work_dir}/airootfs/etc/bash.bashrc"
     run_cmd dnf upgrade -y
     # run_cmd apt-get upgrade
 }
@@ -255,6 +255,11 @@ prepare_build() {
 
 }
 
+make_systemd() {
+    _dnf_install dbus-tools
+    run_cmd dbus-uuidgen --ensure=/etc/machine-id
+    run_cmd ln -sf /etc/machine-id /var/lib/dbus/machine-id
+}
 # 引数解析（）
 # 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
 
@@ -378,7 +383,6 @@ fi
 
 prepare_build
 run_once make_basefs
-run_once make_sourcelist
 run_once make_systemd
 run_once make_apt_packages
 run_once make_config
