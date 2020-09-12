@@ -94,8 +94,12 @@ umount_chroot () {
     local mount
 
     for mount in $(mount | awk '{print $3}' | grep "$(realpath "${work_dir}")" | sort -r); do
-        _msg_info "Unmounting ${mount}"
-        umount -fl "${mount}"
+        if [[ "${mount}" == "${work_dir}/airootfs" ]]; then
+            :
+        else
+            _msg_info "Unmounting ${mount}"
+            umount -fl "${mount}"
+        fi
     done
 }
 
@@ -128,7 +132,11 @@ run_cmd() {
     chroot "${work_dir}/airootfs" "${@}"
 
     for mount in $(mount | awk '{print $3}' | grep "$(realpath "${work_dir}")" | sort -r); do
-        umount -fl "${mount}"
+        if [[ "${mount}" == "${work_dir}/airootfs" ]]; then
+            :
+        else
+            umount -fl "${mount}"
+        fi
     done
 }
 
@@ -446,6 +454,7 @@ if [[ -n "${1}" ]]; then
     fi
 fi
 
+umount -f "${work_dir}/airootfs"
 
 prepare_build
 run_once make_basefs
