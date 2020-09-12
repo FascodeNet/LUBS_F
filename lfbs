@@ -17,6 +17,7 @@ export LANG=C
 script_path=$(readlink -f "${0%/*}")
 work_dir="${script_path}/work"
 channels_dir="${script_path}/channels"
+nfb_dir="${script_path}/nfb"
 codename="32"
 os_name="Fedora"
 iso_name="Fedora"
@@ -243,11 +244,17 @@ prepare_build() {
     if [[ ${EUID} -ne 0 ]]; then
         _msg_error "This script must be run as root." 1
     fi
-
+    umount_chroot
+    rm -rf ${work_dir}
     [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
     [[ ! -d "${out_dir}" ]] && mkdir -p "${out_dir}"
     umount_chroot
-
+    
+    mkdir -p "${work_dir}/squashfsroot/LiveOS/"
+    mkdir -p "${work_dir}/airootfs/"
+    truncate -s 4G "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+    mkfs.ext4 -F "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+    mount -o loop,rw,sync "${work_dir}/squashfsroot/LiveOS/rootfs.img" "${work_dir}/airootfs"
     # Check codename
     if [[ -z $(grep -h -v ^'#' ${channels_dir}/${channel_name}/codename.${arch} | grep -x ${codename}) ]]; then
         _msg_error "This codename (${channel_name}) is not supported on this channel (${codename})."
@@ -304,16 +311,21 @@ make_clean() {
 make_squashfs() {
     # prepare
     [[ -d "${bootfiles_dir}" ]] && rm -r "${bootfiles_dir}"
-    mkdir -p "${bootfiles_dir}"/{isolinux,fedora,boot}
-
+    mkdir -p "${bootfiles_dir}"/{grub,LiveOS,boot}
     #generate initrd
     run_cmd dracut --xz --add "dmsquash-live convertfs pollcdrom" --omit plymouth --no-hostonly --no-early-microcode /boot/initrd0 `run_cmd ls /lib/modules`
     cp ${work_dir}/airootfs/boot/vmlinuz-$(run_cmd ls /lib/modules) ${bootfiles_dir}/boot/vmlinuz
     mv ${work_dir}/airootfs/boot/initrd0 ${bootfiles_dir}/boot/initrd
     # make squashfs
-    mksquashfs "${work_dir}/airootfs" "${bootfiles_dir}/fedora/airootfs.sfs"
+    rm -rf "${work_dir}/airootfs/boot"
+    umount "${work_dir}/airootfs"
+    resize2fs -M "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+    mksquashfs "${work_dir}/squashfsroot/" "${bootfiles_dir}/LiveOS/squashfs.img"
 }
 
+make_nfb() {
+    touch "${bootfiles_dir}/fedora_lfbs"
+}
 # 引数解析（）
 # 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
 
