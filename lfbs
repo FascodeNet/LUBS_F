@@ -226,26 +226,9 @@ _usage () {
 }
 
 
-prepare_build() {
-    if [[ ${EUID} -ne 0 ]]; then
-        _msg_error "This script must be run as root." 1
-    fi
-
-    [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
-    [[ ! -d "${out_dir}" ]] && mkdir -p "${out_dir}"
-    umount_chroot
-
-    # Check codename
-    if [[ -z $(grep -h -v ^'#' ${channels_dir}/${channel_name}/codename.${arch} | grep -x ${codename}) ]]; then
-        _msg_error "This codename (${channel_name}) is not supported on this channel (${codename})."
-    fi
-
-}
 
 make_basefs() {
-    remove "${work_dir}/${codename}"
     _msg_info "Installing Fedora to '${work_dir}/airootfs'..."
-    mkdir -p "${work_dir}/airootfs"
     dnf --installroot="${work_dir}/airootfs" $(${script_path}/system/repository-json-parser.py ${script_path}/system/repository.json) groupinstall core -y
     _msg_info "${codename} installed successfully!"
     
@@ -261,16 +244,13 @@ prepare_build() {
     if [[ ${EUID} -ne 0 ]]; then
         _msg_error "This script must be run as root." 1
     fi
-    umount_chroot
-    rm -rf ${work_dir}
-    [[ ! -d "${work_dir}" ]] && mkdir -p "${work_dir}"
-    [[ ! -d "${out_dir}" ]] && mkdir -p "${out_dir}"
-    umount_chroot
-    
-    mkdir -p "${work_dir}/squashfsroot/LiveOS/"
-    mkdir -p "${work_dir}/airootfs/"
-    truncate -s 4G "${work_dir}/squashfsroot/LiveOS/rootfs.img"
-    mkfs.ext4 -F "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+    umount_chroot_airootfs
+    if [[ -d "${work_dir}/squashfsroot/LiveOS/" ]]; then
+        mkdir -p "${work_dir}/squashfsroot/LiveOS/"
+        mkdir -p "${work_dir}/airootfs/"
+        truncate -s 4G "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+        mkfs.ext4 -F "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+    fi
     mount -o loop,rw,sync "${work_dir}/squashfsroot/LiveOS/rootfs.img" "${work_dir}/airootfs"
     # Check codename
     if [[ -z $(grep -h -v ^'#' ${channels_dir}/${channel_name}/codename.${arch} | grep -x ${codename}) ]]; then
@@ -342,6 +322,7 @@ make_squashfs() {
 
 make_nfb() {
     touch "${bootfiles_dir}/fedora_lfbs"
+    sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/grub.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" | "${bootfiles_dir}/isolinux/grub.cfg"
 }
 # 引数解析（）
 # 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
