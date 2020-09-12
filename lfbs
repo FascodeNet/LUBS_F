@@ -30,8 +30,6 @@ iso_application="${os_name} Live/Rescue CD"
 iso_version="${codename}-$(date +%Y.%m.%d)"
 iso_filename="${iso_name}-${iso_version}-${arch}.iso"
 
-username="liveuser"
-usershell="/bin/bash"
 
 debug=false
 cache_only=false
@@ -283,6 +281,21 @@ make_dnf_packages() {
     remove "${work_dir}/airootfs/dnfpkglist"
 }
 
+make_cp_airootfs() {
+    if [ -d ${channels_dir}/share/airootfs ]; then
+        cp -rf ${channels_dir}/share/airootfs/ ${work_dir}
+    fi
+    if [ -d ${channels_dir}/${channel_name}/airootfs ]; then
+        cp -rf ${channels_dir}/${channel_name}/airootfs/ ${work_dir}
+    fi
+}
+
+make_config() {
+    run_cmd truncate -s 0 /etc/machine-id
+    if [ -f ${work_dir}/airootfs/root/customize_airootfs.sh ]; then
+        run_cmd /root/customize_airootfs.sh
+    fi
+}
 # 引数解析（）
 # 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
 
@@ -408,6 +421,7 @@ prepare_build
 run_once make_basefs
 run_once make_systemd
 run_once make_dnf_packages
+run_once make_cp_airootfs
 run_once make_config
 run_once make_add_user
 run_once make_clean
