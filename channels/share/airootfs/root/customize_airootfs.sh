@@ -6,6 +6,26 @@ password=fedora
 username=fedora
 usershell="/bin/bash"
 
+# Creating a root user.
+# usermod -s /usr/bin/zsh root
+function user_check () {
+if [[ $(getent passwd $1 > /dev/null ; printf $?) = 0 ]]; then
+    if [[ -z $1 ]]; then
+        echo -n "false"
+    fi
+    echo -n "true"
+else
+    echo -n "false"
+fi
+}
+
+usermod -s "${usershell}" root
+cp -aT /etc/skel/ /root/
+echo -e "${password}\n${password}" | passwd root
+
+# Allow sudo group to run sudo
+sed -i 's/^#\s*\(%sudo\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
+
 function create_user () {
     local _password
     local _username
