@@ -296,6 +296,10 @@ make_config() {
         run_cmd /root/customize_airootfs.sh
     fi
 }
+make_clean() {
+    run_cmd dnf -y remove $(run_cmd dnf repoquery --installonly --latest-limit=-1 -q)
+    run_cmd dnf clean all
+}
 # 引数解析（）
 # 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
 
@@ -423,7 +427,6 @@ run_once make_systemd
 run_once make_dnf_packages
 run_once make_cp_airootfs
 run_once make_config
-run_once make_add_user
 run_once make_clean
 run_once make_squashfs
 run_once make_nfb

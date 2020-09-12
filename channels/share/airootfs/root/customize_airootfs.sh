@@ -19,10 +19,8 @@ else
 fi
 }
 
-usermod -s "${usershell}" root
+#usermod -s "${usershell}" root
 cp -aT /etc/skel/ /root/
-echo -e "${password}\n${password}" | passwd root
-
 # Allow sudo group to run sudo
 sed -i 's/^#\s*\(%sudo\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
 
@@ -46,15 +44,15 @@ function create_user () {
 
     if [[ $(user_check ${_username}) = false ]]; then
         useradd -m -s ${usershell} ${_username}
+        #echo ${_password} | passwd --stdin ${_username}
         groupadd sudo
-        usermod -U -g ${_username} ${_username}
+        usermod -g ${_username} ${_username}
         usermod -aG sudo ${_username}
-        usermod -aG storage ${_username}
+        #usermod -aG storage ${_username}
         cp -aT /etc/skel/ /home/${_username}/
     fi
     chmod 700 -R /home/${_username}
     chown ${_username}:${_username} -R /home/${_username}
-    echo -e "${_password}\n${_password}" | passwd ${_username}
     set -u
 }
 
