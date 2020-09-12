@@ -120,7 +120,7 @@ run_cmd() {
     for mount in "dev" "dev/pts" "proc" "sys" "etc/resolv.conf"; do
     #for mount in "dev" "dev/pts" "proc" "sys" ; do
         if [[ "${mount}" == "etc/resolv.conf" ]]; then
-            mount --bind /etc/resolv.conf "${work_dir}/airootfs/${mount}"
+            cp /etc/resolv.conf "${work_dir}/airootfs/${mount}"
         else
             mount --bind /${mount} "${work_dir}/airootfs/${mount}"
         fi
@@ -258,6 +258,7 @@ prepare_build() {
 make_systemd() {
     _dnf_install dbus-tools
     run_cmd dbus-uuidgen --ensure=/etc/machine-id
+    run_cmd mkdir /var/lib/dbus
     run_cmd ln -sf /etc/machine-id /var/lib/dbus/machine-id
 }
 # 引数解析（）
