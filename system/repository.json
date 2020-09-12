@@ -1,8 +1,8 @@
 {
     "repo":[
         {
-            "name":"centos",
-            "url":"http://mirror.centos.org/centos/8.2.2004/BaseOS/x86_64/os/"
+            "name":"fedora-core",
+            "url":"https://ftp.yz.yamagata-u.ac.jp/pub/linux/fedora-projects/fedora/linux/releases/32/Everything/x86_64/os/"
         }
     ]
 }
