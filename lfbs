@@ -326,6 +326,34 @@ make_nfb() {
     touch "${bootfiles_dir}/fedora_lfbs"
     sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/grub.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" > "${bootfiles_dir}/grub/grub.cfg"
 }
+make_efi() {
+    # UEFI 32bit (ia32)
+    grub-mkstandalone \
+        --format=i386-efi \
+        --output="${bootfiles_dir}/grub/bootia32.efi" \
+        --locales="" \
+        --fonts="" \
+        "boot/grub/grub.cfg=${bootfiles_dir}/grub/grub.cfg"
+    
+    # UEFI 64bit (x64)
+    grub-mkstandalone \
+        --format=x86_64-efi \
+        --output="${bootfiles_dir}/grub/bootx64.efi" \
+        --locales="" \
+        --fonts="" \
+        "boot/grub/grub.cfg=${bootfiles_dir}/grub/grub.cfg"
+
+    # create efiboot.img
+    truncate -s 10M "${bootfiles_dir}/grub/efiboot.img"
+    mkfs.fat -F 16 -f 1 -r 112 "${bootfiles_dir}/grub/efiboot.img"
+    mkdir "${bootfiles_dir}/mnt"
+    mount "${bootfiles_dir}/grub/efiboot.img" "${bootfiles_dir}/mnt"
+    mkdir -p "${bootfiles_dir}/mnt/efi/boot"
+    cp "${bootfiles_dir}/grub/bootia32.efi" "${bootfiles_dir}/mnt/efi/boot"
+    cp "${bootfiles_dir}/grub/bootx64.efi" "${bootfiles_dir}/mnt/efi/boot"
+    umount -d "${bootfiles_dir}/mnt"
+    rm -r "${bootfiles_dir}/mnt"
+}
 # 引数解析（）
 # 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
 
