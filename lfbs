@@ -344,7 +344,7 @@ make_efi() {
         "boot/grub/grub.cfg=${bootfiles_dir}/grub/grub.cfg"
 
     # create efiboot.img
-    truncate -s 10M "${bootfiles_dir}/grub/efiboot.img"
+    truncate -s 200M "${bootfiles_dir}/grub/efiboot.img"
     mkfs.fat -F 16 -f 1 -r 112 "${bootfiles_dir}/grub/efiboot.img"
     mkdir "${bootfiles_dir}/mnt"
     mount "${bootfiles_dir}/grub/efiboot.img" "${bootfiles_dir}/mnt"
@@ -352,6 +352,7 @@ make_efi() {
     cp "${bootfiles_dir}/grub/bootia32.efi" "${bootfiles_dir}/mnt/efi/boot"
     cp "${bootfiles_dir}/grub/bootx64.efi" "${bootfiles_dir}/mnt/efi/boot"
     umount -d "${bootfiles_dir}/mnt"
+    resize2fs -M "${bootfiles_dir}/grub/efiboot.img"
     rm -r "${bootfiles_dir}/mnt"
 }
 # 引数解析（）
