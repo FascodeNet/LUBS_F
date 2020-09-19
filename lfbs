@@ -325,9 +325,9 @@ make_squashfs() {
     cp ${work_dir}/airootfs/boot/vmlinuz-$(run_cmd ls /lib/modules) ${bootfiles_dir}/boot/vmlinuz
     mv ${work_dir}/airootfs/boot/initrd0 ${bootfiles_dir}/boot/initrd
     #cp isolinux
-    cp "${work_dir}"/airootfs/usr/lib/syslinux/modules/bios/*.c32 "${bootfiles_dir}/isolinux/"
-    cp "${work_dir}/airootfs/usr/lib/ISOLINUX/isolinux.bin" "${bootfiles_dir}/isolinux/"
-    cp "${work_dir}/airootfs/usr/lib/ISOLINUX/isohdpfx.bin" "${bootfiles_dir}/isolinux/"
+    cp "${work_dir}/airootfs/usr/share/syslinux/ldlinux.c32" "${bootfiles_dir}/isolinux/"
+    cp "${work_dir}/airootfs/usr/share/syslinux/isolinux.bin" "${bootfiles_dir}/isolinux/"
+    cp "${work_dir}/airootfs/usr/share/syslinux/isohdpfx.bin" "${bootfiles_dir}/isolinux/"
     # make squashfs
     rm -rf "${work_dir}/airootfs/boot"
     umount "${work_dir}/airootfs"

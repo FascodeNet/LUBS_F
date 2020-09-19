@@ -67,8 +67,6 @@ run_image_using_bios() {
         -k en \
         -name archiso,process=archiso_0 \
         -drive file="${image}",media=cdrom,readonly=on,if=virtio \
-        -display sdl \
-        -vga virtio \
         -device virtio-net-pci,netdev=net0 -netdev user,id=net0 \
         -enable-kvm \
         -no-reboot
