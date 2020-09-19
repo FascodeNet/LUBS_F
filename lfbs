@@ -393,6 +393,7 @@ make_iso() {
             -eltorito-platform efi \
             -eltorito-boot EFI/efiboot.img \
             -no-emul-boot \
+        -isohybrid-mbr "${bootfiles_dir}/isolinux/isohdpfx.bin" \
         -isohybrid-gpt-basdat \
         -eltorito-catalog isolinux/boot.cat \
         -output "${out_dir}/${iso_filename}" \
