@@ -60,8 +60,8 @@ create_user "${username}" "${password}"
 
 
 # Set up auto login
-if [[ -f /etc/systemd/system/getty@tty1.service.d/autologin.conf ]]; then
-    sed -i s/%USERNAME%/"${username}"/g /etc/systemd/system/getty@tty1.service.d/autologin.conf
+if [[ -f /etc/systemd/system/getty@tty1.service.d/override.conf ]]; then
+    sed -i s/%USERNAME%/"${username}"/g /etc/systemd/system/getty@tty1.service.d/override.conf
 fi
 
 # Set to execute calamares without password as alter user.

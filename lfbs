@@ -233,7 +233,7 @@ make_basefs() {
     _msg_info "${codename} installed successfully!"
     
     echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}' > "${work_dir}/airootfs/etc/bash.bashrc"
-    run_cmd dnf upgrade -y
+    run_cmd dnf update -y
     run_cmd dnf -y remove $(run_cmd dnf repoquery --installonly --latest-limit=-1 -q)
     run_cmd dnf clean all
     # run_cmd apt-get upgrade
@@ -254,9 +254,12 @@ prepare_build() {
     else
         mkdir -p "${work_dir}/squashfsroot/LiveOS/"
         mkdir -p "${work_dir}/airootfs/"
+        _msg_info "Make rootfs image..."
         truncate -s 4G "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+        _msg_info "Format rootfs image..."
         mkfs.ext4 -F "${work_dir}/squashfsroot/LiveOS/rootfs.img"
     fi
+    _msg_info "Mount rootfs image..."
     mount -o loop,rw,sync "${work_dir}/squashfsroot/LiveOS/rootfs.img" "${work_dir}/airootfs"
 
 }
@@ -312,13 +315,16 @@ make_squashfs() {
     [[ -d "${bootfiles_dir}" ]] && rm -r "${bootfiles_dir}"
     mkdir -p "${bootfiles_dir}"/{grub,LiveOS,boot}
     #generate initrd
+    _msg_info "make initrd..."
     run_cmd dracut --xz --add "dmsquash-live convertfs pollcdrom" --omit plymouth --no-hostonly --no-early-microcode /boot/initrd0 `run_cmd ls /lib/modules`
     cp ${work_dir}/airootfs/boot/vmlinuz-$(run_cmd ls /lib/modules) ${bootfiles_dir}/boot/vmlinuz
     mv ${work_dir}/airootfs/boot/initrd0 ${bootfiles_dir}/boot/initrd
     # make squashfs
     rm -rf "${work_dir}/airootfs/boot"
     umount "${work_dir}/airootfs"
+    _msg_info "Minimize rootfs..."
     resize2fs -M "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+    _msg_info "Compress rootfs.."
     mksquashfs "${work_dir}/squashfsroot/" "${bootfiles_dir}/LiveOS/squashfs.img"
 }
 
