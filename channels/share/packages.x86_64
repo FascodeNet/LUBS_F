@@ -4,5 +4,5 @@ squashfs-tools
 dump
 isomd5sum
 dracut-live
-#syslinux
+# syslinux
 syslinux
