@@ -304,6 +304,7 @@ make_config() {
         run_cmd /root/customize_airootfs.sh
     fi
     run_cmd truncate -s 0 /etc/machine-id
+    run_cmd passwd -u -f root
 }
 make_clean() {
     run_cmd dnf -y remove $(run_cmd dnf repoquery --installonly --latest-limit=-1 -q)
