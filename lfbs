@@ -385,7 +385,7 @@ make_iso() {
         -appid "${iso_application}" \
         -publisher "${iso_publisher}" \
         -preparer "prepared by LFBS" \
-        -eltorito-boot isolinux/isolinux.bin \
+        -b isolinux/isolinux.bin \
             -no-emul-boot \
             -boot-load-size 4 \
             -boot-info-table \
