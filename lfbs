@@ -235,7 +235,6 @@ make_basefs() {
     echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}' > "${work_dir}/airootfs/etc/bash.bashrc"
     run_cmd dnf update -y
     run_cmd dnf -y remove $(run_cmd dnf repoquery --installonly --latest-limit=-1 -q)
-    run_cmd dnf clean all
     # run_cmd apt-get upgrade
 }
 
