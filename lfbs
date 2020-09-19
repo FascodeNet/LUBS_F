@@ -12,7 +12,7 @@
 set -e
 # set -u
 
-export LANG=C
+#export LANG=C
 
 script_path=$(readlink -f "${0%/*}")
 work_dir="${script_path}/work"
@@ -319,7 +319,7 @@ make_clean() {
 make_squashfs() {
     # prepare
     [[ -d "${bootfiles_dir}" ]] && rm -r "${bootfiles_dir}"
-    mkdir -p "${bootfiles_dir}"/{grub,LiveOS,boot}
+    mkdir -p "${bootfiles_dir}"/{grub,LiveOS,boot,isolinux}
     #generate initrd
     _msg_info "make initrd..."
     run_cmd dracut --xz --add "dmsquash-live convertfs pollcdrom" --omit plymouth --no-hostonly --no-early-microcode /boot/initrd0 `run_cmd ls /lib/modules`
@@ -336,6 +336,12 @@ make_squashfs() {
 
 make_nfb() {
     touch "${bootfiles_dir}/fedora_lfbs"
+    # isolinux setup
+    cp "${work_dir}"/airootfs/usr/lib/syslinux/modules/bios/*.c32 "${bootfiles_dir}/isolinux/"
+    cp "${work_dir}/airootfs/usr/lib/ISOLINUX/isolinux.bin" "${bootfiles_dir}/isolinux/"
+    cp "${work_dir}/airootfs/usr/lib/ISOLINUX/isohdpfx.bin" "${bootfiles_dir}/isolinux/"
+    sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/isolinux.cfg" | sed "s|%CD_LABEL%|${iso_label}|g"  > "${bootfiles_dir}/isolinux/isolinux.cfg"
+    #grub
     sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/grub.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" > "${bootfiles_dir}/grub/grub.cfg"
 }
 make_efi() {
@@ -381,14 +387,21 @@ make_iso() {
         -appid "${iso_application}" \
         -publisher "${iso_publisher}" \
         -preparer "prepared by LFBS" \
+        -eltorito-boot isolinux/isolinux.bin \
+            -no-emul-boot \
+            -boot-load-size 4 \
+            -boot-info-table \
         -eltorito-alt-boot \
             -eltorito-platform efi \
             -eltorito-boot EFI/efiboot.img \
             -no-emul-boot \
+        -isohybrid-mbr "${bootfiles_dir}/isolinux/isohdpfx.bin" \
         -isohybrid-gpt-basdat \
+        -eltorito-catalog isolinux/boot.cat \
         -output "${out_dir}/${iso_filename}" \
         -graft-points \
             "." \
+            "/isolinux/isolinux.bin=isolinux/isolinux.bin" \
             "/EFI/efiboot.img=grub/efiboot.img"
     
     cd - > /dev/null
