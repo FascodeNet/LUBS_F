@@ -325,6 +325,10 @@ make_squashfs() {
     run_cmd dracut --xz --add "dmsquash-live convertfs pollcdrom" --omit plymouth --no-hostonly --no-early-microcode /boot/initrd0 `run_cmd ls /lib/modules`
     cp ${work_dir}/airootfs/boot/vmlinuz-$(run_cmd ls /lib/modules) ${bootfiles_dir}/boot/vmlinuz
     mv ${work_dir}/airootfs/boot/initrd0 ${bootfiles_dir}/boot/initrd
+    #cp isolinux
+    cp "${work_dir}"/airootfs/usr/lib/syslinux/modules/bios/*.c32 "${bootfiles_dir}/isolinux/"
+    cp "${work_dir}/airootfs/usr/lib/ISOLINUX/isolinux.bin" "${bootfiles_dir}/isolinux/"
+    cp "${work_dir}/airootfs/usr/lib/ISOLINUX/isohdpfx.bin" "${bootfiles_dir}/isolinux/"
     # make squashfs
     rm -rf "${work_dir}/airootfs/boot"
     umount "${work_dir}/airootfs"
@@ -337,9 +341,6 @@ make_squashfs() {
 make_nfb() {
     touch "${bootfiles_dir}/fedora_lfbs"
     # isolinux setup
-    cp "${work_dir}"/airootfs/usr/lib/syslinux/modules/bios/*.c32 "${bootfiles_dir}/isolinux/"
-    cp "${work_dir}/airootfs/usr/lib/ISOLINUX/isolinux.bin" "${bootfiles_dir}/isolinux/"
-    cp "${work_dir}/airootfs/usr/lib/ISOLINUX/isohdpfx.bin" "${bootfiles_dir}/isolinux/"
     sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/isolinux.cfg" | sed "s|%CD_LABEL%|${iso_label}|g"  > "${bootfiles_dir}/isolinux/isolinux.cfg"
     #grub
     sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/grub.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" > "${bootfiles_dir}/grub/grub.cfg"
