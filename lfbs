@@ -328,6 +328,10 @@ make_squashfs() {
     cp "${work_dir}/airootfs/usr/share/syslinux/ldlinux.c32" "${bootfiles_dir}/isolinux/"
     cp "${work_dir}/airootfs/usr/share/syslinux/isolinux.bin" "${bootfiles_dir}/isolinux/"
     cp "${work_dir}/airootfs/usr/share/syslinux/isohdpfx.bin" "${bootfiles_dir}/isolinux/"
+    cp "${work_dir}/airootfs/usr/share/syslinux/vesamenu.c32" "${bootfiles_dir}/isolinux/"
+    cp "${work_dir}/airootfs/usr/share/syslinux/libcom32.c32" "${bootfiles_dir}/isolinux/"
+    cp "${work_dir}/airootfs/usr/share/syslinux/menu.c32" "${bootfiles_dir}/isolinux/"
+    cp "${work_dir}/airootfs/usr/share/syslinux/libutil.c32" "${bootfiles_dir}/isolinux/"
     # make squashfs
     rm -rf "${work_dir}/airootfs/boot"
     umount "${work_dir}/airootfs"
