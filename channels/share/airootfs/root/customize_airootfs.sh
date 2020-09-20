@@ -5,7 +5,7 @@ set -e -u
 password=fedora
 root_passwd=fedora
 username=fedora
-usershell="/usr/bin/bash"
+usershell="/usr/bin/zsh"
 export PATH=$PATH:/usr/sbin
 # Creating a root user.
 # usermod -s /usr/bin/zsh root
