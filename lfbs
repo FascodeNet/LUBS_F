@@ -495,12 +495,15 @@ trap  umount_chroot 0 2 15
 
 if [[ -n "${1}" ]]; then
     channel_name="${1}"
-
+    if [[ "${channel_name}" = "umount" ]]; then
+        umount_chroot_airootfs
+        exit 0
+    fi
     check_channel() {
         local channel_list
         local i
         channel_list=()
-
+        
         for _channel in $(ls -l "${channels_dir}" | awk '$1 ~ /d/ {print $9 }'); do
             if [[ -n $(ls "${channels_dir}/${_channel}") ]] && [[ ! "${_channel}" = "share" ]]; then
                 channel_list+=( "${_channel}" )

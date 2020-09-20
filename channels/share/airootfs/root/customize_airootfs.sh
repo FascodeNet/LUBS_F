@@ -74,6 +74,13 @@ Defaults pwfeedback
 EOF
 echo "${username} ALL=NOPASSWD: ALL" >> /etc/sudoers.d/fedoralive
 echo "root ALL=NOPASSWD: ALL" >> /etc/sudoers.d/fedoralive
+echo "#!/usr/bin/env bash" > "/etc/profile.d/alias_systemctl_setup.sh"
+echo "alias reboot=\"sudo reboot\"" >> "/etc/profile.d/alias_systemctl_setup.sh"
+echo "alias shutdown=\"sudo shutdown\"" >> "/etc/profile.d/alias_systemctl_setup.sh"
+echo "alias poweroff=\"sudo poweroff\"" >> "/etc/profile.d/alias_systemctl_setup.sh"
+echo "alias halt=\"sudo halt\"" >> "/etc/profile.d/alias_systemctl_setup.sh"
+chmod +x "/etc/profile.d/alias_systemctl_setup.sh"
+
 
 
 # Chnage sudoers permission
