@@ -328,7 +328,7 @@ make_nfb() {
 }
 make_efi() {
     # UEFI 32bit (ia32)
-    grub-mkstandalone \
+    grub2-mkstandalone \
         --format=i386-efi \
         --output="${bootfiles_dir}/grub/bootia32.efi" \
         --locales="" \
@@ -336,7 +336,7 @@ make_efi() {
         "boot/grub/grub.cfg=${bootfiles_dir}/grub/grub.cfg"
     
     # UEFI 64bit (x64)
-    grub-mkstandalone \
+    grub2-mkstandalone \
         --format=x86_64-efi \
         --output="${bootfiles_dir}/grub/bootx64.efi" \
         --locales="" \
