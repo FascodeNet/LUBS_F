@@ -404,6 +404,18 @@ make_iso() {
     
     cd - > /dev/null
 }
+
+make_checksum() {
+    cd "${out_dir}"
+    _msg_info "Creating md5 checksum ..."
+    md5sum "${iso_filename}" > "${iso_filename}.md5"
+
+    _msg_info "Creating sha256 checksum ..."
+    sha256sum "${iso_filename}" > "${iso_filename}.sha256"
+    cd - > /dev/null 2>&1
+    umount_chroot_airootfs
+}
+
 # 引数解析（）
 # 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
 
