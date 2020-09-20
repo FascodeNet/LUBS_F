@@ -499,6 +499,12 @@ if [[ -n "${1}" ]]; then
         umount_chroot_airootfs
         exit 0
     fi
+    if [[ "${channel_name}" = "clean" ]]; then
+        umount_chroot_airootfs
+        _msg_info "deleting work dir..."
+        rm -rf "${work_dir}"
+        exit 0
+    fi
     check_channel() {
         local channel_list
         local i
