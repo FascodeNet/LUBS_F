@@ -271,7 +271,11 @@ prepare_build() {
 make_systemd() {
     _dnf_install dbus-tools
     run_cmd dbus-uuidgen --ensure=/etc/machine-id
-    run_cmd mkdir /var/lib/dbus
+    if [[ -d "${work_dir}/airootfs/var/lib/dbus" ]]; then
+        :
+    else
+        run_cmd mkdir /var/lib/dbus
+    fi
     run_cmd ln -sf /etc/machine-id /var/lib/dbus/machine-id
 }
 make_dnf_packages() {
