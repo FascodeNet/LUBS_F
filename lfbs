@@ -12,7 +12,7 @@
 set -e
 # set -u
 
-export LANG=C
+#export LANG=C
 
 script_path=$(readlink -f "${0%/*}")
 work_dir="${script_path}/work"
@@ -233,9 +233,8 @@ make_basefs() {
     _msg_info "${codename} installed successfully!"
     
     echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}' > "${work_dir}/airootfs/etc/bash.bashrc"
-    run_cmd dnf upgrade -y
+    run_cmd dnf update -y
     run_cmd dnf -y remove $(run_cmd dnf repoquery --installonly --latest-limit=-1 -q)
-    run_cmd dnf clean all
     # run_cmd apt-get upgrade
 }
 
@@ -254,9 +253,17 @@ prepare_build() {
     else
         mkdir -p "${work_dir}/squashfsroot/LiveOS/"
         mkdir -p "${work_dir}/airootfs/"
+        _msg_info "Make rootfs image..."
         truncate -s 4G "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+        _msg_info "Format rootfs image..."
         mkfs.ext4 -F "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+    fi    
+    if [[ -d "${out_dir}" ]]; then
+        :
+    else
+        mkdir -p "${out_dir}"
     fi
+    _msg_info "Mount rootfs image..."
     mount -o loop,rw,sync "${work_dir}/squashfsroot/LiveOS/rootfs.img" "${work_dir}/airootfs"
 
 }
@@ -264,7 +271,11 @@ prepare_build() {
 make_systemd() {
     _dnf_install dbus-tools
     run_cmd dbus-uuidgen --ensure=/etc/machine-id
-    run_cmd mkdir /var/lib/dbus
+    if [[ -d "${work_dir}/airootfs/var/lib/dbus" ]]; then
+        :
+    else
+        run_cmd mkdir /var/lib/dbus
+    fi
     run_cmd ln -sf /etc/machine-id /var/lib/dbus/machine-id
 }
 make_dnf_packages() {
@@ -301,6 +312,7 @@ make_config() {
         run_cmd /root/customize_airootfs.sh
     fi
     run_cmd truncate -s 0 /etc/machine-id
+    run_cmd passwd -u -f root
 }
 make_clean() {
     run_cmd dnf -y remove $(run_cmd dnf repoquery --installonly --latest-limit=-1 -q)
@@ -310,20 +322,28 @@ make_clean() {
 make_squashfs() {
     # prepare
     [[ -d "${bootfiles_dir}" ]] && rm -r "${bootfiles_dir}"
-    mkdir -p "${bootfiles_dir}"/{grub,LiveOS,boot}
+    mkdir -p "${bootfiles_dir}"/{grub,LiveOS,boot,isolinux}
     #generate initrd
+    _msg_info "make initrd..."
     run_cmd dracut --xz --add "dmsquash-live convertfs pollcdrom" --omit plymouth --no-hostonly --no-early-microcode /boot/initrd0 `run_cmd ls /lib/modules`
     cp ${work_dir}/airootfs/boot/vmlinuz-$(run_cmd ls /lib/modules) ${bootfiles_dir}/boot/vmlinuz
     mv ${work_dir}/airootfs/boot/initrd0 ${bootfiles_dir}/boot/initrd
+    #cp isolinux
+    cp "${nfb_dir}"/isolinux/* "${bootfiles_dir}/isolinux/"
     # make squashfs
     rm -rf "${work_dir}/airootfs/boot"
     umount "${work_dir}/airootfs"
+    _msg_info "Minimize rootfs..."
     resize2fs -M "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+    _msg_info "Compress rootfs.."
     mksquashfs "${work_dir}/squashfsroot/" "${bootfiles_dir}/LiveOS/squashfs.img"
 }
 
 make_nfb() {
     touch "${bootfiles_dir}/fedora_lfbs"
+    # isolinux setup
+    sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/isolinux.cfg" | sed "s|%CD_LABEL%|${iso_label}|g"  > "${bootfiles_dir}/isolinux/isolinux.cfg"
+    #grub
     sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/grub.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" > "${bootfiles_dir}/grub/grub.cfg"
 }
 make_efi() {
@@ -344,7 +364,7 @@ make_efi() {
         "boot/grub/grub.cfg=${bootfiles_dir}/grub/grub.cfg"
 
     # create efiboot.img
-    truncate -s 10M "${bootfiles_dir}/grub/efiboot.img"
+    truncate -s 200M "${bootfiles_dir}/grub/efiboot.img"
     mkfs.fat -F 16 -f 1 -r 112 "${bootfiles_dir}/grub/efiboot.img"
     mkdir "${bootfiles_dir}/mnt"
     mount "${bootfiles_dir}/grub/efiboot.img" "${bootfiles_dir}/mnt"
@@ -354,6 +374,52 @@ make_efi() {
     umount -d "${bootfiles_dir}/mnt"
     rm -r "${bootfiles_dir}/mnt"
 }
+make_iso() {
+    cd "${bootfiles_dir}"
+
+    # create checksum (using at booting)
+    bash -c "(find . -type f -print0 | xargs -0 md5sum | grep -v "\./md5sum.txt" > md5sum.txt)"
+
+    # create iso
+    xorriso \
+        -as mkisofs \
+        -iso-level 3 \
+        -full-iso9660-filenames \
+        -volid "${iso_label}" \
+        -appid "${iso_application}" \
+        -publisher "${iso_publisher}" \
+        -preparer "prepared by LFBS" \
+        -b isolinux/isolinux.bin \
+            -no-emul-boot \
+            -boot-load-size 4 \
+            -boot-info-table \
+        -eltorito-alt-boot \
+            -eltorito-platform efi \
+            -eltorito-boot EFI/efiboot.img \
+            -no-emul-boot \
+        -isohybrid-mbr "${bootfiles_dir}/isolinux/isohdpfx.bin" \
+        -isohybrid-gpt-basdat \
+        -eltorito-catalog isolinux/boot.cat \
+        -output "${out_dir}/${iso_filename}" \
+        -graft-points \
+            "." \
+            "/isolinux/isolinux.bin=isolinux/isolinux.bin" \
+            "/EFI/efiboot.img=grub/efiboot.img"
+    
+    cd - > /dev/null
+}
+
+make_checksum() {
+    cd "${out_dir}"
+    _msg_info "Creating md5 checksum ..."
+    md5sum "${iso_filename}" > "${iso_filename}.md5"
+
+    _msg_info "Creating sha256 checksum ..."
+    sha256sum "${iso_filename}" > "${iso_filename}.sha256"
+    cd - > /dev/null 2>&1
+    umount_chroot_airootfs
+}
+
 # 引数解析（）
 # 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
 
@@ -445,12 +511,21 @@ trap  umount_chroot 0 2 15
 
 if [[ -n "${1}" ]]; then
     channel_name="${1}"
-
+    if [[ "${channel_name}" = "umount" ]]; then
+        umount_chroot_airootfs
+        exit 0
+    fi
+    if [[ "${channel_name}" = "clean" ]]; then
+        umount_chroot_airootfs
+        _msg_info "deleting work dir..."
+        rm -rf "${work_dir}"
+        exit 0
+    fi
     check_channel() {
         local channel_list
         local i
         channel_list=()
-
+        
         for _channel in $(ls -l "${channels_dir}" | awk '$1 ~ /d/ {print $9 }'); do
             if [[ -n $(ls "${channels_dir}/${_channel}") ]] && [[ ! "${_channel}" = "share" ]]; then
                 channel_list+=( "${_channel}" )
