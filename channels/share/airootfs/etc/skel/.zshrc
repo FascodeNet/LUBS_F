@@ -9,7 +9,6 @@
 # (c) 2019-2020 Fascode Network.
 #
 
-
 #-- Alias --#
 [[ -f .aliases ]] && source .aliases
 
