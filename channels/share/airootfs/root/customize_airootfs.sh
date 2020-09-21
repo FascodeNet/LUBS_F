@@ -87,7 +87,7 @@ create_user "${username}" "${password}"
 
 
 # Enable and generate languages.
-localectl set-locale LANG=${localegen}
+echo "LANG=${localegen}" > /etc/locale.conf
 # Setting the time zone.
 
 ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
