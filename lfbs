@@ -366,18 +366,18 @@ make_dnf_packages() {
 }
 
 make_cp_airootfs() {
-    if [ -d ${channels_dir}/share/airootfs ]; then
-        cp -rf ${channels_dir}/share/airootfs/ ${work_dir}
-    fi
-    if [ -d ${channels_dir}/share/airootfs.${locale_name} ]; then
-        cp -rf ${channels_dir}/share/airootfs.${locale_name}/ ${work_dir}
-    fi
-    if [ -d ${channels_dir}/${channel_name}/airootfs ]; then
-        cp -rf ${channels_dir}/${channel_name}/airootfs/ ${work_dir}
-    fi
-    if [ -d ${channels_dir}/${channel_name}/airootfs.${locale_name} ]; then
-        cp -rf ${channels_dir}/${channel_name}/airootfs.${locale_name}/ ${work_dir}
-    fi
+    local _copy_airootfs
+
+    _copy_airootfs() {
+        local _dir="${1%/}"
+        if [[ -d "${_dir}" ]]; then
+            cp -af "${_dir}"/* "${work_dir}/airootfs"
+        fi
+    }
+    _copy_airootfs "${channels_dir}/share/airootfs"
+    _copy_airootfs "${channels_dir}/share/airootfs.${locale_name}"
+    _copy_airootfs "${channels_dir}/${channel_name}/airootfs"
+    _copy_airootfs "${channels_dir}/${channel_name}/airootfs.${locale_name}"
 }
 
 make_config() {
