@@ -30,7 +30,9 @@ iso_publisher='Fascode Network <https://fascode.net>'
 iso_application="${os_name} Live/Rescue CD"
 iso_version="${codename}-$(date +%Y.%m.%d)"
 iso_filename="${iso_name}-${iso_version}-${arch}.iso"
-
+liveuser_name=fedora
+liveuser_password=fedora
+liveuser_shell=/usr/bin/zsh
 
 debug=false
 cache_only=false
@@ -308,8 +310,41 @@ make_cp_airootfs() {
 }
 
 make_config() {
+
+    # customize_airootfs options
+    # -b                        : Enable boot splash.
+    # -d                        : Enable debug mode.
+    # -g <locale_gen_name>      : Set locale-gen.
+    # -i <inst_dir>             : Set install dir
+    # -k <kernel config line>   : Set kernel name.
+    # -o <os name>              : Set os name.
+    # -p <password>             : Set password.
+    # -s <shell>                : Set user shell.
+    # -t                        : Set plymouth theme.
+    # -u <username>             : Set live user name.
+    # -x                        : Enable bash debug mode.
+    # -r                        : Enable rebuild.
+    # -z <locale_time>          : Set the time zone.
+    # -l <locale_name>          : Set language.
+    #
+    # -j is obsolete in AlterISO3 and cannot be used.
+    # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
+    local _airootfs_script_options
+    _airootfs_script_options="-p '${liveuser_password}' -u '${liveuser_name}' -o '${os_name}' -s '${liveuser_shell}' -a '${arch}'"
+    # X permission
+    local chmod_755
+    chmod_755() {
+        for _file in ${@}; do
+            if [[ -f "$_file" ]]; then chmod 755 "${_file}" ;fi
+        done
+    }
+    chmod_755 "${work_dir}/airootfs/root/customize_airootfs.sh" "${work_dir}/airootfs/root/customize_airootfs_${channel_name}.sh"
+
     if [ -f ${work_dir}/airootfs/root/customize_airootfs.sh ]; then
-        run_cmd /root/customize_airootfs.sh
+        run_cmd /root/customize_airootfs.sh _airootfs_script_options
+    fi
+    if [ -f ${work_dir}/airootfs/root/customize_airootfs_${channel_name}.sh ]; then
+        run_cmd /root/customize_airootfs_${channel_name}.sh _airootfs_script_options
     fi
     run_cmd truncate -s 0 /etc/machine-id
     run_cmd passwd -u -f root
