@@ -19,15 +19,5 @@ while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
         l) language="${OPTARG}" ;;
     esac
 done
-# Set up auto login
-if [[ -f /etc/systemd/system/getty@tty2.service.d/override.conf ]]; then
-    sed -i s/%USERNAME%/"${username}"/g /etc/systemd/system/getty@tty2.service.d/override.conf
-fi 
-if [[ -f /etc/systemd/system/getty@tty3.service.d/override.conf ]]; then
-    sed -i s/%USERNAME%/"${username}"/g /etc/systemd/system/getty@tty3.service.d/override.conf
-fi 
-if [[ -f /etc/systemd/system/getty@tty4.service.d/override.conf ]]; then
-    sed -i s/%USERNAME%/"${username}"/g /etc/systemd/system/getty@tty4.service.d/override.conf
-fi 
 systemctl disable lxdm.service
 systemctl enable getty@tty1.service
