@@ -37,7 +37,7 @@ while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
         d) debug=true ;;
         x) debug=true; set -xv ;;
         a) arch="${OPTARG}" ;;
-        g) localegen="${OPTARG/./\\.}\\" ;;
+        g) localegen="${OPTARG}" ;;
         z) timezone="${OPTARG}" ;;
         l) language="${OPTARG}" ;;
     esac
