@@ -20,4 +20,6 @@ while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
     esac
 done
 systemctl disable lxdm.service
-systemctl enable getty@tty1.service
+dnf remove -y lxdm
+dnf install -y lightdm lightdm-gtk
+systemctl enable lightdm.service
