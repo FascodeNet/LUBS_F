@@ -395,7 +395,7 @@ make_config() {
     # -j is obsolete in AlterISO3 and cannot be used.
     # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
     local _airootfs_script_options
-    _airootfs_script_options="-p '${liveuser_password}' -u '${liveuser_name}' -o '${os_name}' -s '${liveuser_shell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' "
+    _airootfs_script_options="-p '${liveuser_password}' -u ${liveuser_name} -o '${os_name}' -s '${liveuser_shell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' "
     # X permission
     local chmod_755
     chmod_755() {
@@ -406,10 +406,10 @@ make_config() {
     chmod_755 "${work_dir}/airootfs/root/customize_airootfs.sh" "${work_dir}/airootfs/root/customize_airootfs_${channel_name}.sh"
 
     if [ -f ${work_dir}/airootfs/root/customize_airootfs.sh ]; then
-        run_cmd /root/customize_airootfs.sh _airootfs_script_options
+        run_cmd /root/customize_airootfs.sh ${_airootfs_script_options}
     fi
     if [ -f ${work_dir}/airootfs/root/customize_airootfs_${channel_name}.sh ]; then
-        run_cmd /root/customize_airootfs_${channel_name}.sh _airootfs_script_options
+        run_cmd /root/customize_airootfs_${channel_name}.sh ${_airootfs_script_options}
     fi
     run_cmd ln -sf /usr/share/zoneinfo/${locale_time} /etc/localtime
     echo "LANG=${locale_gen_name}" > "${work_dir}/airootfs/etc/locale.conf"
