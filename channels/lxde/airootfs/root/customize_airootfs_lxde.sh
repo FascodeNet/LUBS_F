@@ -24,4 +24,3 @@ dnf remove -y lxdm
 dnf install -y lightdm lightdm-gtk
 systemctl enable lightdm.service
 sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
-
