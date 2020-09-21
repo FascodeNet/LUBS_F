@@ -411,6 +411,8 @@ make_config() {
     if [ -f ${work_dir}/airootfs/root/customize_airootfs_${channel_name}.sh ]; then
         run_cmd /root/customize_airootfs_${channel_name}.sh _airootfs_script_options
     fi
+    run_cmd ln -sf /usr/share/zoneinfo/${locale_time} /etc/localtime
+    echo "LANG=${locale_gen_name}" > "${work_dir}/airootfs/etc/locale.conf"
     run_cmd truncate -s 0 /etc/machine-id
     run_cmd passwd -u -f root
 }
