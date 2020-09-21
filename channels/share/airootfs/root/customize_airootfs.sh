@@ -87,10 +87,7 @@ create_user "${username}" "${password}"
 
 
 # Enable and generate languages.
-if [[ -f /etc/systemd/system/locale-init.service ]]; then
-    sed -i s/%LC_GEN%/${localegen}/g /etc/systemd/system/locale-init.service
-    systemctl enable locale-init.service
-fi
+echo "LANG=${localegen}" > /etc/locale.conf
 # Setting the time zone.
 
 ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
