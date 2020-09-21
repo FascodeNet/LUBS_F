@@ -30,3 +30,4 @@ if [[ -f /etc/systemd/system/getty@tty4.service.d/override.conf ]]; then
     sed -i s/%USERNAME%/"${username}"/g /etc/systemd/system/getty@tty4.service.d/override.conf
 fi 
 systemctl disable lxdm.service
+systemctl enable getty@tty1.service
