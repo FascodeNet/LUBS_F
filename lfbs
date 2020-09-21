@@ -21,6 +21,7 @@ nfb_dir="${script_path}/nfb"
 codename="32"
 os_name="Fedora"
 iso_name="Fedora"
+language="ja_JP.UTF-8"
 
 arch=x86_64
 
@@ -33,6 +34,16 @@ iso_filename="${iso_name}-${iso_version}-${arch}.iso"
 liveuser_name=fedora
 liveuser_password=fedora
 liveuser_shell=/usr/bin/zsh
+
+#-- language config --#
+
+# Sets the default locale for the live environment.
+# You can also place a package list for that locale name and install packages specific to that locale.
+locale_name="en"
+locale_gen_name="en_US.UTF-8"
+locale_version="gl"
+locale_time="UTC"
+locale_fullname="global"
 
 debug=false
 cache_only=false
@@ -186,6 +197,8 @@ _usage () {
     echo "                           Default: ${arch}"
     echo "    -c | --codename <str>  Set ubuntu codename"
     echo "                           Default: ${codename}"
+    echo "    -l | --lang <lang>     Specifies the default language for the live environment"
+    echo "                           Default: ${locale_name}"
     echo "    -m | --mirror <url>    Set apt mirror server."
     echo "                           Default: ${mirror}"
     echo "    -o | --out <out_dir>   Set the output directory"
@@ -198,6 +211,19 @@ _usage () {
     echo
     echo "You can switch between installed packages, files included in images, etc. by channel."
     echo
+    echo " Language for each architecture:"
+    for _list in ${script_path}/system/locale-* ; do
+        _arch="${_list#${script_path}/system/locale-}"
+        echo -n "    ${_arch}"
+        for i in $( seq 1 $(( ${blank} - 4 - ${#_arch} )) ); do
+            echo -ne " "
+        done
+        _locale_name_list=$(cat ${_list} | grep -h -v ^'#' | awk '{print $1}')
+        for _lang in ${_locale_name_list[@]};do
+            echo -n "${_lang} "
+        done
+        echo
+    done
     echo " Channel:"
     
     local _channel
@@ -241,6 +267,38 @@ make_basefs() {
 }
 
 
+# Parse files
+parse_files() {
+    #-- ロケールを解析、設定 --#
+    local _get_locale_line_number _locale_config_file _locale_name_list _locale_line_number _locale_config_line
+
+    # 選択されたロケールの設定が描かれた行番号を取得
+    _locale_config_file="${script_path}/system/locale-${arch}"
+    _locale_name_list=($(cat "${_locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+    _get_locale_line_number() {
+        local _lang _count=0
+        for _lang in ${_locale_name_list[@]}; do
+            _count=$(( _count + 1 ))
+            if [[ "${_lang}" == "${locale_name}" ]]; then echo "${_count}"; return 0; fi
+        done
+        echo -n "failed"
+    }
+    _locale_line_number="$(_get_locale_line_number)"
+
+    # 不正なロケール名なら終了する
+    [[ "${_locale_line_number}" == "failed" ]] && msg_error "${locale_name} is not a valid language." "1"
+
+    # ロケール設定ファイルから該当の行を抽出
+    _locale_config_line=($(cat "${_locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1))
+
+    # 抽出された行に書かれた設定をそれぞれの変数に代入
+    # ここで定義された変数のみがグローバル変数
+    locale_name="${_locale_config_line[0]}"
+    locale_gen_name="${_locale_config_line[1]}"
+    locale_version="${_locale_config_line[2]}"
+    locale_time="${_locale_config_line[3]}"
+    locale_fullname="${_locale_config_line[4]}"
+}
 prepare_build() {
     if [[ ${EUID} -ne 0 ]]; then
         _msg_error "This script must be run as root." 1
@@ -288,9 +346,16 @@ make_dnf_packages() {
     if [[ -f "${channels_dir}/share/packages.${arch}" ]]; then
         grep -h -v ^'#' "${channels_dir}/share/packages.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfpkglist"
     fi
+    if [[ -f "${channels_dir}/share/packages-${locale_name}.${arch}" ]]; then
+        grep -h -v ^'#' "${channels_dir}/share/packages-${locale_name}.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfpkglist"
+    fi
 
     if [[ -f "${channels_dir}/${channel_name}/packages.${arch}" ]]; then
         grep -h -v ^'#' "${channels_dir}/${channel_name}/packages.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfpkglist"
+    fi
+
+    if [[ -f "${channels_dir}/${channel_name}/packages-${locale_name}.${arch}" ]]; then
+        grep -h -v ^'#' "${channels_dir}/${channel_name}/packages-${locale_name}.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfpkglist"
     fi
 
     if [[ -s "${work_dir}/airootfs/dnfpkglist" ]]; then
@@ -330,7 +395,7 @@ make_config() {
     # -j is obsolete in AlterISO3 and cannot be used.
     # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
     local _airootfs_script_options
-    _airootfs_script_options="-p '${liveuser_password}' -u '${liveuser_name}' -o '${os_name}' -s '${liveuser_shell}' -a '${arch}'"
+    _airootfs_script_options="-p '${liveuser_password}' -u '${liveuser_name}' -o '${os_name}' -s '${liveuser_shell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' "
     # X permission
     local chmod_755
     chmod_755() {
@@ -458,8 +523,8 @@ make_checksum() {
 # 引数解析（）
 # 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
 
-_opt_short="w:o:ha:-:m:c:d"
-_opt_long="help,arch:,codename:,debug,help,mirror:,out:,work,cache-only"
+_opt_short="w:l:o:ha:-:m:c:d"
+_opt_long="help,arch:,codename:,debug,help,lang,mirror:,out:,work,cache-only"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 
 if [[ ${?} != 0 ]]; then
@@ -504,6 +569,10 @@ while :; do
                 mirror="${2}"
             fi
 
+            shift 2
+            ;;
+        -l | --lang)
+            locale_name="${2}"
             shift 2
             ;;
         -o | --out)
@@ -588,6 +657,7 @@ iso_filename="${iso_name}-${codename}-${channel_name}-$(date +%Y.%m.%d)-${arch}.
 umount_chroot_airootfs
 
 prepare_build
+parse_files
 run_once make_basefs
 run_once make_systemd
 run_once make_dnf_packages
