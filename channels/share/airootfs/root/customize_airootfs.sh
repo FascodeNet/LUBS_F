@@ -86,6 +86,8 @@ function create_user () {
 create_user "${username}" "${password}"
 
 
+# Enable and generate languages.
+echo "LANG=${localegen}" > /etc/locale.conf
 # Setting the time zone.
 
 ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime

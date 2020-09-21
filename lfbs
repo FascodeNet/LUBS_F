@@ -33,7 +33,7 @@ iso_version="${codename}-$(date +%Y.%m.%d)"
 iso_filename="${iso_name}-${iso_version}-${arch}.iso"
 liveuser_name=fedora
 liveuser_password=fedora
-liveuser_shell=/usr/bin/zsh
+liveuser_shell="/usr/bin/zsh"
 
 #-- language config --#
 
@@ -395,7 +395,7 @@ make_config() {
     # -j is obsolete in AlterISO3 and cannot be used.
     # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
     local _airootfs_script_options
-    _airootfs_script_options="-p '${liveuser_password}' -u ${liveuser_name} -o '${os_name}' -s '${liveuser_shell}' -a '${arch}' -g '${locale_gen_name}' -l '${locale_name}' -z '${locale_time}' "
+    _airootfs_script_options="-p '${liveuser_password}' -u ${liveuser_name} -o ${os_name} -s ${liveuser_shell} -a ${arch} -g ${locale_gen_name} -l ${locale_name} -z ${locale_time} "
     # X permission
     local chmod_755
     chmod_755() {
