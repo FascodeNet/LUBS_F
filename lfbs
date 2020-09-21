@@ -254,7 +254,7 @@ prepare_build() {
         mkdir -p "${work_dir}/squashfsroot/LiveOS/"
         mkdir -p "${work_dir}/airootfs/"
         _msg_info "Make rootfs image..."
-        truncate -s 4G "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+        truncate -s 5G "${work_dir}/squashfsroot/LiveOS/rootfs.img"
         _msg_info "Format rootfs image..."
         mkfs.ext4 -F "${work_dir}/squashfsroot/LiveOS/rootfs.img"
     fi    
