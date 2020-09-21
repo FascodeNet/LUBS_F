@@ -339,7 +339,6 @@ make_systemd() {
     run_cmd ln -sf /etc/machine-id /var/lib/dbus/machine-id
 }
 make_dnf_packages() {
-    echo ${locale_name}
     remove "${work_dir}/airootfs/dnfpkglist"
     #_apt_install initramfs-tools
     # run_cmd env -i bash -c 'DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade --yes'
