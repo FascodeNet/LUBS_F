@@ -662,7 +662,7 @@ if [[ -n "${1}" ]]; then
 fi
 iso_filename="${iso_name}-${codename}-${channel_name}-${locale_name}-$(date +%Y.%m.%d)-${arch}.iso"
 umount_chroot_airootfs
-if [[-d "${work_dir}" ]]; then
+if [[ -d "${work_dir}" ]]; then
     msg_info "deleting work dir..."
     rm -rf "${work_dir}"
 fi
