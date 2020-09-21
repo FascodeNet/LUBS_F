@@ -6,7 +6,7 @@ password=fedora
 root_passwd=fedora
 username=fedora
 usershell="/usr/bin/zsh"
-localegen="en_US\\.UTF-8"
+localegen="en_US.UTF-8"
 timezone="UTC"
 export PATH=$PATH:/usr/sbin
 # Creating a root user.
@@ -87,11 +87,7 @@ create_user "${username}" "${password}"
 
 
 # Enable and generate languages.
-sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
-if [[ ! "${localegen}" == "en_US\\.UTF-8\\" ]]; then
-    sed -i "s/#\(${localegen})/\1/" /etc/locale.gen
-fi
-locale-gen
+localectl set-locale LANG=${localegen}
 # Setting the time zone.
 
 ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
