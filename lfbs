@@ -652,8 +652,7 @@ if [[ -n "${1}" ]]; then
         exit 1
     fi
 fi
-
-iso_filename="${iso_name}-${codename}-${channel_name}-$(date +%Y.%m.%d)-${arch}.iso"
+iso_filename="${iso_name}-${codename}-${channel_name}-${locale_name}-$(date +%Y.%m.%d)-${arch}.iso"
 umount_chroot_airootfs
 
 prepare_build
