@@ -1,0 +1,3 @@
+ExecStart=/bin/bash -c "localectl set-locale LANG=%LC_GEN% \
+        && /usr/bin/systemctl disable locale-init.service \
+        && rm -f /etc/systemd/system/locale-init.service"

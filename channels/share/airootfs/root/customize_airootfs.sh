@@ -37,7 +37,7 @@ while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
         d) debug=true ;;
         x) debug=true; set -xv ;;
         a) arch="${OPTARG}" ;;
-        g) localegen="${OPTARG}" ;;
+        g) localegen="${OPTARG/./\\.}\\" ;;
         z) timezone="${OPTARG}" ;;
         l) language="${OPTARG}" ;;
     esac
@@ -87,7 +87,10 @@ create_user "${username}" "${password}"
 
 
 # Enable and generate languages.
-echo "LANG=${localegen}" > /etc/locale.conf
+if [[ -f /etc/systemd/system/locale-init.service ]]; then
+    sed -i s/%LC_GEN%/${localegen}/g /etc/systemd/system/locale-init.service
+    systemctl enable locale-init.service
+fi
 # Setting the time zone.
 
 ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
