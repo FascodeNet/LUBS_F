@@ -254,11 +254,14 @@ _usage () {
     done
 }
 
+dnfstrap() {
+    dnf --installroot="${work_dir}/airootfs" $(${script_path}/system/repository-json-parser.py ${script_path}/system/repository.json) install ${@} -y
+}
 
 
 make_basefs() {
     _msg_info "Installing Fedora to '${work_dir}/airootfs'..."
-    dnf --installroot="${work_dir}/airootfs" $(${script_path}/system/repository-json-parser.py ${script_path}/system/repository.json) install @Core -y
+    dnfstrap @Core
     _msg_info "${codename} installed successfully!"
     
     echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}' > "${work_dir}/airootfs/etc/bash.bashrc"
