@@ -1,4 +1,5 @@
 ## LFBS - Live Fedora BUild System
 
-Script to build Fedora ISO image
+![Travis](https://img.shields.io/travis/com/FascodeNet/LFBS)
 
+Script to build Fedora ISO image
