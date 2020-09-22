@@ -413,7 +413,7 @@ make_clean() {
 
 make_squashfs() {
     # prepare
-    [[ -d "${bootfiles_dir}" ]] && rm -r "${bootfiles_dir}"
+    rmeove "${bootfiles_dir}"
     mkdir -p "${bootfiles_dir}"/{grub,LiveOS,boot,isolinux}
     #generate initrd
     _msg_info "make initrd..."
@@ -423,7 +423,7 @@ make_squashfs() {
     #cp isolinux
     cp "${nfb_dir}"/isolinux/* "${bootfiles_dir}/isolinux/"
     # make squashfs
-    rm -rf "${work_dir}/airootfs/boot"
+    remove "${work_dir}/airootfs/boot"
     umount "${work_dir}/airootfs"
     _msg_info "Minimize rootfs..."
     resize2fs -M "${work_dir}/squashfsroot/LiveOS/rootfs.img"
@@ -464,7 +464,7 @@ make_efi() {
     cp "${bootfiles_dir}/grub/bootia32.efi" "${bootfiles_dir}/mnt/efi/boot"
     cp "${bootfiles_dir}/grub/bootx64.efi" "${bootfiles_dir}/mnt/efi/boot"
     umount -d "${bootfiles_dir}/mnt"
-    rm -r "${bootfiles_dir}/mnt"
+    remove "${bootfiles_dir}/mnt"
 }
 make_iso() {
     cd "${bootfiles_dir}"
@@ -586,7 +586,7 @@ if [[ -n "${1}" ]]; then
     if [[ "${channel_name}" = "clean" ]]; then
         umount_chroot_airootfs
         _msg_info "deleting work dir..."
-        rm -rf "${work_dir}"
+        remove "${work_dir}"
         exit 0
     fi
     check_channel() {
@@ -620,8 +620,9 @@ iso_filename="${iso_name}-${codename}-${channel_name}-${locale_name}-$(date +%Y.
 umount_chroot_airootfs
 if [[ -d "${work_dir}" ]]; then
     _msg_info "deleting work dir..."
-    rm -rf "${work_dir}"
+    remove "${work_dir}"
 fi
+
 prepare_build
 parse_files
 run_once make_basefs
