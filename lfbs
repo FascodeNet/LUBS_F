@@ -548,21 +548,11 @@ eval set -- "${OPT}"
 while :; do
     case ${1} in
         -a | --arch)
-            if [[ -z ${2} ]]; then
-                _msg_error "Please specify the architecture."
-                exit 1
-            else
-                arch="${2}"
-            fi
+            arch="${2}"
             shift 2
             ;;
         -c | --codename)
-            if [[ -z ${2} ]]; then
-                _msg_error "Please specify the codename."
-                exit 1
-            else
-                codename="${2}"
-            fi
+            codename="${2}"
             shift 2
             ;;
         -d | --debug)
@@ -574,13 +564,7 @@ while :; do
             exit 0
             ;;
         -m | --mirror)
-            if [[ -z ${2} ]]; then
-                _msg_error "Please specify the mirror server."
-                exit 1
-            else
-                mirror="${2}"
-            fi
-
+            mirror="${2}"
             shift 2
             ;;
         -l | --lang)
@@ -588,23 +572,11 @@ while :; do
             shift 2
             ;;
         -o | --out)
-            if [[ -z ${2} ]]; then
-                _msg_error "Please specify the out dir."
-                exit 1
-            else
-                out_dir="${2}"
-            fi
-
+            out_dir="${2}"
             shift 2
             ;;
         -w | --work)
-            if [[ -z ${2} ]]; then
-                _msg_error "Please specify the out dir."
-                exit 1
-            else
-                work_dir="${2}"
-            fi
-
+            work_dir="${2}"
             shift 2
             ;;
         --cache-only)
