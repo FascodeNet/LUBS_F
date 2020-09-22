@@ -374,7 +374,6 @@ make_cp_airootfs() {
 }
 
 make_config() {
-
     # customize_airootfs options
     # -b                        : Enable boot splash.
     # -d                        : Enable debug mode.
@@ -405,11 +404,6 @@ make_config() {
     }
 
     _run_script "/root/customize_airootfs.sh" "/root/customize_airootfs_${channel_name}.sh"
-
-    run_cmd ln -sf /usr/share/zoneinfo/${locale_time} /etc/localtime
-    echo "LANG=${locale_gen_name}" > "${work_dir}/airootfs/etc/locale.conf"
-    run_cmd truncate -s 0 /etc/machine-id
-    run_cmd passwd -u -f root
 }
 
 make_clean() {
