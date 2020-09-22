@@ -108,9 +108,7 @@ umount_chroot () {
     local mount
 
     for mount in $(mount | awk '{print $3}' | grep "$(realpath "${work_dir}")" | sort -r); do
-        if [[ "${mount}" == "${work_dir}/airootfs" ]]; then
-            :
-        else
+        if [[ ! "${mount}" == "${work_dir}/airootfs" ]]; then
             _msg_info "Unmounting ${mount}"
             umount -fl "${mount}"
         fi
@@ -155,9 +153,7 @@ run_cmd() {
     chroot "${work_dir}/airootfs" "${@}"
 
     for mount in $(mount | awk '{print $3}' | grep "$(realpath "${work_dir}")" | sort -r); do
-        if [[ "${mount}" == "${work_dir}/airootfs" ]]; then
-            :
-        else
+        if [[ ! "${mount}" == "${work_dir}/airootfs" ]]; then
             umount -fl "${mount}"
         fi
     done
@@ -303,18 +299,17 @@ parse_files() {
     locale_time="${_locale_config_line[3]}"
     locale_fullname="${_locale_config_line[4]}"
 }
+
 prepare_build() {
     if [[ ${EUID} -ne 0 ]]; then
         _msg_error "This script must be run as root." 1
     fi
     umount_chroot_airootfs
     # Check codename
-    if [[ -z $(grep -h -v ^'#' ${channels_dir}/${channel_name}/codename.${arch} | grep -x ${codename}) ]]; then
+    if [[ -z "$(grep -h -v ^'#' ${channels_dir}/${channel_name}/codename.${arch} | grep -x ${codename})" ]]; then
         _msg_error "This codename (${channel_name}) is not supported on this channel (${codename})."
     fi
-    if [[ -d "${work_dir}/squashfsroot/LiveOS/" ]]; then
-        :
-    else
+    if [[ ! -d "${work_dir}/squashfsroot/LiveOS/" ]]; then
         mkdir -p "${work_dir}/squashfsroot/LiveOS/"
         mkdir -p "${work_dir}/airootfs/"
         _msg_info "Make rootfs image..."
@@ -322,11 +317,7 @@ prepare_build() {
         _msg_info "Format rootfs image..."
         mkfs.ext4 -F "${work_dir}/squashfsroot/LiveOS/rootfs.img"
     fi    
-    if [[ -d "${out_dir}" ]]; then
-        :
-    else
-        mkdir -p "${out_dir}"
-    fi
+    mkdir -p "${out_dir}"
     _msg_info "Mount rootfs image..."
     mount -o loop,rw,sync "${work_dir}/squashfsroot/LiveOS/rootfs.img" "${work_dir}/airootfs"
 
@@ -335,9 +326,7 @@ prepare_build() {
 make_systemd() {
     _dnf_install dbus-tools
     run_cmd dbus-uuidgen --ensure=/etc/machine-id
-    if [[ -d "${work_dir}/airootfs/var/lib/dbus" ]]; then
-        :
-    else
+    if [[ ! -d "${work_dir}/airootfs/var/lib/dbus" ]]; then
         run_cmd mkdir /var/lib/dbus
     fi
     run_cmd ln -sf /etc/machine-id /var/lib/dbus/machine-id
