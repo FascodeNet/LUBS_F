@@ -1,2 +1,3 @@
 [org/freedesktop/ibus/general]
 engines-order=['mozc-jp', 'xkb:jp::jpn', 'kkc']
+preload-engines=['mozc-jp']
