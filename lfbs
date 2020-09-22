@@ -24,7 +24,7 @@ iso_name="Fedora"
 language="ja_JP.UTF-8"
 channel_name="lxde"
 
-arch=x86_64
+arch="x86_64"
 
 out_dir="${script_path}/out"
 iso_label="${os_name}_${codename}_${arch}"
@@ -32,8 +32,8 @@ iso_publisher='Fascode Network <https://fascode.net>'
 iso_application="${os_name} Live/Rescue CD"
 iso_version="${codename}-$(date +%Y.%m.%d)"
 iso_filename="${iso_name}-${iso_version}-${arch}.iso"
-liveuser_name=fedora
-liveuser_password=fedora
+liveuser_name="fedora"
+liveuser_password="fedora"
 liveuser_shell="/usr/bin/zsh"
 
 #-- language config --#
