@@ -22,6 +22,7 @@ codename="32"
 os_name="Fedora"
 iso_name="Fedora"
 language="ja_JP.UTF-8"
+channel_name="lxde"
 
 arch=x86_64
 
