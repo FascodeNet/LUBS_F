@@ -393,28 +393,25 @@ make_config() {
     #
     # -j is obsolete in AlterISO3 and cannot be used.
     # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
-    local _airootfs_script_options
+    local _airootfs_script_options _run_script
     _airootfs_script_options="-p ${liveuser_password} -u ${liveuser_name} -o ${os_name} -s ${liveuser_shell} -a ${arch} -g ${locale_gen_name} -l ${locale_name} -z ${locale_time} "
-    # X permission
-    local chmod_755
-    chmod_755() {
+
+    _run_script() {
+        local _file
         for _file in ${@}; do
-            if [[ -f "$_file" ]]; then chmod 755 "${_file}" ;fi
+            chmod 755 "${_file}"
+            if [[ -f "${_file}" ]]; then run_cmd "${_file}" ${_airootfs_script_options}; fi
         done
     }
-    chmod_755 "${work_dir}/airootfs/root/customize_airootfs.sh" "${work_dir}/airootfs/root/customize_airootfs_${channel_name}.sh"
 
-    if [ -f ${work_dir}/airootfs/root/customize_airootfs.sh ]; then
-        run_cmd /root/customize_airootfs.sh ${_airootfs_script_options}
-    fi
-    if [ -f ${work_dir}/airootfs/root/customize_airootfs_${channel_name}.sh ]; then
-        run_cmd /root/customize_airootfs_${channel_name}.sh ${_airootfs_script_options}
-    fi
+    _run_script "/root/customize_airootfs.sh" "/root/customize_airootfs_${channel_name}.sh"
+
     run_cmd ln -sf /usr/share/zoneinfo/${locale_time} /etc/localtime
     echo "LANG=${locale_gen_name}" > "${work_dir}/airootfs/etc/locale.conf"
     run_cmd truncate -s 0 /etc/machine-id
     run_cmd passwd -u -f root
 }
+
 make_clean() {
     run_cmd dnf -y remove $(run_cmd dnf repoquery --installonly --latest-limit=-1 -q)
     run_cmd dnf clean all
@@ -604,7 +601,7 @@ if [[ -n "${1}" ]]; then
         channel_list=()
         
         for _channel in $(ls -l "${channels_dir}" | awk '$1 ~ /d/ {print $9 }'); do
-            if [[ -n $(ls "${channels_dir}/${_channel}") ]] && [[ ! "${_channel}" = "share" ]]; then
+            if [[ -n "$(ls "${channels_dir}/${_channel}")" ]] && [[ ! "${_channel}" = "share" ]]; then
                 channel_list+=( "${_channel}" )
             fi
         done
@@ -620,7 +617,7 @@ if [[ -n "${1}" ]]; then
         return 1
     }
 
-    if [[ $(check_channel ${channel_name}) = false ]]; then
+    if [[ "$(check_channel ${channel_name})" = false ]]; then
         _msg_error "Invalid channel ${channel_name}"
         exit 1
     fi
