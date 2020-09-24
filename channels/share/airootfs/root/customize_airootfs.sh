@@ -12,14 +12,14 @@ export PATH=$PATH:/usr/sbin
 # Creating a root user.
 # usermod -s /usr/bin/zsh root
 function user_check () {
-if [[ $(getent passwd $1 > /dev/null ; printf $?) = 0 ]]; then
-    if [[ -z $1 ]]; then
+    if [[ $(getent passwd $1 > /dev/null ; printf $?) = 0 ]]; then
+        if [[ -z $1 ]]; then
+            echo -n "false"
+        fi
+        echo -n "true"
+    else
         echo -n "false"
     fi
-    echo -n "true"
-else
-    echo -n "false"
-fi
 }
 
 # Parse arguments
@@ -42,9 +42,12 @@ while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
         l) language="${OPTARG}" ;;
     esac
 done
-root_passwd=${password}
+
+
+root_passwd="${password}"
 #usermod -s "${usershell}" root
 cp -aT /etc/skel/ /root/
+
 # Allow sudo group to run sudo
 sed -i 's/^#\s*\(%sudo\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
 
@@ -88,13 +91,13 @@ create_user "${username}" "${password}"
 
 # Enable and generate languages.
 echo "LANG=${localegen}" > /etc/locale.conf
-# Setting the time zone.
 
-ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
+# Setting the time zone.
+ln -sf "/usr/share/zoneinfo/${timezone}" "/etc/localtime"
 
 # Set up auto login
-if [[ -f /etc/systemd/system/getty@tty1.service.d/override.conf ]]; then
-    sed -i s/%USERNAME%/"${username}"/g /etc/systemd/system/getty@tty1.service.d/override.conf
+if [[ -f "/etc/systemd/system/getty@tty1.service.d/override.conf" ]]; then
+    sed -i s/%USERNAME%/"${username}"/g "/etc/systemd/system/getty@tty1.service.d/override.conf"
 fi
 
 # Set to execute calamares without password as alter user.
@@ -115,3 +118,7 @@ chmod +x "/etc/profile.d/alias_systemctl_setup.sh"
 # Chnage sudoers permission
 chmod 750 -R /etc/sudoers.d/
 chown root:root -R /etc/sudoers.d/
+
+echo "LANG=${locale_gen_name}" > "/etc/locale.conf"
+truncate -s 0 /etc/machine-id
+passwd -u -f root
