@@ -399,7 +399,7 @@ make_config() {
         local _file
         for _file in ${@}; do
             chmod 755 "${work_dir}/airootfs${_file}"
-            if [[ -f "${work_dir}/airootfs${_file}" ]]; then run_cmd "${work_dir}/airootfs${_file}" ${_airootfs_script_options}; fi
+            if [[ -f "${work_dir}/airootfs${_file}" ]]; then run_cmd "${_file}" ${_airootfs_script_options}; fi
         done
     }
 
