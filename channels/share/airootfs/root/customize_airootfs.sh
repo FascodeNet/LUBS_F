@@ -119,6 +119,6 @@ chmod +x "/etc/profile.d/alias_systemctl_setup.sh"
 chmod 750 -R /etc/sudoers.d/
 chown root:root -R /etc/sudoers.d/
 
-echo "LANG=${locale_gen_name}" > "/etc/locale.conf"
+echo "LANG=${localegen}" > "/etc/locale.conf"
 truncate -s 0 /etc/machine-id
 passwd -u -f root
