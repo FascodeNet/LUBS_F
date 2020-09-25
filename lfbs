@@ -21,8 +21,10 @@ nfb_dir="${script_path}/nfb"
 codename="32"
 os_name="Fedora"
 iso_name="Fedora"
+language="ja_JP.UTF-8"
+channel_name="lxde"
 
-arch=x86_64
+arch="x86_64"
 
 out_dir="${script_path}/out"
 iso_label="${os_name}_${codename}_${arch}"
@@ -30,7 +32,19 @@ iso_publisher='Fascode Network <https://fascode.net>'
 iso_application="${os_name} Live/Rescue CD"
 iso_version="${codename}-$(date +%Y.%m.%d)"
 iso_filename="${iso_name}-${iso_version}-${arch}.iso"
+liveuser_name="fedora"
+liveuser_password="fedora"
+liveuser_shell="/usr/bin/zsh"
 
+#-- language config --#
+
+# Sets the default locale for the live environment.
+# You can also place a package list for that locale name and install packages specific to that locale.
+locale_name="en"
+locale_gen_name="en_US.UTF-8"
+locale_version="gl"
+locale_time="UTC"
+locale_fullname="global"
 
 debug=false
 cache_only=false
@@ -94,9 +108,7 @@ umount_chroot () {
     local mount
 
     for mount in $(mount | awk '{print $3}' | grep "$(realpath "${work_dir}")" | sort -r); do
-        if [[ "${mount}" == "${work_dir}/airootfs" ]]; then
-            :
-        else
+        if [[ ! "${mount}" == "${work_dir}/airootfs" ]]; then
             _msg_info "Unmounting ${mount}"
             umount -fl "${mount}"
         fi
@@ -141,9 +153,7 @@ run_cmd() {
     chroot "${work_dir}/airootfs" "${@}"
 
     for mount in $(mount | awk '{print $3}' | grep "$(realpath "${work_dir}")" | sort -r); do
-        if [[ "${mount}" == "${work_dir}/airootfs" ]]; then
-            :
-        else
+        if [[ ! "${mount}" == "${work_dir}/airootfs" ]]; then
             umount -fl "${mount}"
         fi
     done
@@ -184,6 +194,8 @@ _usage () {
     echo "                           Default: ${arch}"
     echo "    -c | --codename <str>  Set ubuntu codename"
     echo "                           Default: ${codename}"
+    echo "    -l | --lang <lang>     Specifies the default language for the live environment"
+    echo "                           Default: ${locale_name}"
     echo "    -m | --mirror <url>    Set apt mirror server."
     echo "                           Default: ${mirror}"
     echo "    -o | --out <out_dir>   Set the output directory"
@@ -196,6 +208,19 @@ _usage () {
     echo
     echo "You can switch between installed packages, files included in images, etc. by channel."
     echo
+    echo " Language for each architecture:"
+    for _list in ${script_path}/system/locale-* ; do
+        _arch="${_list#${script_path}/system/locale-}"
+        echo -n "    ${_arch}"
+        for i in $( seq 1 $(( ${blank} - 4 - ${#_arch} )) ); do
+            echo -ne " "
+        done
+        _locale_name_list=$(cat ${_list} | grep -h -v ^'#' | awk '{print $1}')
+        for _lang in ${_locale_name_list[@]};do
+            echo -n "${_lang} "
+        done
+        echo
+    done
     echo " Channel:"
     
     local _channel
@@ -225,11 +250,14 @@ _usage () {
     done
 }
 
+dnfstrap() {
+    dnf --installroot="${work_dir}/airootfs" $(${script_path}/system/repository-json-parser.py ${script_path}/system/repository.json) install ${@} -y
+}
 
 
 make_basefs() {
     _msg_info "Installing Fedora to '${work_dir}/airootfs'..."
-    dnf --installroot="${work_dir}/airootfs" $(${script_path}/system/repository-json-parser.py ${script_path}/system/repository.json) install @Core -y
+    dnfstrap @Core
     _msg_info "${codename} installed successfully!"
     
     echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}' > "${work_dir}/airootfs/etc/bash.bashrc"
@@ -239,30 +267,57 @@ make_basefs() {
 }
 
 
+# Parse files
+parse_files() {
+    #-- ロケールを解析、設定 --#
+    local _get_locale_line_number _locale_config_file _locale_name_list _locale_line_number _locale_config_line
+
+    # 選択されたロケールの設定が描かれた行番号を取得
+    _locale_config_file="${script_path}/system/locale-${arch}"
+    _locale_name_list=($(cat "${_locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
+    _get_locale_line_number() {
+        local _lang _count=0
+        for _lang in ${_locale_name_list[@]}; do
+            _count=$(( _count + 1 ))
+            if [[ "${_lang}" == "${locale_name}" ]]; then echo "${_count}"; return 0; fi
+        done
+        echo -n "failed"
+    }
+    _locale_line_number="$(_get_locale_line_number)"
+
+    # 不正なロケール名なら終了する
+    [[ "${_locale_line_number}" == "failed" ]] && msg_error "${locale_name} is not a valid language." "1"
+
+    # ロケール設定ファイルから該当の行を抽出
+    _locale_config_line=($(cat "${_locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1))
+
+    # 抽出された行に書かれた設定をそれぞれの変数に代入
+    # ここで定義された変数のみがグローバル変数
+    locale_name="${_locale_config_line[0]}"
+    locale_gen_name="${_locale_config_line[1]}"
+    locale_version="${_locale_config_line[2]}"
+    locale_time="${_locale_config_line[3]}"
+    locale_fullname="${_locale_config_line[4]}"
+}
+
 prepare_build() {
     if [[ ${EUID} -ne 0 ]]; then
         _msg_error "This script must be run as root." 1
     fi
     umount_chroot_airootfs
     # Check codename
-    if [[ -z $(grep -h -v ^'#' ${channels_dir}/${channel_name}/codename.${arch} | grep -x ${codename}) ]]; then
+    if [[ -z "$(grep -h -v ^'#' ${channels_dir}/${channel_name}/codename.${arch} | grep -x ${codename})" ]]; then
         _msg_error "This codename (${channel_name}) is not supported on this channel (${codename})."
     fi
-    if [[ -d "${work_dir}/squashfsroot/LiveOS/" ]]; then
-        :
-    else
+    if [[ ! -d "${work_dir}/squashfsroot/LiveOS/" ]]; then
         mkdir -p "${work_dir}/squashfsroot/LiveOS/"
         mkdir -p "${work_dir}/airootfs/"
         _msg_info "Make rootfs image..."
-        truncate -s 4G "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+        truncate -s 5G "${work_dir}/squashfsroot/LiveOS/rootfs.img"
         _msg_info "Format rootfs image..."
         mkfs.ext4 -F "${work_dir}/squashfsroot/LiveOS/rootfs.img"
     fi    
-    if [[ -d "${out_dir}" ]]; then
-        :
-    else
-        mkdir -p "${out_dir}"
-    fi
+    mkdir -p "${out_dir}"
     _msg_info "Mount rootfs image..."
     mount -o loop,rw,sync "${work_dir}/squashfsroot/LiveOS/rootfs.img" "${work_dir}/airootfs"
 
@@ -271,9 +326,7 @@ prepare_build() {
 make_systemd() {
     _dnf_install dbus-tools
     run_cmd dbus-uuidgen --ensure=/etc/machine-id
-    if [[ -d "${work_dir}/airootfs/var/lib/dbus" ]]; then
-        :
-    else
+    if [[ ! -d "${work_dir}/airootfs/var/lib/dbus" ]]; then
         run_cmd mkdir /var/lib/dbus
     fi
     run_cmd ln -sf /etc/machine-id /var/lib/dbus/machine-id
@@ -286,9 +339,16 @@ make_dnf_packages() {
     if [[ -f "${channels_dir}/share/packages.${arch}" ]]; then
         grep -h -v ^'#' "${channels_dir}/share/packages.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfpkglist"
     fi
+    if [[ -f "${channels_dir}/share/packages-${locale_name}.${arch}" ]]; then
+        grep -h -v ^'#' "${channels_dir}/share/packages-${locale_name}.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfpkglist"
+    fi
 
     if [[ -f "${channels_dir}/${channel_name}/packages.${arch}" ]]; then
         grep -h -v ^'#' "${channels_dir}/${channel_name}/packages.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfpkglist"
+    fi
+
+    if [[ -f "${channels_dir}/${channel_name}/packages-${locale_name}.${arch}" ]]; then
+        grep -h -v ^'#' "${channels_dir}/${channel_name}/packages-${locale_name}.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfpkglist"
     fi
 
     if [[ -s "${work_dir}/airootfs/dnfpkglist" ]]; then
@@ -299,21 +359,53 @@ make_dnf_packages() {
 }
 
 make_cp_airootfs() {
-    if [ -d ${channels_dir}/share/airootfs ]; then
-        cp -rf ${channels_dir}/share/airootfs/ ${work_dir}
-    fi
-    if [ -d ${channels_dir}/${channel_name}/airootfs ]; then
-        cp -rf ${channels_dir}/${channel_name}/airootfs/ ${work_dir}
-    fi
+    local _copy_airootfs
+
+    _copy_airootfs() {
+        local _dir="${1%/}"
+        if [[ -d "${_dir}" ]]; then
+            cp -af "${_dir}"/* "${work_dir}/airootfs"
+        fi
+    }
+    _copy_airootfs "${channels_dir}/share/airootfs"
+    _copy_airootfs "${channels_dir}/share/airootfs.${locale_name}"
+    _copy_airootfs "${channels_dir}/${channel_name}/airootfs"
+    _copy_airootfs "${channels_dir}/${channel_name}/airootfs.${locale_name}"
 }
 
 make_config() {
-    if [ -f ${work_dir}/airootfs/root/customize_airootfs.sh ]; then
-        run_cmd /root/customize_airootfs.sh
-    fi
-    run_cmd truncate -s 0 /etc/machine-id
-    run_cmd passwd -u -f root
+    # customize_airootfs options
+    # -b                        : Enable boot splash.
+    # -d                        : Enable debug mode.
+    # -g <locale_gen_name>      : Set locale-gen.
+    # -i <inst_dir>             : Set install dir
+    # -k <kernel config line>   : Set kernel name.
+    # -o <os name>              : Set os name.
+    # -p <password>             : Set password.
+    # -s <shell>                : Set user shell.
+    # -t                        : Set plymouth theme.
+    # -u <username>             : Set live user name.
+    # -x                        : Enable bash debug mode.
+    # -r                        : Enable rebuild.
+    # -z <locale_time>          : Set the time zone.
+    # -l <locale_name>          : Set language.
+    #
+    # -j is obsolete in AlterISO3 and cannot be used.
+    # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
+    local _airootfs_script_options _run_script
+    _airootfs_script_options="-p ${liveuser_password} -u ${liveuser_name} -o ${os_name} -s ${liveuser_shell} -a ${arch} -g ${locale_gen_name} -l ${locale_name} -z ${locale_time} "
+
+    _run_script() {
+        local _file
+        for _file in ${@}; do
+            chmod 755 "${_file}"
+            if [[ -f "${_file}" ]]; then run_cmd "${_file}" ${_airootfs_script_options}; fi
+        done
+    }
+
+    _run_script "/root/customize_airootfs.sh" "/root/customize_airootfs_${channel_name}.sh"
 }
+
 make_clean() {
     run_cmd dnf -y remove $(run_cmd dnf repoquery --installonly --latest-limit=-1 -q)
     run_cmd dnf clean all
@@ -321,7 +413,7 @@ make_clean() {
 
 make_squashfs() {
     # prepare
-    [[ -d "${bootfiles_dir}" ]] && rm -r "${bootfiles_dir}"
+    rmeove "${bootfiles_dir}"
     mkdir -p "${bootfiles_dir}"/{grub,LiveOS,boot,isolinux}
     #generate initrd
     _msg_info "make initrd..."
@@ -331,7 +423,7 @@ make_squashfs() {
     #cp isolinux
     cp "${nfb_dir}"/isolinux/* "${bootfiles_dir}/isolinux/"
     # make squashfs
-    rm -rf "${work_dir}/airootfs/boot"
+    remove "${work_dir}/airootfs/boot"
     umount "${work_dir}/airootfs"
     _msg_info "Minimize rootfs..."
     resize2fs -M "${work_dir}/squashfsroot/LiveOS/rootfs.img"
@@ -372,7 +464,7 @@ make_efi() {
     cp "${bootfiles_dir}/grub/bootia32.efi" "${bootfiles_dir}/mnt/efi/boot"
     cp "${bootfiles_dir}/grub/bootx64.efi" "${bootfiles_dir}/mnt/efi/boot"
     umount -d "${bootfiles_dir}/mnt"
-    rm -r "${bootfiles_dir}/mnt"
+    remove "${bootfiles_dir}/mnt"
 }
 make_iso() {
     cd "${bootfiles_dir}"
@@ -423,8 +515,8 @@ make_checksum() {
 # 引数解析（）
 # 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
 
-_opt_short="w:o:ha:-:m:c:d"
-_opt_long="help,arch:,codename:,debug,help,mirror:,out:,work,cache-only"
+_opt_short="w:l:o:ha:-:m:c:d"
+_opt_long="help,arch:,codename:,debug,help,lang,mirror:,out:,work,cache-only"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 
 if [[ ${?} != 0 ]]; then
@@ -436,21 +528,11 @@ eval set -- "${OPT}"
 while :; do
     case ${1} in
         -a | --arch)
-            if [[ -z ${2} ]]; then
-                _msg_error "Please specify the architecture."
-                exit 1
-            else
-                arch="${2}"
-            fi
+            arch="${2}"
             shift 2
             ;;
         -c | --codename)
-            if [[ -z ${2} ]]; then
-                _msg_error "Please specify the codename."
-                exit 1
-            else
-                codename="${2}"
-            fi
+            codename="${2}"
             shift 2
             ;;
         -d | --debug)
@@ -462,33 +544,19 @@ while :; do
             exit 0
             ;;
         -m | --mirror)
-            if [[ -z ${2} ]]; then
-                _msg_error "Please specify the mirror server."
-                exit 1
-            else
-                mirror="${2}"
-            fi
-
+            mirror="${2}"
+            shift 2
+            ;;
+        -l | --lang)
+            locale_name="${2}"
             shift 2
             ;;
         -o | --out)
-            if [[ -z ${2} ]]; then
-                _msg_error "Please specify the out dir."
-                exit 1
-            else
-                out_dir="${2}"
-            fi
-
+            out_dir="${2}"
             shift 2
             ;;
         -w | --work)
-            if [[ -z ${2} ]]; then
-                _msg_error "Please specify the out dir."
-                exit 1
-            else
-                work_dir="${2}"
-            fi
-
+            work_dir="${2}"
             shift 2
             ;;
         --cache-only)
@@ -518,7 +586,7 @@ if [[ -n "${1}" ]]; then
     if [[ "${channel_name}" = "clean" ]]; then
         umount_chroot_airootfs
         _msg_info "deleting work dir..."
-        rm -rf "${work_dir}"
+        remove "${work_dir}"
         exit 0
     fi
     check_channel() {
@@ -527,7 +595,7 @@ if [[ -n "${1}" ]]; then
         channel_list=()
         
         for _channel in $(ls -l "${channels_dir}" | awk '$1 ~ /d/ {print $9 }'); do
-            if [[ -n $(ls "${channels_dir}/${_channel}") ]] && [[ ! "${_channel}" = "share" ]]; then
+            if [[ -n "$(ls "${channels_dir}/${_channel}")" ]] && [[ ! "${_channel}" = "share" ]]; then
                 channel_list+=( "${_channel}" )
             fi
         done
@@ -543,14 +611,20 @@ if [[ -n "${1}" ]]; then
         return 1
     }
 
-    if [[ $(check_channel ${channel_name}) = false ]]; then
+    if [[ "$(check_channel ${channel_name})" = false ]]; then
         _msg_error "Invalid channel ${channel_name}"
         exit 1
     fi
 fi
+iso_filename="${iso_name}-${codename}-${channel_name}-${locale_name}-$(date +%Y.%m.%d)-${arch}.iso"
 umount_chroot_airootfs
+if [[ -d "${work_dir}" ]]; then
+    _msg_info "deleting work dir..."
+    remove "${work_dir}"
+fi
 
 prepare_build
+parse_files
 run_once make_basefs
 run_once make_systemd
 run_once make_dnf_packages
