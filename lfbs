@@ -413,7 +413,7 @@ make_clean() {
 
 make_squashfs() {
     # prepare
-    rmeove "${bootfiles_dir}"
+    remove "${bootfiles_dir}"
     mkdir -p "${bootfiles_dir}"/{grub,LiveOS,boot,isolinux}
     #generate initrd
     _msg_info "make initrd..."
