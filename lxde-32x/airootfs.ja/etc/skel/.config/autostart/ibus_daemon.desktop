@@ -1,7 +1,0 @@
-[Desktop Entry]
-Exec=ibus-daemon -r -d -x
-Icon=system-run
-Name=echo
-Path=
-Terminal=True
-Type=Application
