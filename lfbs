@@ -255,7 +255,8 @@ dnfstrap() {
     if [[ ! -d "${cache_dir}" ]]; then
         mkdir -p "${cache_dir}"
     fi
-    sed -e "s*%CACHEDIR%*${cache_dir}*g" "${script_path}/system/dnfconf-temp.conf" > "${work_dir}/dnf_conf"
+    cp -rf "${script_path}/system/dnfconf.conf" "${work_dir}/dnf_conf"
+    mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
     dnf -c "${work_dir}/dnf_conf" --installroot="${work_dir}/airootfs" $(${script_path}/system/repository-json-parser.py ${script_path}/system/repository.json) install ${@} -y
 }
 
@@ -580,7 +581,7 @@ while :; do
 done
 
 bootfiles_dir="${work_dir}/bootfiles"
-trap  umount_chroot 0 2 15
+trap  umount_chroot_airootfs 0 2 15
 
 if [[ -n "${1}" ]]; then
     channel_name="${1}"
