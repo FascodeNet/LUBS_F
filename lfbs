@@ -252,6 +252,9 @@ _usage () {
 }
 
 dnfstrap() {
+    if [[ ! -d "${cache_dir}" ]]; then
+        mkdir -p "${cache_dir}"
+    fi
     sed -e "s/%CACHEDIR%/${cache_dir}/g" "${script_path}/system/dnfconf-temp.conf" > "${work_dir}/dnf_conf"
     dnf -c "${work_dir}/dnf_conf" --installroot="${work_dir}/airootfs" $(${script_path}/system/repository-json-parser.py ${script_path}/system/repository.json) install ${@} -y
 }
