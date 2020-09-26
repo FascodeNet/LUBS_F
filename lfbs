@@ -23,6 +23,7 @@ os_name="Fedora"
 iso_name="Fedora"
 language="ja_JP.UTF-8"
 channel_name="lxde"
+cache_dir="${script_path}/cache"
 
 arch="x86_64"
 
@@ -192,8 +193,6 @@ _usage () {
     echo
     echo "    -a | --arch <str>      Set architecture"
     echo "                           Default: ${arch}"
-    echo "    -c | --codename <str>  Set ubuntu codename"
-    echo "                           Default: ${codename}"
     echo "    -l | --lang <lang>     Specifies the default language for the live environment"
     echo "                           Default: ${locale_name}"
     echo "    -m | --mirror <url>    Set apt mirror server."
@@ -202,6 +201,8 @@ _usage () {
     echo "                           Default: ${out_dir}"
     echo "    -w | --work <work_dir> Set the working directory"
     echo "                           Default: ${work_dir}"
+    echo "    -c | --cache <cache_dir> Set the cache directory"
+    echo "                           Default: ${cache_dir}"
     echo
     echo "    -d | --debug           "
     echo "    -h | --help            This help message and exit"
@@ -251,7 +252,8 @@ _usage () {
 }
 
 dnfstrap() {
-    dnf --installroot="${work_dir}/airootfs" $(${script_path}/system/repository-json-parser.py ${script_path}/system/repository.json) install ${@} -y
+    sed -e "s/%CACHEDIR%/${cache_dir}/g" "${script_path}/system/dnfconf-temp.conf" > "${work_dir}/dnf_conf"
+    dnf -c "${work_dir}/dnf_conf" --installroot="${work_dir}/airootfs" $(${script_path}/system/repository-json-parser.py ${script_path}/system/repository.json) install ${@} -y
 }
 
 
@@ -531,8 +533,8 @@ while :; do
             arch="${2}"
             shift 2
             ;;
-        -c | --codename)
-            codename="${2}"
+        -c | --cache)
+            cache_dir="${2}"
             shift 2
             ;;
         -d | --debug)
