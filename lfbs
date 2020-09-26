@@ -150,7 +150,7 @@ run_cmd() {
         fi
     done
     
-    chroot "${work_dir}/airootfs" "${@}"
+    unshare --fork --pid chroot "${work_dir}/airootfs" "${@}"
 
     for mount in $(mount | awk '{print $3}' | grep "$(realpath "${work_dir}")" | sort -r); do
         if [[ ! "${mount}" == "${work_dir}/airootfs" ]]; then
