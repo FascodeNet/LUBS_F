@@ -398,8 +398,8 @@ make_config() {
     _run_script() {
         local _file
         for _file in ${@}; do
-            chmod 755 "${work_dir}/airootfs${_file}"
             if [[ -f "${work_dir}/airootfs${_file}" ]]; then run_cmd "${_file}" ${_airootfs_script_options}; fi
+            if [[ -f "${work_dir}/airootfs${_file}" ]]; then chmod 755 "${work_dir}/airootfs${_file}"; fi
         done
     }
 
