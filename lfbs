@@ -141,16 +141,16 @@ run_once() {
 run_cmd() {
     local mount
 
-    for mount in "dev" "dev/pts" "proc" "sys" "etc/resolv.conf"; do
+    #for mount in "dev" "dev/pts" "proc" "sys" "etc/resolv.conf"; do
     #for mount in "dev" "dev/pts" "proc" "sys" ; do
-        if [[ "${mount}" == "etc/resolv.conf" ]]; then
-            cp /etc/resolv.conf "${work_dir}/airootfs/${mount}"
-        else
-            mount --bind /${mount} "${work_dir}/airootfs/${mount}"
-        fi
-    done
-    
-    unshare --fork --pid chroot "${work_dir}/airootfs" "${@}"
+    #    if [[ "${mount}" == "etc/resolv.conf" ]]; then
+    #        cp /etc/resolv.conf "${work_dir}/airootfs/${mount}"
+    #    else
+    #        mount --bind /${mount} "${work_dir}/airootfs/${mount}"
+    #    fi
+    #done
+    cp /etc/resolv.conf "${work_dir}/airootfs/etc/resolv.conf"
+    unshare --fork --pid --mount-proc --uts bash -c "mount -t proc proc \"${work_dir}/airootfs/proc\";mount -t sysfs sys \"${work_dir}/airootfs/sys\";mount -t devtmpfs udev \"${work_dir}/airootfs/dev\" ;mount -t devpts devpts \"${work_dir}/airootfs/dev/pts\" ;mount -t tmpfs run \"${work_dir}/airootfs/run\";chroot \"${work_dir}/airootfs\" ${@} "
 
     for mount in $(mount | awk '{print $3}' | grep "$(realpath "${work_dir}")" | sort -r); do
         if [[ ! "${mount}" == "${work_dir}/airootfs" ]]; then
