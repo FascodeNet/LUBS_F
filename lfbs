@@ -49,7 +49,7 @@ locale_fullname="global"
 
 debug=false
 cache_only=false
-
+grub2_standalone_cmd=grub2-mkstandalone
 
 start_time="$(date +%s)"
 
@@ -455,7 +455,7 @@ make_nfb() {
 }
 make_efi() {
     # UEFI 32bit (ia32)
-    grub2-mkstandalone \
+    ${grub2_standalone_cmd} \
         --format=i386-efi \
         --output="${bootfiles_dir}/grub/bootia32.efi" \
         --locales="" \
@@ -463,7 +463,7 @@ make_efi() {
         "boot/grub/grub.cfg=${bootfiles_dir}/grub/grub.cfg"
     
     # UEFI 64bit (x64)
-    grub2-mkstandalone \
+    ${grub2_standalone_cmd} \
         --format=x86_64-efi \
         --output="${bootfiles_dir}/grub/bootx64.efi" \
         --locales="" \
@@ -588,7 +588,9 @@ while :; do
             ;;
     esac
 done
-
+if [[ -f /etc/arch-release ]]; then
+    grub2_standalone_cmd=grub-mkstandalone
+fi
 bootfiles_dir="${work_dir}/bootfiles"
 trap  umount_chroot_airootfs 0 2 15
 
