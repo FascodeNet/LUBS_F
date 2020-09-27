@@ -163,7 +163,6 @@ run_cmd() {
 _dnf_install() {    
     mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
     run_cmd dnf -c /dnf_conf install -y ${@}
-    umount -fl "${work_dir}/airootfs/dnf_cache"
 }
 
 # rm helper
@@ -275,7 +274,6 @@ make_basefs() {
     mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
     run_cmd dnf -c /dnf_conf update -y
     run_cmd dnf -c /dnf_conf -y remove $(run_cmd dnf -c /dnf_conf repoquery --installonly --latest-limit=-1 -q)
-    umount -fl "${work_dir}/airootfs/dnf_cache"
     # run_cmd apt-get upgrade
 }
 
@@ -367,7 +365,6 @@ make_dnf_packages() {
     if [[ -s "${work_dir}/airootfs/dnfpkglist" ]]; then
         mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
         run_cmd env -i bash -c 'dnf -y --nogpgcheck -c /dnf_conf install $(echo $(<dnfpkglist))'
-        umount -fl "${work_dir}/airootfs/dnf_cache"
     fi
 
     remove "${work_dir}/airootfs/dnfpkglist"
@@ -424,7 +421,6 @@ make_config() {
 make_clean() {
     mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
     run_cmd dnf -c /dnf_conf -y remove $(run_cmd dnf -c /dnf_conf repoquery --installonly --latest-limit=-1 -q)
-    umount -fl "${work_dir}/airootfs/dnf_cache"
 }
 
 make_squashfs() {
