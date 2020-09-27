@@ -267,8 +267,7 @@ dnfstrap() {
 
 make_basefs() {
     _msg_info "Installing Fedora to '${work_dir}/airootfs'..."
-    dnfstrap @Core
-    dnfstrap yamad-repo
+    dnfstrap @Core yamad-repo
     _msg_info "${codename} installed successfully!"
     
     echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}' > "${work_dir}/airootfs/etc/bash.bashrc"
