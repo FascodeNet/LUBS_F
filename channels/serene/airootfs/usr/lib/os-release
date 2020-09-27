@@ -1,8 +1,8 @@
-NAME=Fedora
+NAME=SereneLinux
 VERSION="32 (Thirty Two)"
 ID=fedora
 VERSION_ID=32
-PRETTY_NAME="Fedora 32 (Thirty Two)"
+PRETTY_NAME="SereneLinux"
 ANSI_COLOR="0;34"
 CPE_NAME="cpe:/o:fedoraproject:fedora:32"
 HOME_URL="https://fedoraproject.org/"
@@ -13,4 +13,4 @@ REDHAT_BUGZILLA_PRODUCT_VERSION=32
 REDHAT_SUPPORT_PRODUCT="Fedora"
 REDHAT_SUPPORT_PRODUCT_VERSION=32
 PRIVACY_POLICY_URL="https://fedoraproject.org/wiki/Legal:PrivacyPolicy"
-LOGO=serenelinux
+LOGO=SereneLinux

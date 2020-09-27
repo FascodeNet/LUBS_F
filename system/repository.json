@@ -7,6 +7,10 @@
         {
             "name":"fedora-core-update",
             "url":"https://dl.fedoraproject.org/pub/fedora/linux/updates/32/Everything/x86_64/"
+        },
+        {
+            "name":"yamad",
+            "url":"https://d.0u0.biz/repo/serene_fedora/"
         }
     ]
 }
