@@ -23,3 +23,6 @@ dnf install -y lightdm lightdm-gtk
 systemctl enable lightdm.service
 sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
 dconf update
+unlink /usr/share/backgrounds/images/default.png
+ln -s /usr/share/backgrounds/serene-wallpaper-1.png /usr/share/backgrounds/images/default.png
+
