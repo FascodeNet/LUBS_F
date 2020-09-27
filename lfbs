@@ -264,7 +264,7 @@ dnfstrap() {
     mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
     dnf -c "${work_dir}/airootfs/dnf_conf" --installroot="${work_dir}/airootfs" $(${script_path}/system/repository-json-parser.py ${script_path}/system/repository.json) install ${@} -y
     umount -fl "${work_dir}/airootfs/dnf_cache"
-
+}
 
 make_basefs() {
     _msg_info "Installing Fedora to '${work_dir}/airootfs'..."
