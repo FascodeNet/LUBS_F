@@ -297,7 +297,7 @@ parse_files() {
     _locale_line_number="$(_get_locale_line_number)"
 
     # 不正なロケール名なら終了する
-    [[ "${_locale_line_number}" == "failed" ]] && msg_error "${locale_name} is not a valid language." "1"
+    [[ "${_locale_line_number}" == "failed" ]] && _msg_error "${locale_name} is not a valid language." "1"
 
     # ロケール設定ファイルから該当の行を抽出
     _locale_config_line=($(cat "${_locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1))
@@ -455,7 +455,7 @@ make_nfb() {
 }
 make_efi() {
     # UEFI 32bit (ia32)
-    grub-mkstandalone \
+    grub2-mkstandalone \
         --format=i386-efi \
         --output="${bootfiles_dir}/grub/bootia32.efi" \
         --locales="" \
@@ -463,7 +463,7 @@ make_efi() {
         "boot/grub/grub.cfg=${bootfiles_dir}/grub/grub.cfg"
     
     # UEFI 64bit (x64)
-    grub-mkstandalone \
+    grub2-mkstandalone \
         --format=x86_64-efi \
         --output="${bootfiles_dir}/grub/bootx64.efi" \
         --locales="" \
