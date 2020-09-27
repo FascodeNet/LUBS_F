@@ -23,6 +23,7 @@ os_name="Fedora"
 iso_name="Fedora"
 language="ja_JP.UTF-8"
 channel_name="lxde"
+cache_dir="${script_path}/cache"
 
 arch="x86_64"
 
@@ -150,7 +151,7 @@ run_cmd() {
         fi
     done
     
-    chroot "${work_dir}/airootfs" "${@}"
+    unshare --fork --pid chroot "${work_dir}/airootfs" "${@}"
 
     for mount in $(mount | awk '{print $3}' | grep "$(realpath "${work_dir}")" | sort -r); do
         if [[ ! "${mount}" == "${work_dir}/airootfs" ]]; then
@@ -159,8 +160,9 @@ run_cmd() {
     done
 }
 
-_dnf_install() {
-    run_cmd dnf install -y ${@}
+_dnf_install() {    
+    mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
+    run_cmd dnf -c /dnf_conf install -y ${@}
 }
 
 # rm helper
@@ -192,8 +194,6 @@ _usage () {
     echo
     echo "    -a | --arch <str>      Set architecture"
     echo "                           Default: ${arch}"
-    echo "    -c | --codename <str>  Set ubuntu codename"
-    echo "                           Default: ${codename}"
     echo "    -l | --lang <lang>     Specifies the default language for the live environment"
     echo "                           Default: ${locale_name}"
     echo "    -m | --mirror <url>    Set apt mirror server."
@@ -202,6 +202,8 @@ _usage () {
     echo "                           Default: ${out_dir}"
     echo "    -w | --work <work_dir> Set the working directory"
     echo "                           Default: ${work_dir}"
+    echo "    -c | --cache <cache_dir> Set the cache directory"
+    echo "                           Default: ${cache_dir}"
     echo
     echo "    -d | --debug           "
     echo "    -h | --help            This help message and exit"
@@ -251,9 +253,17 @@ _usage () {
 }
 
 dnfstrap() {
-    dnf --installroot="${work_dir}/airootfs" $(${script_path}/system/repository-json-parser.py ${script_path}/system/repository.json) install ${@} -y
+    if [[ ! -d "${cache_dir}" ]]; then
+        mkdir -p "${cache_dir}"
+    fi
+    cp -rf "${script_path}/system/dnfconf.conf" "${work_dir}/airootfs/dnf_conf"
+    if [[ ! -d "${work_dir}/airootfs/dnf_cache" ]]; then
+        mkdir -p "${work_dir}/airootfs/dnf_cache"
+    fi
+    mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
+    dnf -c "${work_dir}/airootfs/dnf_conf" --installroot="${work_dir}/airootfs" $(${script_path}/system/repository-json-parser.py ${script_path}/system/repository.json) install ${@} -y
+    umount -fl "${work_dir}/airootfs/dnf_cache"
 }
-
 
 make_basefs() {
     _msg_info "Installing Fedora to '${work_dir}/airootfs'..."
@@ -261,8 +271,9 @@ make_basefs() {
     _msg_info "${codename} installed successfully!"
     
     echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}' > "${work_dir}/airootfs/etc/bash.bashrc"
-    run_cmd dnf update -y
-    run_cmd dnf -y remove $(run_cmd dnf repoquery --installonly --latest-limit=-1 -q)
+    mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
+    run_cmd dnf -c /dnf_conf update -y
+    run_cmd dnf -c /dnf_conf -y remove $(run_cmd dnf -c /dnf_conf repoquery --installonly --latest-limit=-1 -q)
     # run_cmd apt-get upgrade
 }
 
@@ -352,7 +363,8 @@ make_dnf_packages() {
     fi
 
     if [[ -s "${work_dir}/airootfs/dnfpkglist" ]]; then
-        run_cmd env -i bash -c 'dnf -y --nogpgcheck install $(echo $(<dnfpkglist))'
+        mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
+        run_cmd env -i bash -c 'dnf -y --nogpgcheck -c /dnf_conf install $(echo $(<dnfpkglist))'
     fi
 
     remove "${work_dir}/airootfs/dnfpkglist"
@@ -398,8 +410,8 @@ make_config() {
     _run_script() {
         local _file
         for _file in ${@}; do
-            chmod 755 "${_file}"
-            if [[ -f "${_file}" ]]; then run_cmd "${_file}" ${_airootfs_script_options}; fi
+            if [[ -f "${work_dir}/airootfs${_file}" ]]; then run_cmd "${_file}" ${_airootfs_script_options}; fi
+            if [[ -f "${work_dir}/airootfs${_file}" ]]; then chmod 755 "${work_dir}/airootfs${_file}"; fi
         done
     }
 
@@ -407,13 +419,16 @@ make_config() {
 }
 
 make_clean() {
-    run_cmd dnf -y remove $(run_cmd dnf repoquery --installonly --latest-limit=-1 -q)
-    run_cmd dnf clean all
+    mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
+    run_cmd dnf -c /dnf_conf -y remove $(run_cmd dnf -c /dnf_conf repoquery --installonly --latest-limit=-1 -q)
 }
 
 make_squashfs() {
     # prepare
-    rmeove "${bootfiles_dir}"
+    remove "${bootfiles_dir}"
+    if [[ -d "${work_dir}/airootfs/dnf_cache" ]]; then
+        rm -rf "${work_dir}/airootfs/dnf_cache"
+    fi
     mkdir -p "${bootfiles_dir}"/{grub,LiveOS,boot,isolinux}
     #generate initrd
     _msg_info "make initrd..."
@@ -531,8 +546,8 @@ while :; do
             arch="${2}"
             shift 2
             ;;
-        -c | --codename)
-            codename="${2}"
+        -c | --cache)
+            cache_dir="${2}"
             shift 2
             ;;
         -d | --debug)
@@ -575,7 +590,7 @@ while :; do
 done
 
 bootfiles_dir="${work_dir}/bootfiles"
-trap  umount_chroot 0 2 15
+trap  umount_chroot_airootfs 0 2 15
 
 if [[ -n "${1}" ]]; then
     channel_name="${1}"
