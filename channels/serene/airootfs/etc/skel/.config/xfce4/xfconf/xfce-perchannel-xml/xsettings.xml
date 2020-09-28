@@ -35,5 +35,9 @@
     <property name="CursorThemeName" type="string" value="Google_Cursor"/>
     <property name="CursorThemeSize" type="empty"/>
     <property name="DecorationLayout" type="empty"/>
+    <property name="IMModule" type="string" value="ibus:xim"/>
+  </property>
+  <property name="Gdk" type="empty">
+    <property name="WindowScalingFactor" type="empty"/>
   </property>
 </channel>

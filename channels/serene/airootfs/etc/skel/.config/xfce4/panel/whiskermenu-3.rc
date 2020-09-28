@@ -1,33 +1,45 @@
-favorites=chromium-browser.desktop,Thunar.desktop,vlc.desktop,xfce4-terminal.desktop,medit.desktop,gimp.desktop
+favorites=exo-web-browser.desktop,exo-mail-reader.desktop,exo-file-manager.desktop,exo-terminal-emulator.desktop
 recent=
-button-title=Applications
-button-icon=/usr/share/pixmaps/serene/icon_flat_cicle.png
+button-icon=serene
 button-single-row=false
 show-button-title=false
 show-button-icon=true
 launcher-show-name=true
 launcher-show-description=true
 launcher-show-tooltip=true
-item-icon-size=2
+item-icon-size=3
 hover-switch-category=false
 category-show-name=true
 category-icon-size=1
 load-hierarchy=false
+view-as-icons=true
 recent-items-max=10
 favorites-in-recent=true
 display-recent-default=false
 position-search-alternate=true
 position-commands-alternate=false
 position-categories-alternate=true
-menu-width=446
-menu-height=503
+stay-on-focus-out=false
+confirm-session-command=true
+menu-width=450
+menu-height=500
 menu-opacity=100
 command-settings=xfce4-settings-manager
 show-command-settings=true
 command-lockscreen=xflock4
-show-command-lockscreen=false
-command-switchuser=dm-tool switch-to-greeter
-show-command-switchuser=true
+show-command-lockscreen=true
+command-switchuser=gdmflexiserver
+show-command-switchuser=false
+command-logoutuser=xfce4-session-logout --logout --fast
+show-command-logoutuser=false
+command-restart=xfce4-session-logout --reboot --fast
+show-command-restart=false
+command-shutdown=xfce4-session-logout --halt --fast
+show-command-shutdown=false
+command-suspend=xfce4-session-logout --suspend
+show-command-suspend=false
+command-hibernate=xfce4-session-logout --hibernate
+show-command-hibernate=false
 command-logout=xfce4-session-logout
 show-command-logout=true
 command-menueditor=menulibre
@@ -37,13 +49,13 @@ show-command-profile=true
 search-actions=5
 
 [action0]
-name=Man Pages
+name=Man ページ
 pattern=#
 command=exo-open --launch TerminalEmulator man %s
 regex=false
 
 [action1]
-name=Web Search
+name=ウェブ検索
 pattern=?
 command=exo-open --launch WebBrowser https://duckduckgo.com/?q=%u
 regex=false
@@ -55,13 +67,13 @@ command=exo-open --launch WebBrowser https://en.wikipedia.org/wiki/%u
 regex=false
 
 [action3]
-name=Run in Terminal
+name=ターミナル上で実行
 pattern=!
 command=exo-open --launch TerminalEmulator %s
 regex=false
 
 [action4]
-name=Open URI
+name=URI を開く
 pattern=^(file|http|https):\\/\\/(.*)$
 command=exo-open \\0
 regex=true
