@@ -12,3 +12,5 @@ qt5-qtstyleplugins
 # backgrounds
 serenelinux-wallpaper
 @xfce-desktop-environment
+xfce4-whiskermenu-plugin
+serene-google-menus
