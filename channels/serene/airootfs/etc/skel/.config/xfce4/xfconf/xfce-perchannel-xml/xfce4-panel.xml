@@ -38,10 +38,10 @@
       <property name="position-locked" type="bool" value="true"/>
       <property name="size" type="uint" value="30"/>
       <property name="background-rgba" type="array">
-        <value type="double" value="0.180392"/>
-        <value type="double" value="0.203922"/>
-        <value type="double" value="0.211765"/>
-        <value type="double" value="0.814815"/>
+        <value type="double" value="0.313333"/>
+        <value type="double" value="0.313333"/>
+        <value type="double" value="0.313333"/>
+        <value type="double" value="0.306397"/>
       </property>
     </property>
     <property name="panel-3" type="empty">
