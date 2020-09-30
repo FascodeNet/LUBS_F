@@ -19,10 +19,16 @@ while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
         l) language="${OPTARG}" ;;
     esac
 done
-dnf install -y lightdm lightdm-gtk
 systemctl enable lightdm.service
 sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
 dconf update
+# Set os name
+sed -i s/%OS_NAME%/"${os_name}"/g /etc/skel/Desktop/calamares.desktop
+
+# Create Calamares Entry
+cp -f /etc/skel/Desktop/calamares.desktop /usr/share/applications/calamares.desktop
+
 unlink /usr/share/backgrounds/images/default.png
 ln -s /usr/share/backgrounds/serene-wallpaper-1.png /usr/share/backgrounds/images/default.png
 
+echo -e "sed -i \"s/^autologin/#autologin/g\" /etc/lightdm/lightdm.conf" >> /usr/share/calamares/final-process
