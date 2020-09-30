@@ -122,3 +122,25 @@ chown root:root -R /etc/sudoers.d/
 echo "LANG=${localegen}" > "/etc/locale.conf"
 truncate -s 0 /etc/machine-id
 passwd -u -f root
+
+
+# Calamares configs
+
+# Replace the configuration file.
+# unpackfs
+kernel_filename=vmlinuz-$(ls /lib/modules)
+sed -i "s|%KERNEL_FILENAME%|${kernel_filename}|g" /usr/share/calamares/modules/unpackfs.conf
+
+# Remove configuration files for other kernels.
+#remove /usr/share/calamares/modules/initcpio/
+#remove /usr/share/calamares/modules/unpackfs/
+
+# Set up calamares removeuser
+sed -i s/%USERNAME%/${username}/g /usr/share/calamares/modules/removeuser.conf
+
+# Set user shell
+sed -i "s|%USERSHELL%|'${usershell}'|g" /usr/share/calamares/modules/users.conf
+
+# Add disabling of sudo setting
+echo -e "\nremove \"/etc/sudoers.d/fedoralive\"" >> /usr/share/calamares/final-process
+
