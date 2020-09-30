@@ -127,10 +127,6 @@ passwd -u -f root
 # Calamares configs
 
 # Replace the configuration file.
-# unpackfs
-kernel_filename=vmlinuz-$(ls /lib/modules)
-sed -i "s|%KERNEL_FILENAME%|${kernel_filename}|g" /usr/share/calamares/modules/unpackfs.conf
-
 # Remove configuration files for other kernels.
 #remove /usr/share/calamares/modules/initcpio/
 #remove /usr/share/calamares/modules/unpackfs/
