@@ -7,4 +7,4 @@ dracut-live
 zsh
 NetworkManager-wifi
 iwl7260-firmware
-shim
+grub2-efi-x64-modules
