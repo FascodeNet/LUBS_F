@@ -1,4 +1,4 @@
-## LFBS - Live Fedora BUild System
+## LUBS Fedora - Live Universal Build System  Fedora
 
 ![Travis](https://img.shields.io/travis/com/FascodeNet/LFBS)
 
