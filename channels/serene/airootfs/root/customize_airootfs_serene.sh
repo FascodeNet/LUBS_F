@@ -24,7 +24,7 @@ sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
 dconf update
 # Set os name
 sed -i s/%OS_NAME%/"${os_name}"/g /etc/skel/Desktop/calamares.desktop
-sed -i s/%OS_NAME%/"${os_name}"/g /home/${username}/Desktop/calamares.desktop
+cp -f /etc/skel/Desktop/calamares.desktop /home/${username}/Desktop/calamares.desktop
 
 # Create Calamares Entry
 cp -f /etc/skel/Desktop/calamares.desktop /usr/share/applications/calamares.desktop
@@ -37,3 +37,4 @@ sed -i "s/- grubcfg/# - grubcfg/g" /usr/share/calamares/settings.conf
 sed -i "s/- packages/- shellprocess\n  - packages/g" /usr/share/calamares/settings.conf
 sed -i "s/sb-shim/grub/g" /usr/share/calamares/modules/bootloader.conf
 sed -i "s/fedora/Serene Linux on Fedora/g" /usr/share/calamares/modules/bootloader.conf
+sed -i "s/auto/serene/g" /usr/share/calamares/settings.conf
