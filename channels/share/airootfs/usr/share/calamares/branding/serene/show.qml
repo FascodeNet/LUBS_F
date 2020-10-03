@@ -31,7 +31,7 @@ Presentation
     Slide {
         Image {
             id: background
-            source: "log-512.png"
+            source: "logo-512.png"
             width: 200; height: 200
             fillMode: Image.PreserveAspectFit
             anchors.centerIn: parent
