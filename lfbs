@@ -448,6 +448,8 @@ make_squashfs() {
     resize2fs -M "${work_dir}/squashfsroot/LiveOS/rootfs.img"
     _msg_info "Compress rootfs.."
     mksquashfs "${work_dir}/squashfsroot/" "${bootfiles_dir}/LiveOS/squashfs.img"
+    _msg_info "Deleting block image..."
+    rm -rf "${work_dir}/squashfsroot/LiveOS/rootfs.img"
 }
 
 make_nfb() {
