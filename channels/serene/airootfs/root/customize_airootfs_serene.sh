@@ -33,6 +33,5 @@ unlink /usr/share/backgrounds/images/default.png
 ln -s /usr/share/backgrounds/serene-wallpaper-1.png /usr/share/backgrounds/images/default.png
 
 echo -e "sed -i \"s/^autologin/#autologin/g\" /etc/lightdm/lightdm.conf" >> /usr/share/calamares/final-process
-sed -i "s/install_secureboot(efi_directory)/install_grub(efi_directory, fw_type)/g" /usr/lib64/calamares/modules/bootloader/main.py
-sed -i "s/check_target_env_call(\\[libcalamares.job.configuration\\[\"grubInstall\"\\],/subprocess.call(\\[\"chroot\",install_path,libcalamares.job.configuration\\[\"grubInstall\"\\],/g" /usr/lib64/calamares/modules/bootloader/main.py
 sed -i "s/- grubcfg/# - grubcfg/g" /usr/share/calamares/settings.conf
+sed -i "s/sb-shim/grub/g" /usr/share/calamares/modules/bootloader.conf
