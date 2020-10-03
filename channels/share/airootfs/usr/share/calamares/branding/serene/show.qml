@@ -27,42 +27,21 @@ Presentation
 {
     id: presentation
 
-    Timer {
-        interval: 20000
-        running: true
-        repeat: true
-        onTriggered: presentation.goToNextSlide()
-    }
     
     Slide {
-        Text {
-            anchors.horizontalCenter: background1.horizontalCenter
-            anchors.top: background1.bottom
-            text: qsTr("Slide_Text_1")
-            wrapMode: Text.WordWrap
-            width: 800
-            horizontalAlignment: Text.Center
+        Image {
+            id: background
+            source: "log-512.png"
+            width: 200; height: 200
+            fillMode: Image.PreserveAspectFit
+            anchors.centerIn: parent
         }
-    }
-
-    Slide {
         Text {
-            anchors.horizontalCenter: background2.horizontalCenter
-            anchors.top: background2.bottom
-            text: qsTr("Slide_Text_2")
+            anchors.horizontalCenter: background.horizontalCenter
+            anchors.top: background.bottom
+            text: "Installing now...."
             wrapMode: Text.WordWrap
-            width: 800
-            horizontalAlignment: Text.Center
-        }
-    }
-
-    Slide {
-        Text {
-            anchors.horizontalCenter: background3.horizontalCenter
-            anchors.top: background3.bottom
-            text: qsTr("Slide_Text_3")
-            wrapMode: Text.WordWrap
-            width: 800
+            width: presentation.width
             horizontalAlignment: Text.Center
         }
     }
