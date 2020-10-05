@@ -468,7 +468,12 @@ make_nfb() {
     # isolinux setup
     sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/isolinux.cfg" | sed "s|%CD_LABEL%|${iso_label}|g"  > "${bootfiles_dir}/isolinux/isolinux.cfg"
     #grub
-    sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/grub.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" > "${bootfiles_dir}/grub/grub.cfg"
+    if [[ ${bootsplash} = true ]]; then
+        sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/grub.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" | sed "s|selinux=0|selinux=0 quiet splash|g" > "${bootfiles_dir}/grub/grub.cfg"
+    else
+        sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/grub.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" > "${bootfiles_dir}/grub/grub.cfg"
+    fi
+    sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/grub.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" | sed "s|selinux=0|selinux=0 quiet splash|g" > "${bootfiles_dir}/grub/grub.cfg"
 }
 make_efi() {
     # UEFI 32bit (ia32)
