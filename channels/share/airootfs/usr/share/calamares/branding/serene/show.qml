@@ -46,6 +46,7 @@ Presentation
             horizontalAlignment: Text.Center
         }
 
+    }
     SequentialAnimation{
         SequentialAnimation{
             ParallelAnimation {
@@ -127,9 +128,9 @@ Presentation
         id: rectangle
 
         anchors.horizontalCenter: background.horizontalCenter
-        anchors.top: textkun.bottom
+        anchors.bottom: presentation.bottom 
         color: "#ffffff"
-        anchors.topMargin: 28
+        anchors.bottomMargin: 28
         width: textkun.width
         Image {
             id: imageleft
@@ -165,6 +166,5 @@ Presentation
             anchors.leftMargin: 9
             fillMode: Image.PreserveAspectFit
         }
-    }
     }
 }
