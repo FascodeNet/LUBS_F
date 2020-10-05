@@ -139,4 +139,10 @@ sed -i "s|%USERSHELL%|'${usershell}'|g" /usr/share/calamares/modules/users.conf
 
 # Add disabling of sudo setting
 echo -e "\nremove \"/etc/sudoers.d/fedoralive\"" >> /usr/share/calamares/final-process
-
+if [[ $boot_splash = true ]]; then
+    cat <<EOF > /etc/grub.d/99_plymouth_config
+#!/usr/bin/env bash
+grubby --update-kernel=ALL --args="quiet splash"
+EOF
+    chmod +x /etc/grub.d/99_plymouth_config
+fi

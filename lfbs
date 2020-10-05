@@ -24,7 +24,7 @@ iso_name="Fedora"
 language="ja_JP.UTF-8"
 channel_name="serene"
 cache_dir="${script_path}/cache"
-
+bootsplash=false
 arch="x86_64"
 
 out_dir="${script_path}/out"
@@ -361,7 +361,15 @@ make_dnf_packages() {
     if [[ -f "${channels_dir}/${channel_name}/packages-${locale_name}.${arch}" ]]; then
         grep -h -v ^'#' "${channels_dir}/${channel_name}/packages-${locale_name}.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfpkglist"
     fi
-
+    if [[ ${bootsplash} == true ]]; then
+        if [[ -f "${channels_dir}/share/packages_plymouth.${arch}" ]]; then
+            grep -h -v ^'#' "${channels_dir}/share/packages_plymouth.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfpkglist"
+        fi
+        
+        if [[ -f "${channels_dir}/${channel_name}/packages_plymouth.${arch}" ]]; then
+            grep -h -v ^'#' "${channels_dir}/${channel_name}/packages_plymouth.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfpkglist"
+        fi
+    fi
     if [[ -s "${work_dir}/airootfs/dnfpkglist" ]]; then
         mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
         run_cmd env -i bash -c 'dnf -y --nogpgcheck -c /dnf_conf install $(echo $(<dnfpkglist))'
@@ -406,7 +414,9 @@ make_config() {
     # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
     local _airootfs_script_options _run_script
     _airootfs_script_options="-p ${liveuser_password} -u ${liveuser_name} -o ${os_name} -s ${liveuser_shell} -a ${arch} -g ${locale_gen_name} -l ${locale_name} -z ${locale_time} "
-
+    if [[ ${bootsplash} == true ]]; then
+        _airootfs_script_options="${_airootfs_script_options} -b"
+    fi
     _run_script() {
         local _file
         for _file in ${@}; do
@@ -432,7 +442,7 @@ make_squashfs() {
     mkdir -p "${bootfiles_dir}"/{grub,LiveOS,boot,isolinux}
     #generate initrd
     _msg_info "make initrd..."
-    run_cmd dracut --xz --add "dmsquash-live convertfs pollcdrom" --omit plymouth --no-hostonly --no-early-microcode /boot/initrd0 `run_cmd ls /lib/modules`
+    run_cmd dracut --xz --add "dmsquash-live convertfs pollcdrom" --no-hostonly --no-early-microcode /boot/initrd0 `run_cmd ls /lib/modules`
     cp ${work_dir}/airootfs/boot/vmlinuz-$(run_cmd ls /lib/modules) ${bootfiles_dir}/boot/vmlinuz
     mv ${work_dir}/airootfs/boot/initrd0 ${bootfiles_dir}/boot/initrd
     #cp isolinux
@@ -536,8 +546,8 @@ make_checksum() {
 # 引数解析（）
 # 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
 
-_opt_short="w:l:o:ha:-:m:c:d"
-_opt_long="help,arch:,codename:,debug,help,lang,mirror:,out:,work,cache-only"
+_opt_short="w:l:o:hba:-:m:c:d"
+_opt_long="help,arch:,codename:,debug,help,lang,mirror:,out:,work,cache-only,bootsplash"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 
 if [[ ${?} != 0 ]]; then
@@ -551,6 +561,10 @@ while :; do
         -a | --arch)
             arch="${2}"
             shift 2
+            ;;
+        -b | --bootsplash)
+            bootsplash=true
+            shift 1
             ;;
         -c | --cache)
             cache_dir="${2}"
