@@ -194,6 +194,7 @@ _usage () {
     echo
     echo "    -a | --arch <str>      Set architecture"
     echo "                           Default: ${arch}"
+    echo "    -b | --bootsplash      Enable Plymouth"
     echo "    -l | --lang <lang>     Specifies the default language for the live environment"
     echo "                           Default: ${locale_name}"
     echo "    -m | --mirror <url>    Set apt mirror server."
