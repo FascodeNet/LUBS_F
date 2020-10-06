@@ -145,4 +145,5 @@ if [[ $boot_splash = true ]]; then
 grubby --update-kernel=ALL --args="quiet splash"
 EOF
     chmod +x /etc/grub.d/99_plymouth_config
+    echo -e "\ngrubby --update-kernel=ALL --args=\"quiet splash\"" >> /usr/share/calamares/final-process
 fi
