@@ -33,8 +33,7 @@ unlink /usr/share/backgrounds/images/default.png
 ln -s /usr/share/backgrounds/serene-wallpaper-1.png /usr/share/backgrounds/images/default.png
 
 echo -e "sed -i \"s/^autologin/#autologin/g\" /etc/lightdm/lightdm.conf" >> /usr/share/calamares/final-process
-sed -i "s/- grubcfg/# - grubcfg/g" /usr/share/calamares/settings.conf
-sed -i "s/- packages/- grubcfg\n  - shellprocess\n  - removeuser\n  - packages/g" /usr/share/calamares/settings.conf
+sed -i "s/- packages/- shellprocess\n  - removeuser\n  - packages/g" /usr/share/calamares/settings.conf
 sed -i "s/sb-shim/grub/g" /usr/share/calamares/modules/bootloader.conf
 sed -i "s/fedora/Serene Linux on Fedora/g" /usr/share/calamares/modules/bootloader.conf
 sed -i "s/auto/serene/g" /usr/share/calamares/settings.conf
