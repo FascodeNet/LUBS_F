@@ -27,7 +27,7 @@ Presentation
 {
     id: presentation
 
-    
+
     Slide {
         Image {
             id: background
@@ -53,68 +53,71 @@ Presentation
                 YAnimator {
                     target: imageleft
                     from: imageleft.y
-                    to: imageleft.y * 4.8
-                    easing.type: Easing.OutExpo;
-                    duration: 300
+                    to: imageleft.y * 6
+                    easing.type: Easing.OutQuad;
+                    duration: 500
                 }
             }
+            //PauseAnimation { duration: 200 }
             ParallelAnimation {
                 YAnimator {
                     target: imageleft;
-                    from: imageleft.y * 4.8
+                    from: imageleft.y * 6
                     to: imageleft.y
                     easing.type: Easing.OutBounce;
                     duration: 1000
                 }
             }
         }
-        PauseAnimation { duration: 1100 }
+        PauseAnimation { duration: 900 }
         running: true
         loops: Animation.Infinite
     }
     SequentialAnimation{
-        PauseAnimation { duration: 300 }
+        PauseAnimation { duration: 200 }
         SequentialAnimation{
             ParallelAnimation {
                 YAnimator {
                     target: imagecenter
-                    from: imageleft.y
-                    to: imageleft.y * 4.8
-                    easing.type: Easing.OutExpo;
-                    duration: 300
+                    from: imagecenter.y
+                    to: imagecenter.y * 6
+                    easing.type: Easing.OutQuad;
+                    duration: 500
                 }
             }
+            //PauseAnimation { duration: 200 }
             ParallelAnimation {
                 YAnimator {
-                    target: imagecenter;
-                    from: imageleft.y * 4.8
-                    to: imageleft.y
+                    target: imagecenter
+                    from: imagecenter.y * 6
+                    to: imagecenter.y
                     easing.type: Easing.OutBounce;
                     duration: 1000
                 }
             }
         }
-        PauseAnimation { duration: 800 }
+        PauseAnimation { duration: 700 }
         running: true
         loops: Animation.Infinite
     }
     SequentialAnimation{
-        PauseAnimation { duration: 600 }
+        PauseAnimation { duration: 400 }
         SequentialAnimation{
             ParallelAnimation {
                 YAnimator {
                     target: imageright
-                    from: imageleft.y
-                    to: imageleft.y * 4.8
-                    easing.type: Easing.OutExpo;
-                    duration: 300
+                    from: imageright.y
+                    to: imageright.y * 6
+                    easing.type: Easing.OutQuad;
+                    duration: 500
                 }
             }
+            //PauseAnimation { duration: 200 }
             ParallelAnimation {
                 YAnimator {
                     target: imageright;
-                    from: imageleft.y * 4.8
-                    to: imageleft.y
+                    from: imageright.y * 6
+                    to: imageright.y
                     easing.type: Easing.OutBounce;
                     duration: 1000
                 }
@@ -124,11 +127,13 @@ Presentation
         running: true
         loops: Animation.Infinite
     }
+    /**/
+
     Rectangle {
         id: rectangle
 
         anchors.horizontalCenter: background.horizontalCenter
-        anchors.bottom: presentation.bottom 
+        anchors.bottom: presentation.bottom
         color: "#ffffff"
         anchors.bottomMargin: 28
         width: textkun.width
