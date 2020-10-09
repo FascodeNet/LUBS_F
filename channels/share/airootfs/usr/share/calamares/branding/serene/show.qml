@@ -38,15 +38,69 @@ Presentation
         }
         Text {
             id: textkun
-            anchors.horizontalCenter: background.horizontalCenter
-            anchors.top: background.bottom
-            text: "Installing now...."
+            //anchors.horizontalCenter: background.horizontalCenter
+            font.pixelSize: 25
+            text: "Thank you for installing SereneLinux"
+            anchors.top: presentation.top
+            anchors.left: presentation.left
             wrapMode: Text.WordWrap
             width: presentation.width
-            horizontalAlignment: Text.Center
+            //horizontalAlignment: Text.Center
         }
-
     }
+
+    Rectangle {
+        id: rectangle
+
+        anchors.horizontalCenter: background.horizontalCenter
+        anchors.bottom: presentation.bottom
+        color: "#ffffff"
+        anchors.bottomMargin: 28
+        width: textkun.width
+        // center
+        Image {
+            id: imagecenter
+            height: 8//textkun.height / 3
+            width:  8//textkun.width / 3
+            source: "circle.svg"
+            anchors.topMargin: 28
+            anchors.leftMargin: 9
+            anchors.centerIn: rectangle
+
+            fillMode: Image.PreserveAspectFit
+        }
+        // left
+        Image {
+            id: imageleft
+            y:imagecenter.y
+            height: imagecenter.height
+            width:  imagecenter.width
+            source: "circle.svg"
+            anchors.right      : imagecenter.left
+            anchors.topMargin  : 28
+            anchors.rightMargin:  9
+            anchors.leftMargin : 16
+
+            fillMode: Image.PreserveAspectFit
+        }
+        // right
+        Image {
+            id: imageright
+            y:imagecenter.y
+            height: imagecenter.height
+            width:  imagecenter.width
+            source: "circle.svg"
+            anchors.left      : imagecenter.right
+            anchors.topMargin : 28
+            anchors.leftMargin:  9
+
+            fillMode: Image.PreserveAspectFit
+        }
+    }
+    /*
+     * Animation
+     */
+    // left
     SequentialAnimation{
         SequentialAnimation{
             ParallelAnimation {
@@ -73,6 +127,7 @@ Presentation
         running: true
         loops: Animation.Infinite
     }
+    // center
     SequentialAnimation{
         PauseAnimation { duration: 200 }
         SequentialAnimation{
@@ -100,6 +155,7 @@ Presentation
         running: true
         loops: Animation.Infinite
     }
+    // right
     SequentialAnimation{
         PauseAnimation { duration: 400 }
         SequentialAnimation{
@@ -128,48 +184,4 @@ Presentation
         loops: Animation.Infinite
     }
     /**/
-
-    Rectangle {
-        id: rectangle
-
-        anchors.horizontalCenter: background.horizontalCenter
-        anchors.bottom: presentation.bottom
-        color: "#ffffff"
-        anchors.bottomMargin: 28
-        width: textkun.width
-        Image {
-            id: imageleft
-            anchors.right: imagecenter.left
-            height: textkun.height / 3
-            width:textkun.height / 3
-            source: "circle.svg"
-            anchors.topMargin: 28
-            anchors.rightMargin: 9
-            anchors.leftMargin: 16
-            y:imagecenter.y
-
-            fillMode: Image.PreserveAspectFit
-        }
-        Image {
-            id: imagecenter
-            height: textkun.height / 3
-            width:textkun.height / 3
-            source: "circle.svg"
-            anchors.topMargin: 28
-            anchors.leftMargin: 9
-            anchors.centerIn: rectangle
-            fillMode: Image.PreserveAspectFit
-        }
-        Image {
-            id: imageright
-            anchors.left: imagecenter.right
-            height: imagecenter.height
-            source: "circle.svg"
-            y:imagecenter.y
-            anchors.topMargin: 28
-
-            anchors.leftMargin: 9
-            fillMode: Image.PreserveAspectFit
-        }
-    }
 }
