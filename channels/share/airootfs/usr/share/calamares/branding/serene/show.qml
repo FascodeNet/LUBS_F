@@ -63,6 +63,7 @@ Presentation
         Text {
             id: description_1
             font.pixelSize: 15
+            color: "#333333"
             width: parent.width/2
             text: qsTr("Thank you for installing SereneLinux.\nThis slide will show how to use SereneLinux.")
             anchors.bottom: parent.bottom
@@ -90,6 +91,7 @@ Presentation
             id: text_1
             font.pixelSize: 25
             font.weight: font.bold
+            color: "#333333"
             text: qsTr("<b>Welcome to SereneLinux</b>")
             x: -800
             anchors.top: presentation.top
@@ -136,6 +138,7 @@ Presentation
         Text {
             id: description_2
             font.pixelSize: 15
+            color: "#333333"
             width: parent.width/2
             text: qsTr("SereneLinux is using Xfce4 Desktop Enviroment.\nXfce4 gives beautiful UI and freedom of customization.")
             anchors.bottom: parent.bottom
@@ -163,6 +166,7 @@ Presentation
             id: text_2
             font.pixelSize: 25
             font.weight: font.bold
+            color: "#333333"
             text: qsTr("<b>Beautiful Desktop</b>")
             x: -800
             anchors.top: presentation.top
@@ -208,6 +212,7 @@ Presentation
         Text {
             id: description_3
             font.pixelSize: 15
+            color: "#333333"
             width: parent.width/2
             text: qsTr("SereneLinux incorporate a Chromium as a default browser.\n\nIf you want to use other software, you can install it easy.")
             anchors.bottom: parent.bottom
@@ -218,8 +223,8 @@ Presentation
         }
         Rectangle{
             id:slide_3_rect
-            width : slide_3.width +100
-            height: slide_3.height+100
+            width : presentation.width
+            height: slide_3.height
             color: "#FFFFFFFF"
 
             SequentialAnimation on color{
@@ -235,6 +240,7 @@ Presentation
             id: text_3
             font.pixelSize: 25
             font.weight: font.bold
+            color: "#333333"
             text: qsTr("<b>Useful softwares</b>")
             x: -800
             anchors.top: presentation.top
@@ -280,6 +286,7 @@ Presentation
         Text {
             id: description_4
             font.pixelSize: 15
+            color: "#333333"
             width: parent.width/2
             text: qsTr("Use Google Document to create document and spread sheet.\nGoogle Document save file safely on online, so you don't use local disk space.")
             anchors.bottom: parent.bottom
@@ -307,6 +314,7 @@ Presentation
             id: text_4
             font.pixelSize: 25
             font.weight: font.bold
+            color: "#333333"
             text: qsTr("<b>Create and edit document</b>")
             x: -800
             anchors.top: presentation.top
@@ -352,6 +360,7 @@ Presentation
         Text {
             id: description_5
             font.pixelSize: 15
+            color: "#333333"
             width: parent.width/2
             text: qsTr("Installation will be completed soon. I hope SereneLinux brings you a little pleasure.\n\nIf you have any probrem, feel free to send DM on Twitter(@Fascode_SPT) or visit official website.")
             anchors.bottom: parent.bottom
@@ -379,6 +388,7 @@ Presentation
             id: text_5
             font.pixelSize: 25
             font.weight: font.bold
+            color: "#333333"
             text: qsTr("<b>Do you need help?</b>")
             x: -800
             anchors.top: presentation.top
