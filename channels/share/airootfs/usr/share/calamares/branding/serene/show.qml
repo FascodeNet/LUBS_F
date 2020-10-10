@@ -31,7 +31,6 @@ Presentation
      * Slide
      */
 
-    // slide1
     function switchSlides(from, to, forward) {
 
         to.stop_animation()
@@ -41,11 +40,13 @@ Presentation
         to.visible = true
         return true
     }
+
+    // slide1
     Slide {
         id: slide_1
         Image {
             id: image_1
-            source: "00_welcome.png"
+            source: "01_welcome.png"
             fillMode: Image.PreserveAspectFit
             width: parent.width/2
             anchors.bottom: parent.bottom
@@ -66,8 +67,8 @@ Presentation
         }
         Rectangle{
             id:slide_1_rect_1
-            width : presentation.width
-            height: slide_1.height
+            width : slide_1.width +100
+            height: slide_1.height+100
             color: "#FFFFFFFF"
 
             SequentialAnimation on color{
@@ -91,7 +92,7 @@ Presentation
             width: presentation.width
             SequentialAnimation on x {
                 id:slide_1_text_1_animation
-                PauseAnimation{ duration: 500 }
+                PauseAnimation{ duration: 200 }
                 XAnimator{
                     from:-800
                     to: 0
@@ -118,7 +119,7 @@ Presentation
         id: slide_2
         Image {
             id: image_2
-            source: "01_xfce.png"
+            source: "02_xfce.png"
             fillMode: Image.PreserveAspectFit
             width: parent.width/2
             anchors.bottom: parent.bottom
@@ -139,8 +140,8 @@ Presentation
         }
         Rectangle{
             id:slide_2_rect
-            width : presentation.width
-            height: slide_2.height
+            width : slide_2.width +100
+            height: slide_2.height+100
             color: "#FFFFFFFF"
 
             SequentialAnimation on color{
@@ -164,7 +165,7 @@ Presentation
             width: presentation.width
             SequentialAnimation on x {
                 id: text_2_animation
-                PauseAnimation{ duration: 500 }
+                PauseAnimation{ duration: 200 }
                 XAnimator{
                     from:-800
                     to: 0
@@ -182,6 +183,222 @@ Presentation
         function start_animation(){
             text_2_animation.start()
             slide_2_color_anim.start()
+        }
+    }
+
+    // slide3
+    Slide {
+        id: slide_3
+        Image {
+            id: image_3
+            source: "03_software.png"
+            fillMode: Image.PreserveAspectFit
+            width: parent.width/2
+            anchors.bottom: parent.bottom
+            anchors.left  : parent.left
+            anchors.bottomMargin: 50
+
+        }
+        Text {
+            id: description_3
+            font.pixelSize: 15
+            width: parent.width/2
+            text: qsTr("SereneLinux incorporate a Chromium as a default browser.\nFor listening to music and watching video, VLC Media Player incorporate, too.\n\nIf you want to use other software, you can install it easy.")
+            anchors.bottom: parent.bottom
+            anchors.right:  parent.right
+            anchors.rightMargin: -20
+            anchors.bottomMargin: 50
+            wrapMode: Text.WordWrap
+        }
+        Rectangle{
+            id:slide_3_rect
+            width : slide_3.width +100
+            height: slide_3.height+100
+            color: "#FFFFFFFF"
+
+            SequentialAnimation on color{
+                id:slide_3_color_anim
+                PauseAnimation { duration:2000 }
+                ColorAnimation {
+                    to  : "#00FFFFFF"
+                    duration: 1000
+                }
+            }
+        }
+        Text {
+            id: text_3
+            font.pixelSize: 25
+            font.weight: font.bold
+            text: qsTr("<b>Useful softwares</b>")
+            x: -800
+            anchors.top: presentation.top
+            anchors.left: presentation.left
+            wrapMode: Text.WordWrap
+            width: presentation.width
+            SequentialAnimation on x {
+                id: text_3_animation
+                PauseAnimation{ duration: 200 }
+                XAnimator{
+                    from:-800
+                    to: 0
+                    easing.type: Easing.OutCubic
+                    duration: 1500
+                }
+            }
+        }
+        function stop_animation(){
+            text_3_animation.stop()
+            slide_3_color_anim.stop()
+            text_3.x=-800
+            slide_3_rect.color="#FFFFFFFF"
+        }
+        function start_animation(){
+            text_3_animation.start()
+            slide_3_color_anim.start()
+        }
+    }
+
+    // slide4
+    Slide {
+        id: slide_4
+        Image {
+            id: image_4
+            source: "04_office.png"
+            fillMode: Image.PreserveAspectFit
+            width: parent.width/2
+            anchors.bottom: parent.bottom
+            anchors.left  : parent.left
+            anchors.bottomMargin: 50
+
+        }
+        Text {
+            id: description_4
+            font.pixelSize: 15
+            width: parent.width/2
+            text: qsTr("Use Google Document to create document and spread sheet.\nGoogle Document save file safely on online, so you don't use local disk space.")
+            anchors.bottom: parent.bottom
+            anchors.right:  parent.right
+            anchors.rightMargin: -20
+            anchors.bottomMargin: 50
+            wrapMode: Text.WordWrap
+        }
+        Rectangle{
+            id:slide_4_rect
+            width : slide_4.width +100
+            height: slide_4.height+100
+            color: "#FFFFFFFF"
+
+            SequentialAnimation on color{
+                id:slide_4_color_anim
+                PauseAnimation { duration:2000 }
+                ColorAnimation {
+                    to  : "#00FFFFFF"
+                    duration: 1000
+                }
+            }
+        }
+        Text {
+            id: text_4
+            font.pixelSize: 25
+            font.weight: font.bold
+            text: qsTr("<b>Create and edit document</b>")
+            x: -800
+            anchors.top: presentation.top
+            anchors.left: presentation.left
+            wrapMode: Text.WordWrap
+            width: presentation.width
+            SequentialAnimation on x {
+                id: text_4_animation
+                PauseAnimation{ duration: 200 }
+                XAnimator{
+                    from:-800
+                    to: 0
+                    easing.type: Easing.OutCubic
+                    duration: 1500
+                }
+            }
+        }
+        function stop_animation(){
+            text_4_animation.stop()
+            slide_4_color_anim.stop()
+            text_4.x=-800
+            slide_4_rect.color="#FFFFFFFF"
+        }
+        function start_animation(){
+            text_4_animation.start()
+            slide_4_color_anim.start()
+        }
+    }
+
+    // slide5
+    Slide {
+        id: slide_5
+        Image {
+            id: image_5
+            source: "05_website.png"
+            fillMode: Image.PreserveAspectFit
+            width: parent.width/2
+            anchors.bottom: parent.bottom
+            anchors.left  : parent.left
+            anchors.bottomMargin: 50
+
+        }
+        Text {
+            id: description_5
+            font.pixelSize: 15
+            width: parent.width/2
+            text: qsTr("Installation will be completed soon. I hope SereneLinux brings you a little pleasure.\n\nIf you have any probrem, feel free to send DM on Twitter(@Fascode_SPT) or visit official website.\nSereneLinux is based on Fedora, so you can use Fedora information as it is.")
+            anchors.bottom: parent.bottom
+            anchors.right:  parent.right
+            anchors.rightMargin: -20
+            anchors.bottomMargin: 50
+            wrapMode: Text.WordWrap
+        }
+        Rectangle{
+            id:slide_5_rect
+            width : slide_5.width +100
+            height: slide_5.height+100
+            color: "#FFFFFFFF"
+
+            SequentialAnimation on color{
+                id:slide_5_color_anim
+                PauseAnimation { duration:2000 }
+                ColorAnimation {
+                    to  : "#00FFFFFF"
+                    duration: 1000
+                }
+            }
+        }
+        Text {
+            id: text_5
+            font.pixelSize: 25
+            font.weight: font.bold
+            text: qsTr("<b>Do you need help?</b>")
+            x: -800
+            anchors.top: presentation.top
+            anchors.left: presentation.left
+            wrapMode: Text.WordWrap
+            width: presentation.width
+            SequentialAnimation on x {
+                id: text_5_animation
+                PauseAnimation{ duration: 200 }
+                XAnimator{
+                    from:-800
+                    to: 0
+                    easing.type: Easing.OutCubic
+                    duration: 1500
+                }
+            }
+        }
+        function stop_animation(){
+            text_5_animation.stop()
+            slide_5_color_anim.stop()
+            text_5.x=-800
+            slide_5_rect.color="#FFFFFFFF"
+        }
+        function start_animation(){
+            text_5_animation.start()
+            slide_5_color_anim.start()
         }
     }
 
