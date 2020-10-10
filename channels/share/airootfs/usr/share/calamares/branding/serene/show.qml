@@ -48,7 +48,7 @@ Presentation
             id: description_1
             font.pixelSize: 15
             width: parent.width/2
-            text: "Thank you for installing SereneLinux.\nIn installing, This slide will show how to use SereneLinux."
+            text: qsTr("Thank you for installing SereneLinux.\nIn installing, This slide will show how to use SereneLinux.")
             anchors.bottom: parent.bottom
             anchors.right:  parent.right
             anchors.bottomMargin: 50
@@ -71,7 +71,7 @@ Presentation
             id: text_1
             font.pixelSize: 25
             font.weight: font.bold
-            text: "<b>Thank you for installing SereneLinux</b>"
+            text: qsTr("<b>Thank you for installing SereneLinux</b>")
             x: -800
             anchors.top: presentation.top
             anchors.left: presentation.left
