@@ -41,7 +41,7 @@ Presentation
             width: parent.width/2
             anchors.bottom: parent.bottom
             anchors.left  : parent.left
-            anchors.bottomMargin: 100
+            anchors.bottomMargin: 50
 
         }
         Text {
@@ -51,7 +51,7 @@ Presentation
             text: "Thank you for installing SereneLinux.\nIn installing, This slide will show how to use SereneLinux."
             anchors.bottom: parent.bottom
             anchors.right:  parent.right
-            anchors.bottomMargin: 100
+            anchors.bottomMargin: 50
             wrapMode: Text.WordWrap
         }
         Rectangle{
@@ -70,7 +70,8 @@ Presentation
         Text {
             id: text_1
             font.pixelSize: 25
-            text: "Thank you for installing SereneLinux"
+            font.weight: font.bold
+            text: "<b>Thank you for installing SereneLinux</b>"
             x: -800
             anchors.top: presentation.top
             anchors.left: presentation.left
