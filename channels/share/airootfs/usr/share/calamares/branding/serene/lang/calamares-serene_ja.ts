@@ -28,13 +28,37 @@ For listening to music and watching video, VLC Media Player incorporate, too.
 
 If you want to use other software, you can install it easy.</source>
         <translation>SereneLinuxにはデフォルトのブラウザとしてChromiumが搭載されています。
-音楽を聞いたり動画を見たりするために，VLC Media Playerも搭載されています。
+音楽を聞いたり動画を見たりするために、VLC Media Playerも搭載されています。
 
-もしほかのソフトを使いたいなら，それを簡単にインストールすることも可能です。</translation>
+もしほかのソフトを使いたいなら、それを簡単にインストールすることも可能です。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Useful softwares&lt;/b&gt;</source>
         <translation>ソフトウェア</translation>
+    </message>
+    <message>
+        <source>Use Google Document to create document and spread sheet.
+Google Document save file safely on online, so you don&apos;t use local disk space.</source>
+        <translation>Googleドキュメントを使用し、ドキュメントとスプレッドシートを作成します。
+Googleドキュメントはファイルをオンラインで安全に保存するため、コンピューターのスペースを使用しません。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Create and edit document&lt;/b&gt;</source>
+        <translation>文書を作成・編集する</translation>
+    </message>
+    <message>
+        <source>Installation will be completed soon. I hope SereneLinux brings you a little pleasure.
+
+If you have any probrem, feel free to send DM on Twitter(@Fascode_SPT) or visit official website.
+SereneLinux is based on Fedora, so you can use Fedora information as it is.</source>
+        <translation>インストールはもうすぐ完了します。SereneLinuxが少しの喜びをもたらしてくれることを願っています。
+
+もし何か問題があれば、気軽にTwitter (@Fascode_SPT) までDMを送るか、公式サイトにアクセスしてみてください。
+SereneLinuxはFedoraをベースにしているため、Fedoraの情報をそのまま使うことが出来ます。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Do you need help?&lt;/b&gt;</source>
+        <translation>助けが必要ですか</translation>
     </message>
 </context>
 </TS>
