@@ -34,7 +34,7 @@ If you want to use other software, you can install it easy.</source>
     </message>
     <message>
         <source>&lt;b&gt;Useful softwares&lt;/b&gt;</source>
-        <translation>ソフトウェア</translation>
+        <translation>&lt;b&gt;ソフトウェア&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Use Google Document to create document and spread sheet.
@@ -44,7 +44,7 @@ Googleドキュメントはファイルをオンラインで安全に保存す�
     </message>
     <message>
         <source>&lt;b&gt;Create and edit document&lt;/b&gt;</source>
-        <translation>文書を作成・編集する</translation>
+        <translation>&lt;b&gt;文書を作成・編集する&gt;/b&gt;</translation>
     </message>
     <message>
         <source>Installation will be completed soon. I hope SereneLinux brings you a little pleasure.
@@ -58,7 +58,7 @@ SereneLinuxはFedoraをベースにしているため、Fedoraの情報をその
     </message>
     <message>
         <source>&lt;b&gt;Do you need help?&lt;/b&gt;</source>
-        <translation>助けが必要ですか</translation>
+        <translation>&lt;b&gt;助けが必要ですか&lt;/b&gt;</translation>
     </message>
 </context>
 </TS>
