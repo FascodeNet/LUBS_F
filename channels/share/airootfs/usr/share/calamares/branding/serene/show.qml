@@ -41,6 +41,12 @@ Presentation
         return true
     }
 
+    Timer {
+        interval: 20000
+        running: true
+        repeat: true
+        onTriggered: presentation.goToNextSlide()
+    }
     // slide1
     Slide {
         id: slide_1
