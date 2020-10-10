@@ -27,41 +27,92 @@ Presentation
 {
     id: presentation
 
+    /*
+     * Slide
+     */
 
+    // slide1
     Slide {
+        id: slide_1
         Image {
-            id: background
-            source: "logo-512.png"
-            width: 200; height: 200
+            id: image_1
+            source: "languages.png"
             fillMode: Image.PreserveAspectFit
-            anchors.centerIn: parent
+            width: parent.width/2
+            anchors.bottom: parent.bottom
+            anchors.left  : parent.left
+            anchors.bottomMargin: 100
+
         }
         Text {
-            id: textkun
-            //anchors.horizontalCenter: background.horizontalCenter
+            id: description_1
+            font.pixelSize: 15
+            width: parent.width/2
+            text: "Thank you for installing SereneLinux.\nIn installing, This slide will show how to use SereneLinux."
+            anchors.bottom: parent.bottom
+            anchors.right:  parent.right
+            anchors.bottomMargin: 100
+            wrapMode: Text.WordWrap
+        }
+        Rectangle{
+            width : slide_1.width
+            height: slide_1.height
+            color: "#FFFFFFFF"
+
+            SequentialAnimation on color{
+                PauseAnimation { duration:2000 }
+                ColorAnimation {
+                    to  : "#00FFFFFF"
+                    duration: 1000
+                }
+            }
+        }
+        Text {
+            id: text_1
             font.pixelSize: 25
             text: "Thank you for installing SereneLinux"
+            x: -800
             anchors.top: presentation.top
             anchors.left: presentation.left
             wrapMode: Text.WordWrap
             width: presentation.width
-            //horizontalAlignment: Text.Center
+            SequentialAnimation on x {
+                PauseAnimation{ duration: 500 }
+                XAnimator{
+                    from:-800
+                    to: 0
+                    easing.type: Easing.OutCubic
+                    duration: 1500
+                }
+            }
         }
     }
 
+    // logo
+    Image {
+        id: logo
+        source: "logo-512.png"
+        height: 60
+        fillMode: Image.PreserveAspectFit
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.topMargin: 100
+        anchors.rightMargin: 50
+    }
+    // install animation
     Rectangle {
         id: rectangle
 
-        anchors.horizontalCenter: background.horizontalCenter
+        anchors.horizontalCenter: presentation.horizontalCenter
         anchors.bottom: presentation.bottom
         color: "#ffffff"
         anchors.bottomMargin: 28
-        width: textkun.width
+        width: text_1.width
         // center
         Image {
             id: imagecenter
-            height: 8//textkun.height / 3
-            width:  8//textkun.width / 3
+            height: 8//text_1.height / 3
+            width:  8//text_1.width / 3
             source: "circle.svg"
             anchors.topMargin: 28
             anchors.leftMargin: 9
@@ -100,6 +151,7 @@ Presentation
     /*
      * Animation
      */
+
     // left
     SequentialAnimation{
         SequentialAnimation{
