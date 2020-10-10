@@ -66,7 +66,7 @@ Presentation
         }
         Rectangle{
             id:slide_1_rect_1
-            width : slide_1.width
+            width : presentation.width
             height: slide_1.height
             color: "#FFFFFFFF"
 
@@ -139,7 +139,7 @@ Presentation
         }
         Rectangle{
             id:slide_2_rect
-            width : slide_2.width
+            width : presentation.width
             height: slide_2.height
             color: "#FFFFFFFF"
 
