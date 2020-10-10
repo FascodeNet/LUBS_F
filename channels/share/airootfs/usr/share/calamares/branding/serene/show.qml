@@ -32,6 +32,15 @@ Presentation
      */
 
     // slide1
+    function switchSlides(from, to, forward) {
+
+        to.stop_animation()
+        from.visible = false
+
+        to.start_animation()
+        to.visible = true
+        return true
+    }
     Slide {
         id: slide_1
         Image {
@@ -56,11 +65,13 @@ Presentation
             wrapMode: Text.WordWrap
         }
         Rectangle{
+            id:slide_1_rect_1
             width : slide_1.width
             height: slide_1.height
             color: "#FFFFFFFF"
 
             SequentialAnimation on color{
+                id:slide_1_color_animation
                 PauseAnimation { duration:2000 }
                 ColorAnimation {
                     to  : "#00FFFFFF"
@@ -79,6 +90,7 @@ Presentation
             wrapMode: Text.WordWrap
             width: presentation.width
             SequentialAnimation on x {
+                id:slide_1_text_1_animation
                 PauseAnimation{ duration: 500 }
                 XAnimator{
                     from:-800
@@ -87,6 +99,17 @@ Presentation
                     duration: 1500
                 }
             }
+        }
+        function stop_animation(){
+            slide_1_color_animation.stop()
+            slide_1_rect_1.color="#FFFFFFFF"
+            text_1.x=-800
+            slide_1_text_1_animation.stop()
+        }
+        function start_animation(){
+            slide_1_color_animation.start()
+            slide_1_text_1_animation.start()
+
         }
     }
 
@@ -115,11 +138,13 @@ Presentation
             wrapMode: Text.WordWrap
         }
         Rectangle{
+            id:slide_2_rect
             width : slide_2.width
             height: slide_2.height
             color: "#FFFFFFFF"
 
             SequentialAnimation on color{
+                id:slide_2_color_anim
                 PauseAnimation { duration:2000 }
                 ColorAnimation {
                     to  : "#00FFFFFF"
@@ -138,6 +163,7 @@ Presentation
             wrapMode: Text.WordWrap
             width: presentation.width
             SequentialAnimation on x {
+                id: text_2_animation
                 PauseAnimation{ duration: 500 }
                 XAnimator{
                     from:-800
@@ -146,6 +172,16 @@ Presentation
                     duration: 1500
                 }
             }
+        }
+        function stop_animation(){
+            text_2_animation.stop()
+            slide_2_color_anim.stop()
+            text_2.x=-800
+            slide_2_rect.color="#FFFFFFFF"
+        }
+        function start_animation(){
+            text_2_animation.start()
+            slide_2_color_anim.start()
         }
     }
 
