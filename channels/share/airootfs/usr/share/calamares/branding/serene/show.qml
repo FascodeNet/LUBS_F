@@ -203,7 +203,7 @@ Presentation
             id: description_3
             font.pixelSize: 15
             width: parent.width/2
-            text: qsTr("SereneLinux incorporate a Chromium as a default browser.\nFor listening to music and watching video, VLC Media Player incorporate, too.\n\nIf you want to use other software, you can install it easy.")
+            text: qsTr("SereneLinux incorporate a Chromium as a default browser.\n\nIf you want to use other software, you can install it easy.")
             anchors.bottom: parent.bottom
             anchors.right:  parent.right
             anchors.rightMargin: -20
@@ -347,7 +347,7 @@ Presentation
             id: description_5
             font.pixelSize: 15
             width: parent.width/2
-            text: qsTr("Installation will be completed soon. I hope SereneLinux brings you a little pleasure.\n\nIf you have any probrem, feel free to send DM on Twitter(@Fascode_SPT) or visit official website.\nSereneLinux is based on Fedora, so you can use Fedora information as it is.")
+            text: qsTr("Installation will be completed soon. I hope SereneLinux brings you a little pleasure.\n\nIf you have any probrem, feel free to send DM on Twitter(@Fascode_SPT) or visit official website.")
             anchors.bottom: parent.bottom
             anchors.right:  parent.right
             anchors.rightMargin: -20

@@ -23,16 +23,6 @@ Xfce4 gives beautiful UI and freedom of customization.</source>
         <translation>&lt;b&gt;美しいデスクトップ&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>SereneLinux incorporate a Chromium as a default browser.
-For listening to music and watching video, VLC Media Player incorporate, too.
-
-If you want to use other software, you can install it easy.</source>
-        <translation>SereneLinuxにはデフォルトのブラウザとしてChromiumが搭載されています。
-音楽を聞いたり動画を見たりするために、VLC Media Playerも搭載されています。
-
-もしほかのソフトを使いたいなら、それを簡単にインストールすることも可能です。</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Useful softwares&lt;/b&gt;</source>
         <translation>&lt;b&gt;ソフトウェア&lt;/b&gt;</translation>
     </message>
@@ -44,21 +34,27 @@ Googleドキュメントはファイルをオンラインで安全に保存す�
     </message>
     <message>
         <source>&lt;b&gt;Create and edit document&lt;/b&gt;</source>
-        <translation>&lt;b&gt;文書を作成・編集する&gt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Installation will be completed soon. I hope SereneLinux brings you a little pleasure.
-
-If you have any probrem, feel free to send DM on Twitter(@Fascode_SPT) or visit official website.
-SereneLinux is based on Fedora, so you can use Fedora information as it is.</source>
-        <translation>インストールはもうすぐ完了します。SereneLinuxが少しの喜びをもたらしてくれることを願っています。
-
-もし何か問題があれば、気軽にTwitter (@Fascode_SPT) までDMを送るか、公式サイトにアクセスしてみてください。
-SereneLinuxはFedoraをベースにしているため、Fedoraの情報をそのまま使うことが出来ます。</translation>
+        <translation type="unfinished">&lt;b&gt;文書を作成・編集する&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Do you need help?&lt;/b&gt;</source>
         <translation>&lt;b&gt;助けが必要ですか&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>SereneLinux incorporate a Chromium as a default browser.
+
+If you want to use other software, you can install it easy.</source>
+        <translation>SereneLinuxにはデフォルトのブラウザとしてChromiumが搭載されています。
+
+もしほかのソフトを使いたいなら、それを簡単にインストールすることも可能です。</translation>
+    </message>
+    <message>
+        <source>Installation will be completed soon. I hope SereneLinux brings you a little pleasure.
+
+If you have any probrem, feel free to send DM on Twitter(@Fascode_SPT) or visit official website.</source>
+        <translation>インストールはもうすぐ完了します。SereneLinuxが少しの喜びをもたらしてくれることを願っています。
+
+もし何か問題があれば、気軽にTwitter (@Fascode_SPT) までDMを送るか、公式サイトにアクセスしてみてください。</translation>
     </message>
 </context>
 </TS>
