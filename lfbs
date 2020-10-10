@@ -268,7 +268,7 @@ dnfstrap() {
 
 make_basefs() {
     _msg_info "Installing Fedora to '${work_dir}/airootfs'..."
-    dnfstrap @Core yamad-repo
+    dnfstrap @Core yamad-repo 
     _msg_info "${codename} installed successfully!"
     
     echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}' > "${work_dir}/airootfs/etc/bash.bashrc"
@@ -342,6 +342,27 @@ make_systemd() {
         run_cmd mkdir /var/lib/dbus
     fi
     run_cmd ln -sf /etc/machine-id /var/lib/dbus/machine-id
+}
+make_repo_packages() {
+    remove "${work_dir}/airootfs/dnfrepopkglist"
+    #_apt_install initramfs-tools
+    # run_cmd env -i bash -c 'DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade --yes'
+
+    if [[ -f "${channels_dir}/share/add_repo.${arch}" ]]; then
+        grep -h -v ^'#' "${channels_dir}/share/add_repo.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfrepopkglist"
+    fi
+
+    if [[ -f "${channels_dir}/${channel_name}/add_repo.${arch}" ]]; then
+        grep -h -v ^'#' "${channels_dir}/${channel_name}/add_repo.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfrepopkglist"
+    fi
+
+    if [[ -s "${work_dir}/airootfs/dnfrepopkglist" ]]; then
+        mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
+        sed -i -e "s|\${codename}|${codename}|g" "${work_dir}/airootfs/dnfrepopkglist"
+        run_cmd env -i bash -c 'dnf -y --nogpgcheck -c /dnf_conf install $(echo $(<dnfrepopkglist))'
+    fi
+
+    remove "${work_dir}/airootfs/dnfrepopkglist"
 }
 make_dnf_packages() {
     remove "${work_dir}/airootfs/dnfpkglist"
@@ -670,6 +691,7 @@ prepare_build
 parse_files
 run_once make_basefs
 run_once make_systemd
+run_once make_repo_packages
 run_once make_dnf_packages
 run_once make_cp_airootfs
 run_once make_config
