@@ -36,7 +36,7 @@ Presentation
         id: slide_1
         Image {
             id: image_1
-            source: "languages.png"
+            source: "00_welcome.png"
             fillMode: Image.PreserveAspectFit
             width: parent.width/2
             anchors.bottom: parent.bottom
@@ -48,9 +48,10 @@ Presentation
             id: description_1
             font.pixelSize: 15
             width: parent.width/2
-            text: qsTr("Thank you for installing SereneLinux.\nIn installing, This slide will show how to use SereneLinux.")
+            text: qsTr("Thank you for installing SereneLinux.\nThis slide will show how to use SereneLinux.")
             anchors.bottom: parent.bottom
             anchors.right:  parent.right
+            anchors.rightMargin: -20
             anchors.bottomMargin: 50
             wrapMode: Text.WordWrap
         }
@@ -71,7 +72,66 @@ Presentation
             id: text_1
             font.pixelSize: 25
             font.weight: font.bold
-            text: qsTr("<b>Thank you for installing SereneLinux</b>")
+            text: qsTr("<b>Welcome to SereneLinux</b>")
+            x: -800
+            anchors.top: presentation.top
+            anchors.left: presentation.left
+            wrapMode: Text.WordWrap
+            width: presentation.width
+            SequentialAnimation on x {
+                PauseAnimation{ duration: 500 }
+                XAnimator{
+                    from:-800
+                    to: 0
+                    easing.type: Easing.OutCubic
+                    duration: 1500
+                }
+            }
+        }
+    }
+
+    // slide2
+    Slide {
+        id: slide_2
+        Image {
+            id: image_2
+            source: "01_xfce.png"
+            fillMode: Image.PreserveAspectFit
+            width: parent.width/2
+            anchors.bottom: parent.bottom
+            anchors.left  : parent.left
+            anchors.bottomMargin: 50
+
+        }
+        Text {
+            id: description_2
+            font.pixelSize: 15
+            width: parent.width/2
+            text: qsTr("SereneLinux is using Xfce4 Desktop Enviroment.\nXfce4 gives beautiful UI and freedom of customization.")
+            anchors.bottom: parent.bottom
+            anchors.right:  parent.right
+            anchors.rightMargin: -20
+            anchors.bottomMargin: 50
+            wrapMode: Text.WordWrap
+        }
+        Rectangle{
+            width : slide_2.width
+            height: slide_2.height
+            color: "#FFFFFFFF"
+
+            SequentialAnimation on color{
+                PauseAnimation { duration:2000 }
+                ColorAnimation {
+                    to  : "#00FFFFFF"
+                    duration: 1000
+                }
+            }
+        }
+        Text {
+            id: text_2
+            font.pixelSize: 25
+            font.weight: font.bold
+            text: qsTr("<b>Beautiful Desktop</b>")
             x: -800
             anchors.top: presentation.top
             anchors.left: presentation.left

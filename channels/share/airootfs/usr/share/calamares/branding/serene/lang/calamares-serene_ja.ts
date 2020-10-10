@@ -4,15 +4,13 @@
 <context>
     <name>show</name>
     <message>
-        <source>Thank you for installing SereneLinux.
-In installing, This slide will show how to use SereneLinux.</source>
-        <translation>SereneLinuxをインストールしていただき&lt;br/&gt;
-ありがとうございます。
-このスライドはSereneLinuxの使い方を乗せる予定です。</translation>
+        <source>&lt;b&gt;Welcome to SereneLinux&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;Thank you for installing SereneLinux&lt;/b&gt;</source>
-        <translation type="unfinished">&lt;b&gt;SereneLinuxをインストールしていただき&lt;br/&gt;ありがとうございます。&lt;/b&gt;</translation>
+        <source>Thank you for installing SereneLinux.
+This slide will show how to use SereneLinux.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
