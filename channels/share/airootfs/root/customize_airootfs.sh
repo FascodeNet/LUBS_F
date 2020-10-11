@@ -8,6 +8,7 @@ username=fedora
 usershell="/usr/bin/zsh"
 localegen="en_US.UTF-8"
 timezone="UTC"
+boot_splash=false
 export PATH=$PATH:/usr/sbin
 # Creating a root user.
 # usermod -s /usr/bin/zsh root
