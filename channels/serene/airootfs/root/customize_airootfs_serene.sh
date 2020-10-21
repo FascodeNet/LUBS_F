@@ -27,7 +27,6 @@ sed -i s/%OS_NAME%/"${os_name}"/g /etc/skel/Desktop/calamares.desktop
 cp -f /etc/skel/Desktop/calamares.desktop /home/${username}/Desktop/calamares.desktop
 # delete xscreen
 dnf remove -y xscreensaver-base
-
 # Create Calamares Entry
 cp -f /etc/skel/Desktop/calamares.desktop /usr/share/applications/calamares.desktop
 
