@@ -21,6 +21,6 @@ calamares
 gimp
 chromium
 # package gui
-plasma-discover
+gnome-software
 # saver
 light-locker
