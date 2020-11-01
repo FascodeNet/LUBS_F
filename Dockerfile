@@ -1,4 +1,4 @@
-FROM fedora:32
+FROM fedora:33
 RUN echo 'nameserver 1.1.1.1' > /etc/resolv.conf
 RUN echo 'keepcache = 1' >> /etc/dnf/dnf.conf
 RUN dnf update -y
