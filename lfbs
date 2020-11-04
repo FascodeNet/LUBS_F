@@ -142,10 +142,11 @@ run_once() {
 run_cmd() {
     local mount
 
-    for mount in "dev" "dev/pts" "proc" "sys" "etc/resolv.conf"; do
+    for mount in "dev" "dev/pts" "proc" "sys" "run/systemd/resolve/stub-resolv.conf"; do
     #for mount in "dev" "dev/pts" "proc" "sys" ; do
-        if [[ "${mount}" == "etc/resolv.conf" ]]; then
-            cp /etc/resolv.conf "${work_dir}/airootfs/${mount}"
+        if [[ "${mount}" == "run/systemd/resolve/stub-resolv.conf" ]]; then
+            # cp /etc/resolv.conf "${work_dir}/airootfs/run${mount}"
+            mount --bind /etc/resolv.conf "${work_dir}/airootfs/run/systemd/resolve/stub-resolv.conf"
         else
             mount --bind /${mount} "${work_dir}/airootfs/${mount}"
         fi
