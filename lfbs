@@ -146,6 +146,7 @@ run_cmd() {
     #for mount in "dev" "dev/pts" "proc" "sys" ; do
         if [[ "${mount}" == "run/systemd/resolve/stub-resolv.conf" ]]; then
             # cp /etc/resolv.conf "${work_dir}/airootfs/run${mount}"
+            mkdir -p "${work_dir}/airootfs/run/systemd/resolve/"
             mount --bind /etc/resolv.conf "${work_dir}/airootfs/run/systemd/resolve/stub-resolv.conf"
         else
             mount --bind /${mount} "${work_dir}/airootfs/${mount}"
