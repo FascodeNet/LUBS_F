@@ -142,17 +142,13 @@ run_once() {
 run_cmd() {
     local mount
 
-    for mount in "dev" "dev/pts" "proc" "sys" "run/systemd/resolve/stub-resolv.conf"; do
+    for mount in "dev" "dev/pts" "proc" "sys" ; do
     #for mount in "dev" "dev/pts" "proc" "sys" ; do
-        if [[ "${mount}" == "run/systemd/resolve/stub-resolv.conf" ]]; then
-            # cp /etc/resolv.conf "${work_dir}/airootfs/run${mount}"
-            mkdir -p "${work_dir}/airootfs/run/systemd/resolve/"
-            mount --bind /etc/resolv.conf "${work_dir}/airootfs/run/systemd/resolve/stub-resolv.conf"
-        else
-            mount --bind /${mount} "${work_dir}/airootfs/${mount}"
-        fi
+        mount --bind /${mount} "${work_dir}/airootfs/${mount}"
     done
     
+    mkdir -p "${work_dir}/airootfs/run/systemd/resolve/"
+    mount --bind /etc/resolv.conf "${work_dir}/airootfs/run/systemd/resolve/stub-resolv.conf"
     unshare --fork --pid chroot "${work_dir}/airootfs" "${@}"
 
     for mount in $(mount | awk '{print $3}' | grep "$(realpath "${work_dir}")" | sort -r); do
