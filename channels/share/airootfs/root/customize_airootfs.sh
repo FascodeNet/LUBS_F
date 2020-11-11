@@ -86,7 +86,7 @@ function create_user () {
     chown ${_username}:${_username} -R /home/${_username}
     set -u
 }
-
+rpmkeys --import /etc/pki/rpm-gpg/RPM-GPG-KEY-serene
 create_user "${username}" "${password}"
 
 
