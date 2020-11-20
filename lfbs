@@ -341,61 +341,27 @@ make_systemd() {
     fi
     run_cmd ln -sf /etc/machine-id /var/lib/dbus/machine-id
 }
-make_repo_packages() {
-    remove "${work_dir}/airootfs/dnfrepopkglist"
-    #_apt_install initramfs-tools
-    # run_cmd env -i bash -c 'DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade --yes'
-
-    if [[ -f "${channels_dir}/share/add_repo.${arch}" ]]; then
-        grep -h -v ^'#' "${channels_dir}/share/add_repo.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfrepopkglist"
-    fi
-
-    if [[ -f "${channels_dir}/${channel_name}/add_repo.${arch}" ]]; then
-        grep -h -v ^'#' "${channels_dir}/${channel_name}/add_repo.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfrepopkglist"
-    fi
-
-    if [[ -s "${work_dir}/airootfs/dnfrepopkglist" ]]; then
-        mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
-        sed -i -e "s|\${codename}|${codename}|g" "${work_dir}/airootfs/dnfrepopkglist"
-        run_cmd env -i bash -c 'dnf -y --nogpgcheck -c /dnf_conf install $(echo $(<dnfrepopkglist))'
-    fi
-
-    remove "${work_dir}/airootfs/dnfrepopkglist"
+make_repo_packages() {    
+    local  _pkg  _pkglist=($("${script_path}/tools/pkglist.sh" -a "x86_64" -c "${channels_dir}/${channel_name}" -k "${codename}" -l "${locale_name}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
+    # Create a list of packages to be finally installed as packages.list directly under the working directory.
+    echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
+    # Install packages on airootfs
+    mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
+    run_cmd dnf -y --nogpgcheck -c /dnf_conf install "${_pkglist[*]}"
 }
 make_dnf_packages() {
-    remove "${work_dir}/airootfs/dnfpkglist"
-    #_apt_install initramfs-tools
-    # run_cmd env -i bash -c 'DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade --yes'
+    
+    #local  _pkg  _pkglist=($("${script_path}/tools/pkglist.sh" -a "x86_64" -k "${kernel}" -c "${channel_dir}" -l "${locale_name}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
+    local  _pkg  _pkglist=($("${script_path}/tools/pkglist.sh" -a "x86_64" -c "${channels_dir}/${channel_name}" -l "${locale_name}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
+    # Create a list of packages to be finally installed as packages.list directly under the working directory.
+    echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
+    for _pkg in ${_pkglist[@]}; do
+        echo ${_pkg} >> "${work_dir}/packages.list"
+    done
 
-    if [[ -f "${channels_dir}/share/packages.${arch}" ]]; then
-        grep -h -v ^'#' "${channels_dir}/share/packages.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfpkglist"
-    fi
-    if [[ -f "${channels_dir}/share/packages-${locale_name}.${arch}" ]]; then
-        grep -h -v ^'#' "${channels_dir}/share/packages-${locale_name}.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfpkglist"
-    fi
-
-    if [[ -f "${channels_dir}/${channel_name}/packages.${arch}" ]]; then
-        grep -h -v ^'#' "${channels_dir}/${channel_name}/packages.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfpkglist"
-    fi
-
-    if [[ -f "${channels_dir}/${channel_name}/packages-${locale_name}.${arch}" ]]; then
-        grep -h -v ^'#' "${channels_dir}/${channel_name}/packages-${locale_name}.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfpkglist"
-    fi
-    if [[ ${bootsplash} == true ]]; then
-        if [[ -f "${channels_dir}/share/packages_plymouth.${arch}" ]]; then
-            grep -h -v ^'#' "${channels_dir}/share/packages_plymouth.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfpkglist"
-        fi
-        
-        if [[ -f "${channels_dir}/${channel_name}/packages_plymouth.${arch}" ]]; then
-            grep -h -v ^'#' "${channels_dir}/${channel_name}/packages_plymouth.${arch}" | grep -v "^$" >> "${work_dir}/airootfs/dnfpkglist"
-        fi
-    fi
-    if [[ -s "${work_dir}/airootfs/dnfpkglist" ]]; then
-        mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
-        run_cmd env -i bash -c 'dnf -y --nogpgcheck -c /dnf_conf install $(echo $(<dnfpkglist))'
-    fi
-
-    remove "${work_dir}/airootfs/dnfpkglist"
+    # Install packages on airootfs
+    mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
+    run_cmd dnf -y --nogpgcheck -c /dnf_conf install "${_pkglist[*]}"
 }
 
 make_cp_airootfs() {
