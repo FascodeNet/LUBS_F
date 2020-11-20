@@ -203,7 +203,8 @@ _usage () {
     echo "    -w | --work <work_dir> Set the working directory"
     echo "                           Default: ${work_dir}"
     echo
-    echo "    -d | --debug           "
+    echo "    -d | --debug           Enable debug messages"
+    echo "    -x | --bash-debug      Enable bash debug mode(set -xv)"
     echo "    -h | --help            This help message and exit"
     echo
     echo "You can switch between installed packages, files included in images, etc. by channel."
@@ -561,6 +562,10 @@ while :; do
             ;;
         --cache-only)
             cache_only=true
+            shift 1
+            ;;
+        -x | --bash-debug)
+            set -xv
             shift 1
             ;;
         --)
