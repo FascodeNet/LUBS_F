@@ -347,7 +347,7 @@ make_repo_packages() {
     echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
     # Install packages on airootfs
     mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
-    run_cmd dnf -y --nogpgcheck -c /dnf_conf install "${_pkglist[*]}"
+    run_cmd dnf -y --nogpgcheck -c /dnf_conf install ${_pkglist[*]}
 }
 make_dnf_packages() {
     
@@ -361,7 +361,7 @@ make_dnf_packages() {
 
     # Install packages on airootfs
     mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
-    run_cmd dnf -y --nogpgcheck -c /dnf_conf install "${_pkglist[*]}"
+    run_cmd dnf -y --nogpgcheck -c /dnf_conf install ${_pkglist[*]}
 }
 
 make_cp_airootfs() {
