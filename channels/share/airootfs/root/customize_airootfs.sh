@@ -8,6 +8,7 @@ username=fedora
 usershell="/usr/bin/zsh"
 localegen="en_US.UTF-8"
 timezone="UTC"
+boot_splash=false
 export PATH=$PATH:/usr/sbin
 # Creating a root user.
 # usermod -s /usr/bin/zsh root
@@ -85,7 +86,7 @@ function create_user () {
     chown ${_username}:${_username} -R /home/${_username}
     set -u
 }
-
+rpmkeys --import /etc/pki/rpm-gpg/RPM-GPG-KEY-serene
 create_user "${username}" "${password}"
 
 
@@ -119,6 +120,32 @@ chmod +x "/etc/profile.d/alias_systemctl_setup.sh"
 chmod 750 -R /etc/sudoers.d/
 chown root:root -R /etc/sudoers.d/
 
-echo "LANG=${locale_gen_name}" > "/etc/locale.conf"
+echo "LANG=${localegen}" > "/etc/locale.conf"
 truncate -s 0 /etc/machine-id
 passwd -u -f root
+
+
+# Calamares configs
+
+# Replace the configuration file.
+# Remove configuration files for other kernels.
+#remove /usr/share/calamares/modules/initcpio/
+#remove /usr/share/calamares/modules/unpackfs/
+
+# Set up calamares removeuser
+sed -i s/%USERNAME%/${username}/g /usr/share/calamares/modules/removeuser.conf
+
+# Set user shell
+sed -i "s|%USERSHELL%|'${usershell}'|g" /usr/share/calamares/modules/users.conf
+
+# Add disabling of sudo setting
+echo -e "\nremove \"/etc/sudoers.d/fedoralive\"" >> /usr/share/calamares/final-process
+if [[ $boot_splash = true ]]; then
+    cat <<EOF > /etc/grub.d/99_plymouth_config
+#!/usr/bin/env bash
+grubby --update-kernel=ALL --args="quiet splash"
+EOF
+    chmod +x /etc/grub.d/99_plymouth_config
+    echo -e "\ngrubby --update-kernel=ALL --args=\"quiet splash\"" >> /usr/share/calamares/final-process
+fi
+echo universal_hooks=true >> /etc/dnf/dnf.conf

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+cd $(readlink -f "${0%/*}")
+lrelease channels/share/airootfs/usr/share/calamares/branding/serene/lang/calamares-serene_ja.ts
+qmlscene -I calamares-qmls/qml/ -geometry 600x400 -translation channels/share/airootfs/usr/share/calamares/branding/serene/lang/calamares-serene_ja.qm channels/share/airootfs/usr/share/calamares/branding/serene/show.qml
