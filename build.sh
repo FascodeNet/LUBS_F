@@ -271,7 +271,7 @@ make_basefs() {
     
     echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}' > "${work_dir}/airootfs/etc/bash.bashrc"
     mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
-    run_cmd dnf -c /dnf_conf update -y
+    run_cmd dnf -c /dnf_conf update --refresh -y
     run_cmd dnf -c /dnf_conf -y remove $(run_cmd dnf -c /dnf_conf repoquery --installonly --latest-limit=-1 -q)
     # run_cmd apt-get upgrade
 }
