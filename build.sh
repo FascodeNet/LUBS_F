@@ -176,6 +176,13 @@ remove() {
     done
 }
 
+# Usage: echo_blank <number>
+# 指定されたぶんの半角空白文字を出力します
+echo_blank(){
+    local _blank
+    for _local in $(seq 1 "${1}"); do echo -ne " "; done
+}
+
 # Show help
 _usage () {
     echo "usage ${0} [options] [channel]"
@@ -189,11 +196,11 @@ _usage () {
     echo "                           Default: ${locale_name}"
     echo "    -m | --mirror <url>    Set apt mirror server."
     echo "                           Default: ${mirror}"
-    echo "    -o | --out <out_dir>   Set the output directory"
+    echo "    -o | --out <dir>       Set the output directory"
     echo "                           Default: ${out_dir}"
-    echo "    -w | --work <work_dir> Set the working directory"
+    echo "    -w | --work <dir>      Set the working directory"
     echo "                           Default: ${work_dir}"
-    echo "    -c | --cache <cache_dir> Set the cache directory"
+    echo "    -c | --cache <dir>     Set the cache directory"
     echo "                           Default: ${cache_dir}"
     echo
     echo "    -d | --debug           Enable debug messages"
@@ -202,44 +209,32 @@ _usage () {
     echo
     echo "You can switch between installed packages, files included in images, etc. by channel."
     echo
+
+    local blank="23" _arch  _list _dirname _channel
+
     echo " Language for each architecture:"
     for _list in ${script_path}/system/locale-* ; do
         _arch="${_list#${script_path}/system/locale-}"
         echo -n "    ${_arch}"
-        for i in $( seq 1 $(( ${blank} - 4 - ${#_arch} )) ); do
-            echo -ne " "
-        done
-        _locale_name_list=$(cat ${_list} | grep -h -v ^'#' | awk '{print $1}')
-        for _lang in ${_locale_name_list[@]};do
-            echo -n "${_lang} "
-        done
-        echo
+        echo_blank "$(( ${blank} - ${#_arch} ))"
+        "${script_path}/tools/locale.sh" -a "${_arch}" show
     done
-    echo " Channel:"
-    
-    local _channel
-    local channel_list
-    local description
 
+    echo  -e "\n Channel:"
+    local _channel channel_list description
     for _channel in $(ls -l "${channels_dir}" | awk '$1 ~ /d/ {print $9 }'); do
         if [[ -n $(ls "${channels_dir}/${_channel}") ]] && [[ ! "${_channel}" = "share" ]]; then
             channel_list+=( "${_channel}" )
         fi
     done
-
     for _channel in ${channel_list[@]}; do
         if [[ -f "${channels_dir}/${_channel}/description.txt" ]]; then
             description=$(cat "${channels_dir}/${_channel}/description.txt")
         else
             description="This channel does not have a description.txt."
         fi
-
         echo -ne "    ${_channel}"
-
-        for i in $( seq 1 $(( 23 - ${#_channel} )) ); do
-            echo -ne " "
-        done
-        
+        echo_blank "$(( ${blank} - ${#_channel} ))"
         echo -ne "${description}\n"
     done
 }
