@@ -352,7 +352,6 @@ make_config() {
     # -t                        : Set plymouth theme.
     # -u <username>             : Set live user name.
     # -x                        : Enable bash debug mode.
-    # -r                        : Enable rebuild.
     # -z <locale_time>          : Set the time zone.
     # -l <locale_name>          : Set language.
     #
@@ -496,10 +495,7 @@ make_checksum() {
     umount_chroot_airootfs
 }
 
-# 引数解析（）
-# 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
-
-
+# 引数解析 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
 _opt_short="w:l:o:hba:-:m:c:dx"
 _opt_long="help,arch:,codename:,debug,help,lang,mirror:,out:,work,cache-only,bootsplash,bash-debug"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
@@ -566,11 +562,11 @@ while :; do
             ;;
     esac
 done
-if [[ -f /etc/arch-release ]]; then
+if [[ -f "/etc/arch-release" ]]; then
     grub2_standalone_cmd=grub-mkstandalone
 fi
 bootfiles_dir="${work_dir}/bootfiles"
-trap  umount_chroot_airootfs 0 2 15
+trap 'umount_chroot_airootfs' 0 2 15
 
 if [[ -n "${1}" ]]; then
     channel_name="${1}"
