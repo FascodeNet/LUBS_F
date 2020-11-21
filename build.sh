@@ -60,47 +60,41 @@ _msg_common() {
         _current_time="$(date +%s)"
         _time="$(("${_current_time}"-"${start_time}"))"
 
-        if [[ "${_time}" -ge 3600 ]]; then
-            echo "[$(date -d @${_time} +%H:%M.%S)]$("${script_path}/echo_color" -t 6 "[LFBS Core]")"
-        elif [[ "${_time}" -ge 60 ]]; then
-            echo "[00:$(date -d @${_time} +%M.%S)]$("${script_path}/echo_color" -t 6 "[LFBS Core]")"
+        #if [[ "${_time}" -ge 3600 ]]; then
+        if (( "${_time}" >= 3600 )); then
+            echo -n "[$(date -d @${_time} +%H:%M.%S)] "
+        #elif [[ "${_time}" -ge 60 ]]; then
+        elif (( "${_time}" >= 60 )); then
+            echo -n "[00:$(date -d @${_time} +%M.%S)] "
         else
-            echo "[00:00.$(date -d @${_time} +%S)] $("${script_path}/echo_color" -t 6 "[LFBS Core]")"
+            echo -n "[00:00.$(date -d @${_time} +%S)] "
         fi
-    else
-        "${script_path}/echo_color" -t 6 "[LFBS Core]"
     fi
 }
 
 # Show an INFO message
 # _msg_info <message>
 _msg_info() {
-    local _msg
-    _msg="${@}"
-    echo "$(_msg_common)  $("${script_path}/echo_color" -t 2 "Info:") ${_msg}"
+    _msg_common
+    "${script_path}/tools/msg.sh" -a "LFBS Core" -l "Info:" -s "6" info "${@}"
 }
 
 # Show an debug message
 # _msg_debug <message>
 _msg_debug() {
+    _msg_common
     if [[ "${debug}" = true ]]; then
-        local _msg
-        _msg="${@}"
-        echo "$(_msg_common)  $("${script_path}/echo_color" -t 3 "Debug:") ${_msg}"
+        "${script_path}/tools/msg.sh" -a "LFBS Core" -l "Debug:" -s "6" debug "${@}"
     fi
 }
 
 # Show an ERROR message then exit with status
 # _msg_error <message> <exit code>
 _msg_error() {
-    local _msg
-    local _error
-    _msg="${1}"
-    _error=${2}
-    echo "$(_msg_common)  $("${script_path}/echo_color" -t 1 "Error:") ${_msg}"
-
-    if [[ ! ${_error} = 0 ]]; then
-        exit ${_error}
+    _msg_common
+    "${script_path}/tools/msg.sh" -a "LFBS Core" -l "Error:" -s "6" error "${@}"
+    if [[ -n "${2:-}" ]]; then
+        exit ${2}
     fi
 }
 
@@ -143,7 +137,6 @@ run_cmd() {
     local mount
 
     for mount in "dev" "dev/pts" "proc" "sys" ; do
-    #for mount in "dev" "dev/pts" "proc" "sys" ; do
         mount --bind /${mount} "${work_dir}/airootfs/${mount}"
     done
     
@@ -169,9 +162,8 @@ _dnf_install() {
 # If the file does not exist, skip it.
 # remove <file> <file> ...
 remove() {
-    local _list
+    local _list=($(echo "$@"))
     local _file
-    _list=($(echo "$@"))
 
     for _file in "${_list[@]}"; do
         _msg_debug "Removeing ${_file}"
@@ -182,6 +174,13 @@ remove() {
             rm -rf "${_file}"
         fi
     done
+}
+
+# Usage: echo_blank <number>
+# 指定されたぶんの半角空白文字を出力します
+echo_blank(){
+    local _blank
+    for _local in $(seq 1 "${1}"); do echo -ne " "; done
 }
 
 # Show help
@@ -197,56 +196,45 @@ _usage () {
     echo "                           Default: ${locale_name}"
     echo "    -m | --mirror <url>    Set apt mirror server."
     echo "                           Default: ${mirror}"
-    echo "    -o | --out <out_dir>   Set the output directory"
+    echo "    -o | --out <dir>       Set the output directory"
     echo "                           Default: ${out_dir}"
-    echo "    -w | --work <work_dir> Set the working directory"
+    echo "    -w | --work <dir>      Set the working directory"
     echo "                           Default: ${work_dir}"
-    echo "    -c | --cache <cache_dir> Set the cache directory"
+    echo "    -c | --cache <dir>     Set the cache directory"
     echo "                           Default: ${cache_dir}"
     echo
-    echo "    -d | --debug           "
+    echo "    -d | --debug           Enable debug messages"
+    echo "    -x | --bash-debug      Enable bash debug mode(set -xv)"
     echo "    -h | --help            This help message and exit"
     echo
     echo "You can switch between installed packages, files included in images, etc. by channel."
     echo
+
+    local blank="23" _arch  _list _dirname _channel
+
     echo " Language for each architecture:"
     for _list in ${script_path}/system/locale-* ; do
         _arch="${_list#${script_path}/system/locale-}"
         echo -n "    ${_arch}"
-        for i in $( seq 1 $(( ${blank} - 4 - ${#_arch} )) ); do
-            echo -ne " "
-        done
-        _locale_name_list=$(cat ${_list} | grep -h -v ^'#' | awk '{print $1}')
-        for _lang in ${_locale_name_list[@]};do
-            echo -n "${_lang} "
-        done
-        echo
+        echo_blank "$(( ${blank} - ${#_arch} ))"
+        "${script_path}/tools/locale.sh" -a "${_arch}" show
     done
-    echo " Channel:"
-    
-    local _channel
-    local channel_list
-    local description
 
+    echo  -e "\n Channel:"
+    local _channel channel_list description
     for _channel in $(ls -l "${channels_dir}" | awk '$1 ~ /d/ {print $9 }'); do
         if [[ -n $(ls "${channels_dir}/${_channel}") ]] && [[ ! "${_channel}" = "share" ]]; then
             channel_list+=( "${_channel}" )
         fi
     done
-
     for _channel in ${channel_list[@]}; do
         if [[ -f "${channels_dir}/${_channel}/description.txt" ]]; then
             description=$(cat "${channels_dir}/${_channel}/description.txt")
         else
             description="This channel does not have a description.txt."
         fi
-
         echo -ne "    ${_channel}"
-
-        for i in $( seq 1 $(( 23 - ${#_channel} )) ); do
-            echo -ne " "
-        done
-        
+        echo_blank "$(( ${blank} - ${#_channel} ))"
         echo -ne "${description}\n"
     done
 }
@@ -279,35 +267,7 @@ make_basefs() {
 
 # Parse files
 parse_files() {
-    #-- ロケールを解析、設定 --#
-    local _get_locale_line_number _locale_config_file _locale_name_list _locale_line_number _locale_config_line
-
-    # 選択されたロケールの設定が描かれた行番号を取得
-    _locale_config_file="${script_path}/system/locale-${arch}"
-    _locale_name_list=($(cat "${_locale_config_file}" | grep -h -v ^'#' | awk '{print $1}'))
-    _get_locale_line_number() {
-        local _lang _count=0
-        for _lang in ${_locale_name_list[@]}; do
-            _count=$(( _count + 1 ))
-            if [[ "${_lang}" == "${locale_name}" ]]; then echo "${_count}"; return 0; fi
-        done
-        echo -n "failed"
-    }
-    _locale_line_number="$(_get_locale_line_number)"
-
-    # 不正なロケール名なら終了する
-    [[ "${_locale_line_number}" == "failed" ]] && _msg_error "${locale_name} is not a valid language." "1"
-
-    # ロケール設定ファイルから該当の行を抽出
-    _locale_config_line=($(cat "${_locale_config_file}" | grep -h -v ^'#' | grep -v ^$ | head -n "${_locale_line_number}" | tail -n 1))
-
-    # 抽出された行に書かれた設定をそれぞれの変数に代入
-    # ここで定義された変数のみがグローバル変数
-    locale_name="${_locale_config_line[0]}"
-    locale_gen_name="${_locale_config_line[1]}"
-    locale_version="${_locale_config_line[2]}"
-    locale_time="${_locale_config_line[3]}"
-    locale_fullname="${_locale_config_line[4]}"
+    eval $(bash "${script_path}/tools/locale.sh" -s -a "${arch}" get "${locale_name}")
 }
 
 prepare_build() {
@@ -392,7 +352,6 @@ make_config() {
     # -t                        : Set plymouth theme.
     # -u <username>             : Set live user name.
     # -x                        : Enable bash debug mode.
-    # -r                        : Enable rebuild.
     # -z <locale_time>          : Set the time zone.
     # -l <locale_name>          : Set language.
     #
@@ -536,11 +495,9 @@ make_checksum() {
     umount_chroot_airootfs
 }
 
-# 引数解析（）
-# 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
-
-_opt_short="w:l:o:hba:-:m:c:d"
-_opt_long="help,arch:,codename:,debug,help,lang,mirror:,out:,work,cache-only,bootsplash"
+# 引数解析 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
+_opt_short="w:l:o:hba:-:m:c:dx"
+_opt_long="help,arch:,codename:,debug,help,lang,mirror:,out:,work,cache-only,bootsplash,bash-debug"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 
 if [[ ${?} != 0 ]]; then
@@ -591,6 +548,10 @@ while :; do
             cache_only=true
             shift 1
             ;;
+        -x | --bash-debug)
+            set -xv
+            shift 1
+            ;;
         --)
             shift
             break
@@ -601,11 +562,11 @@ while :; do
             ;;
     esac
 done
-if [[ -f /etc/arch-release ]]; then
+if [[ -f "/etc/arch-release" ]]; then
     grub2_standalone_cmd=grub-mkstandalone
 fi
 bootfiles_dir="${work_dir}/bootfiles"
-trap  umount_chroot_airootfs 0 2 15
+trap 'umount_chroot_airootfs' 0 2 15
 
 if [[ -n "${1}" ]]; then
     channel_name="${1}"
