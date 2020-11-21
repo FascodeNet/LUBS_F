@@ -60,47 +60,41 @@ _msg_common() {
         _current_time="$(date +%s)"
         _time="$(("${_current_time}"-"${start_time}"))"
 
-        if [[ "${_time}" -ge 3600 ]]; then
-            echo "[$(date -d @${_time} +%H:%M.%S)]$("${script_path}/echo_color" -t 6 "[LFBS Core]")"
-        elif [[ "${_time}" -ge 60 ]]; then
-            echo "[00:$(date -d @${_time} +%M.%S)]$("${script_path}/echo_color" -t 6 "[LFBS Core]")"
+        #if [[ "${_time}" -ge 3600 ]]; then
+        if (( "${_time}" >= 3600 )); then
+            echo -n "[$(date -d @${_time} +%H:%M.%S)] "
+        #elif [[ "${_time}" -ge 60 ]]; then
+        elif (( "${_time}" >= 60 )); then
+            echo -n "[00:$(date -d @${_time} +%M.%S)] "
         else
-            echo "[00:00.$(date -d @${_time} +%S)] $("${script_path}/echo_color" -t 6 "[LFBS Core]")"
+            echo -n "[00:00.$(date -d @${_time} +%S)] "
         fi
-    else
-        "${script_path}/echo_color" -t 6 "[LFBS Core]"
     fi
 }
 
 # Show an INFO message
 # _msg_info <message>
 _msg_info() {
-    local _msg
-    _msg="${@}"
-    echo "$(_msg_common)  $("${script_path}/echo_color" -t 2 "Info:") ${_msg}"
+    _msg_common
+    "${script_path}/tools/msg.sh" -a "LFBS Core" -l "Info:" -s "6" info "${@}"
 }
 
 # Show an debug message
 # _msg_debug <message>
 _msg_debug() {
+    _msg_common
     if [[ "${debug}" = true ]]; then
-        local _msg
-        _msg="${@}"
-        echo "$(_msg_common)  $("${script_path}/echo_color" -t 3 "Debug:") ${_msg}"
+        "${script_path}/tools/msg.sh" -a "LFBS Core" -l "Debug:" -s "6" debug "${@}"
     fi
 }
 
 # Show an ERROR message then exit with status
 # _msg_error <message> <exit code>
 _msg_error() {
-    local _msg
-    local _error
-    _msg="${1}"
-    _error=${2}
-    echo "$(_msg_common)  $("${script_path}/echo_color" -t 1 "Error:") ${_msg}"
-
-    if [[ ! ${_error} = 0 ]]; then
-        exit ${_error}
+    _msg_common
+    "${script_path}/tools/msg.sh" -a "LFBS Core" -l "Error:" -s "6" error "${@}"
+    if [[ -n "${2:-}" ]]; then
+        exit ${2}
     fi
 }
 
