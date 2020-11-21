@@ -137,7 +137,6 @@ run_cmd() {
     local mount
 
     for mount in "dev" "dev/pts" "proc" "sys" ; do
-    #for mount in "dev" "dev/pts" "proc" "sys" ; do
         mount --bind /${mount} "${work_dir}/airootfs/${mount}"
     done
     
@@ -163,9 +162,8 @@ _dnf_install() {
 # If the file does not exist, skip it.
 # remove <file> <file> ...
 remove() {
-    local _list
+    local _list=($(echo "$@"))
     local _file
-    _list=($(echo "$@"))
 
     for _file in "${_list[@]}"; do
         _msg_debug "Removeing ${_file}"
