@@ -284,7 +284,7 @@ prepare_build() {
         mkdir -p "${work_dir}/squashfsroot/LiveOS/"
         mkdir -p "${work_dir}/airootfs/"
         _msg_info "Make rootfs image..."
-        truncate -s 6G "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+        truncate -s 32G "${work_dir}/squashfsroot/LiveOS/rootfs.img"
         _msg_info "Format rootfs image..."
         mkfs.ext4 -F "${work_dir}/squashfsroot/LiveOS/rootfs.img"
     fi    
@@ -402,10 +402,10 @@ make_squashfs() {
     kernelkun=$(run_cmd ls /lib/modules)
     echo -e "\nkernel-install add ${kernelkun} /boot/vmlinuz-${kernelkun}" >> ${work_dir}/airootfs/usr/share/calamares/final-process
     umount "${work_dir}/airootfs"
-    _msg_info "e2fsck..."
-    e2fsck -f "${work_dir}/squashfsroot/LiveOS/rootfs.img"
-    _msg_info "Minimize rootfs..."
-    resize2fs -M "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+    # _msg_info "e2fsck..."
+    # e2fsck -f "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+    # _msg_info "Minimize rootfs..."
+    # resize2fs -M "${work_dir}/squashfsroot/LiveOS/rootfs.img"
     _msg_info "Compress rootfs.."
     mksquashfs "${work_dir}/squashfsroot/" "${bootfiles_dir}/LiveOS/squashfs.img" -noappend -no-recovery -comp zstd -Xcompression-level 19 -b 1048576
     _msg_info "Deleting block image..."
