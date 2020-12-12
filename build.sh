@@ -283,10 +283,13 @@ prepare_build() {
     if [[ ! -d "${work_dir}/squashfsroot/LiveOS/" ]]; then
         mkdir -p "${work_dir}/squashfsroot/LiveOS/"
         mkdir -p "${work_dir}/airootfs/"
-        _msg_info "Make rootfs image..."
-        truncate -s 32G "${work_dir}/squashfsroot/LiveOS/rootfs.img"
-        _msg_info "Format rootfs image..."
-        mkfs.ext4 -F "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+        _msg_info "Creating ext4 image of 32 GiB..."
+        # truncate -s 32G "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+        # _msg_info "Format rootfs image..."
+        #mkfs.ext4 -F "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+        mkfs.ext4 -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${work_dir}/squashfsroot/LiveOS/rootfs.img" 32G
+        tune2fs -c 0 -i 0 -- "${work_dir}/squashfsroot/LiveOS/rootfs.img" > /dev/null
+        _msg_info "Done!"
     fi    
     mkdir -p "${out_dir}"
     _msg_info "Mount rootfs image..."
