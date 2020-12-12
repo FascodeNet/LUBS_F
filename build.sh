@@ -142,7 +142,7 @@ run_cmd() {
     
     #mkdir -p "${work_dir}/airootfs/run/systemd/resolve/"
     #cp /etc/resolv.conf "${work_dir}/airootfs/run/systemd/resolve/stub-resolv.conf"
-    cp /etc/resolv.conf "${work_dir}/etc/resolv.conf"
+    cp /etc/resolv.conf "${work_dir}/airootfs/etc/resolv.conf"
     unshare --fork --pid chroot "${work_dir}/airootfs" "${@}"
 
     for mount in $(mount | awk '{print $3}' | grep "$(realpath "${work_dir}")" | sort -r); do
