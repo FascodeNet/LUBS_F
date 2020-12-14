@@ -140,8 +140,9 @@ run_cmd() {
         mount --bind /${mount} "${work_dir}/airootfs/${mount}"
     done
     
-    mkdir -p "${work_dir}/airootfs/run/systemd/resolve/"
-    cp /etc/resolv.conf "${work_dir}/airootfs/run/systemd/resolve/stub-resolv.conf"
+    #mkdir -p "${work_dir}/airootfs/run/systemd/resolve/"
+    #cp /etc/resolv.conf "${work_dir}/airootfs/run/systemd/resolve/stub-resolv.conf"
+    cp /etc/resolv.conf "${work_dir}/airootfs/etc/resolv.conf"
     unshare --fork --pid chroot "${work_dir}/airootfs" "${@}"
 
     for mount in $(mount | awk '{print $3}' | grep "$(realpath "${work_dir}")" | sort -r); do
@@ -280,10 +281,13 @@ prepare_build() {
     if [[ ! -d "${work_dir}/squashfsroot/LiveOS/" ]]; then
         mkdir -p "${work_dir}/squashfsroot/LiveOS/"
         mkdir -p "${work_dir}/airootfs/"
-        _msg_info "Make rootfs image..."
-        truncate -s 6G "${work_dir}/squashfsroot/LiveOS/rootfs.img"
-        _msg_info "Format rootfs image..."
-        mkfs.ext4 -F "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+        _msg_info "Creating ext4 image of 32 GiB..."
+        # truncate -s 32G "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+        # _msg_info "Format rootfs image..."
+        #mkfs.ext4 -F "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+        mkfs.ext4 -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${work_dir}/squashfsroot/LiveOS/rootfs.img" 32G
+        tune2fs -c 0 -i 0 -- "${work_dir}/squashfsroot/LiveOS/rootfs.img" > /dev/null
+        _msg_info "Done!"
     fi    
     mkdir -p "${out_dir}"
     _msg_info "Mount rootfs image..."
@@ -301,11 +305,13 @@ make_systemd() {
 }
 make_repo_packages() {    
     local  _pkg  _pkglist=($("${script_path}/tools/pkglist-repo.sh" -a "x86_64" -c "${channels_dir}/${channel_name}" -k "${codename}" -l "${locale_name}" $(if [[ "${bootsplash}" = true ]]; then echo -n "-b"; fi) ))
-    # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
-    # Install packages on airootfs
-    mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
-    run_cmd dnf -y --nogpgcheck -c /dnf_conf install ${_pkglist[*]}
+    if [ -n "${_pkglist[*]}" ]; then
+        # Create a list of packages to be finally installed as packages.list directly under the working directory.
+        echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
+        # Install packages on airootfs
+        mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
+        run_cmd dnf -y --nogpgcheck -c /dnf_conf install ${_pkglist[*]}
+    fi
 }
 make_dnf_packages() {
     
@@ -397,10 +403,10 @@ make_squashfs() {
     kernelkun=$(run_cmd ls /lib/modules)
     echo -e "\nkernel-install add ${kernelkun} /boot/vmlinuz-${kernelkun}" >> ${work_dir}/airootfs/usr/share/calamares/final-process
     umount "${work_dir}/airootfs"
-    _msg_info "e2fsck..."
-    e2fsck -f "${work_dir}/squashfsroot/LiveOS/rootfs.img"
-    _msg_info "Minimize rootfs..."
-    resize2fs -M "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+    # _msg_info "e2fsck..."
+    # e2fsck -f "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+    # _msg_info "Minimize rootfs..."
+    # resize2fs -M "${work_dir}/squashfsroot/LiveOS/rootfs.img"
     _msg_info "Compress rootfs.."
     mksquashfs "${work_dir}/squashfsroot/" "${bootfiles_dir}/LiveOS/squashfs.img" -noappend -no-recovery -comp zstd -Xcompression-level 19 -b 1048576
     _msg_info "Deleting block image..."
