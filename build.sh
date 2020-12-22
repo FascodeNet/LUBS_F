@@ -410,7 +410,7 @@ make_squashfs() {
     # _msg_info "Minimize rootfs..."
     # resize2fs -M "${work_dir}/squashfsroot/LiveOS/rootfs.img"
     _msg_info "Compress rootfs.."
-    mksquashfs "${work_dir}/squashfsroot/" "${bootfiles_dir}/LiveOS/squashfs.img" -noappend -no-recovery -comp zstd -Xcompression-level 19 -b 1048576
+    mksquashfs "${work_dir}/squashfsroot/" "${bootfiles_dir}/LiveOS/squashfs.img" -noappend -no-recovery -comp zstd -Xcompression-level 21 -b 1048576
     _msg_info "Deleting block image..."
     rm -rf "${work_dir}/squashfsroot/LiveOS/rootfs.img"
 }
