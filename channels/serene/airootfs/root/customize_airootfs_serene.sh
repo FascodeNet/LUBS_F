@@ -40,6 +40,7 @@ sed -i "s/- packages/- shellprocess\n  - removeuser\n  - packages/g" /usr/share/
 sed -i "s/sb-shim/grub/g" /usr/share/calamares/modules/bootloader.conf
 sed -i "s/fedora/Serene Linux on Fedora/g" /usr/share/calamares/modules/bootloader.conf
 sed -i "s/auto/serene/g" /usr/share/calamares/settings.conf
+sed -i "s/light-locker-command/echo/g" /home/${username}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-session.xml
 if [[ $boot_splash = true ]]; then
     /usr/sbin/plymouth-set-default-theme serene-logo
 fi
