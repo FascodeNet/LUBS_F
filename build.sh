@@ -452,6 +452,8 @@ make_efi() {
     mkdir -p "${bootfiles_dir}/mnt/efi/boot"
     cp "${bootfiles_dir}/grub/bootia32.efi" "${bootfiles_dir}/mnt/efi/boot"
     cp "${bootfiles_dir}/grub/bootx64.efi" "${bootfiles_dir}/mnt/efi/boot"
+    mkdir -p "${bootfiles_dir}/mnt/EFI/BOOT/"
+    cp "${bootfiles_dir}/grub/bootx64.efi" "${bootfiles_dir}/mnt/EFI/BOOT/"
     umount -d "${bootfiles_dir}/mnt"
     remove "${bootfiles_dir}/mnt"
 }
