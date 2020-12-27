@@ -403,7 +403,7 @@ make_squashfs() {
     mkdir "${work_dir}/airootfs/boot"
     cp ${bootfiles_dir}/boot/vmlinuz ${work_dir}/airootfs/boot/vmlinuz-$(run_cmd ls /lib/modules)
     kernelkun=$(run_cmd ls /lib/modules)
-    echo -e "\nkernel-install add ${kernelkun} /boot/vmlinuz-${kernelkun}" >> ${work_dir}/airootfs/usr/share/calamares/final-process
+    echo -e "\nkernel-install add ${kernelkun} /boot/vmlinuz-${kernelkun}\ngrub2-mkconfig" >> ${work_dir}/airootfs/usr/share/calamares/final-process
     umount "${work_dir}/airootfs"
     # _msg_info "e2fsck..."
     # e2fsck -f "${work_dir}/squashfsroot/LiveOS/rootfs.img"
