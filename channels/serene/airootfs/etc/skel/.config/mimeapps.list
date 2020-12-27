@@ -3,15 +3,9 @@ x-scheme-handler/http=exo-web-browser.desktop
 x-scheme-handler/https=exo-web-browser.desktop
 image/png=viewnior.desktop;gpicview.desktop;
 application/vnd.debian.binary-package=gdebi.desktop;
-application/x-desktop=medit.desktop;
-application/xml=medit.desktop;
-text/x-scheme=medit.desktop;
-text/plain=medit.desktop;libreoffice-calc.desktop;libreoffice-writer.desktop;libreoffice-impress.desktop;
-text/x-readme=medit.desktop;
+text/plain=libreoffice-calc.desktop;libreoffice-writer.desktop;libreoffice-impress.desktop;
 text/html=chromium-browser.desktop;firefox.desktop;
 application/x-cd-image=mount-archive.desktop;
-application/x-shellscript=medit.desktop;
-text/x-matlab=medit.desktop;
 image/bmp=viewnior.desktop;
 image/gif=viewnior.desktop;
 image/jpeg=viewnior.desktop;
@@ -38,7 +32,6 @@ image/x-xpixmap=viewnior.desktop;
 
 [Default Applications]
 image/png=viewnior.desktop
-text/plain=medit.desktop
 image/bmp=viewnior.desktop
 image/gif=viewnior.desktop
 image/jpeg=viewnior.desktop
