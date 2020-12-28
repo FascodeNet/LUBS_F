@@ -1,10 +1,10 @@
 [Added Associations]
-x-scheme-handler/http=exo-web-browser.desktop
-x-scheme-handler/https=exo-web-browser.desktop
+x-scheme-handler/http=exo-web-browser.desktop;flast-gecko-nightly.desktop;
+x-scheme-handler/https=exo-web-browser.desktop;flast-gecko-nightly.desktop;
 image/png=viewnior.desktop;gpicview.desktop;
 application/vnd.debian.binary-package=gdebi.desktop;
 text/plain=libreoffice-calc.desktop;libreoffice-writer.desktop;libreoffice-impress.desktop;
-text/html=chromium-browser.desktop;firefox.desktop;
+text/html=chromium-browser.desktop;firefox.desktop;flast-gecko-nightly.desktop;
 application/x-cd-image=mount-archive.desktop;
 image/bmp=viewnior.desktop;
 image/gif=viewnior.desktop;
