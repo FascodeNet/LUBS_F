@@ -44,3 +44,6 @@ sed -i "s/light-locker-command/echo/g" /home/${username}/.config/xfce4/xfconf/xf
 if [[ $boot_splash = true ]]; then
     /usr/sbin/plymouth-set-default-theme serene-logo
 fi
+if [[ ${localegen} == "en_US.UTF-8" ]]; then
+    rm -rf /opt/flast-gecko-nightly/locale.ini
+fi
