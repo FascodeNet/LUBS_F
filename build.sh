@@ -20,7 +20,7 @@ channels_dir="${script_path}/channels"
 nfb_dir="${script_path}/nfb"
 codename="33"
 os_name="SereneLinux"
-iso_name="Fedora"
+iso_name="SereneLinux"
 language="ja_JP.UTF-8"
 channel_name="serene"
 cache_dir="${script_path}/cache"
@@ -50,7 +50,7 @@ locale_fullname="global"
 debug=false
 cache_only=false
 grub2_standalone_cmd=grub2-mkstandalone
-
+gitversion=false
 start_time="$(date +%s)"
 
 _msg_common() {
@@ -203,6 +203,7 @@ _usage () {
     echo "                           Default: ${work_dir}"
     echo "    -c | --cache <dir>     Set the cache directory"
     echo "                           Default: ${cache_dir}"
+    echo "         --gitversion      Add Git commit hash to image file version"
     echo
     echo "    -d | --debug           Enable debug messages"
     echo "    -x | --bash-debug      Enable bash debug mode(set -xv)"
@@ -507,7 +508,7 @@ make_checksum() {
 
 # 引数解析 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
 _opt_short="w:l:o:hba:-:m:c:dx"
-_opt_long="help,arch:,codename:,debug,help,lang,mirror:,out:,work,cache-only,bootsplash,bash-debug"
+_opt_long="help,arch:,codename:,debug,help,lang,mirror:,out:,work,cache-only,bootsplash,bash-debug,gitversion"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 
 if [[ ${?} != 0 ]]; then
@@ -560,6 +561,10 @@ while :; do
             ;;
         -x | --bash-debug)
             set -xv
+            shift 1
+            ;;
+        --gitversion)
+            gitversion=true
             shift 1
             ;;
         --)
@@ -617,7 +622,12 @@ if [[ -n "${1}" ]]; then
         exit 1
     fi
 fi
-iso_filename="${iso_name}-${codename}-${channel_name}-${locale_name}-$(date +%Y.%m.%d)-${arch}.iso"
+if [[ "${gitversion}" == "true" ]]; then
+    cd ${script_path}
+    iso_filename="${iso_name}-${codename}-$(git rev-parse --short HEAD)-${channel_name}-${locale_name}-$(date +%Y.%m.%d)-${arch}.iso"
+else
+    iso_filename="${iso_name}-${codename}-${channel_name}-${locale_name}-$(date +%Y.%m.%d)-${arch}.iso"
+fi
 umount_chroot_airootfs
 if [[ -d "${work_dir}" ]]; then
     _msg_info "deleting work dir..."
