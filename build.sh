@@ -426,6 +426,7 @@ make_nfb() {
         sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/grub.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" > "${bootfiles_dir}/grub/grub.cfg"
     fi
     sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/grub.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" | sed "s|selinux=0|selinux=0 quiet splash|g" > "${bootfiles_dir}/grub/grub.cfg"
+    cp "${nfb_dir}/Shell_Full.efi" "${bootfiles_dir}/Shell_Full.efi"
 }
 make_efi() {
     # UEFI 32bit (ia32)
@@ -453,7 +454,8 @@ make_efi() {
     cp "${bootfiles_dir}/grub/bootia32.efi" "${bootfiles_dir}/mnt/efi/boot"
     cp "${bootfiles_dir}/grub/bootx64.efi" "${bootfiles_dir}/mnt/efi/boot"
     mkdir -p "${bootfiles_dir}/mnt/EFI/BOOT/"
-    cp "${bootfiles_dir}/grub/bootx64.efi" "${bootfiles_dir}/mnt/EFI/BOOT/"
+    cp "${bootfiles_dir}/grub/bootx64.efi" "${bootfiles_dir}/mnt/EFI/BOOT/"    
+    cp "${bootfiles_dir}/Shell_Full.efi" "${bootfiles_dir}/mnt/"
     umount -d "${bootfiles_dir}/mnt"
     remove "${bootfiles_dir}/mnt"
 }
