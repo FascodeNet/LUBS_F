@@ -214,7 +214,7 @@ Presentation
             font.pixelSize: 15
             color: "#333333"
             width: parent.width/2
-            text: qsTr("SereneLinux incorporate a Chromium as a default browser.\n\nIf you want to use other software, you can install it easy.")
+            text: qsTr("SereneLinux incorporate a \"Flast on Gecko\" as a default browser.\n\nIf you want to use other software, you can install it easy.")
             anchors.bottom: parent.bottom
             anchors.right:  parent.right
             anchors.rightMargin: -20
