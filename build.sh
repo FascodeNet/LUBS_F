@@ -33,8 +33,8 @@ iso_publisher='Fascode Network <https://fascode.net>'
 iso_application="${os_name} Live/Rescue CD"
 iso_version="${codename}-$(date +%Y.%m.%d)"
 iso_filename="${iso_name}-${iso_version}-${arch}.iso"
-liveuser_name="fedora"
-liveuser_password="fedora"
+liveuser_name="serene"
+liveuser_password="serene"
 liveuser_shell="/usr/bin/zsh"
 
 #-- language config --#
@@ -255,7 +255,7 @@ dnfstrap() {
 }
 
 make_basefs() {
-    _msg_info "Installing Fedora to '${work_dir}/airootfs'..."
+    _msg_info "Installing Base System to '${work_dir}/airootfs'..."
     dnfstrap @Core yamad-repo 
     _msg_info "${codename} installed successfully!"
     
