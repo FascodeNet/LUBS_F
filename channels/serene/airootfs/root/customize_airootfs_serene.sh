@@ -49,3 +49,4 @@ fi
 if [[ ${localegen} == "en_US.UTF-8" ]]; then
     rm -rf /opt/flast-gecko-nightly/locale.ini
 fi
+chmod 755 /usr/bin/serenelinux-gtk-bookmarks
