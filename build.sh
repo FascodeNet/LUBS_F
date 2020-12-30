@@ -627,7 +627,7 @@ if [[ -n "${1}" ]]; then
     fi
 fi
 if [[ "${gitversion}" == "true" ]]; then
-    cd ${script_path}
+    cd "${script_path}"
     iso_filename="${iso_name}-${codename}-${channel_name}-${locale_name}-$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)-${arch}.iso"
 else
     iso_filename="${iso_name}-${codename}-${channel_name}-${locale_name}-$(date +%Y.%m.%d)-${arch}.iso"
