@@ -368,10 +368,14 @@ make_config() {
         _airootfs_script_options="${_airootfs_script_options} -b"
     fi
     _run_script() {
-        local _file
+        local _file _file_fullpath
         for _file in ${@}; do
-            if [[ -f "${work_dir}/airootfs${_file}" ]]; then run_cmd "${_file}" ${_airootfs_script_options}; fi
-            if [[ -f "${work_dir}/airootfs${_file}" ]]; then chmod 755 "${work_dir}/airootfs${_file}"; fi
+            _file_fullpath="${work_dir}/airootfs${_file}"
+            if [[ -f "${_file_fullpath}" ]]; then 
+                chmod 755 "${_file_fullpath}"
+                run_cmd "${_file}" ${_airootfs_script_options}
+                remove "${_file_fullpath}"
+            fi
         done
     }
 
