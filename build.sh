@@ -577,9 +577,13 @@ while :; do
             ;;
     esac
 done
-if [[ -f "/etc/arch-release" ]]; then
+
+# Arch Linuxかどうかチェック
+# /etc/os-releaseのIDがarchかどうかで判定
+if ( source "/etc/os-release"; if [[ "${ID}" = "arch" ]]; then true; else false; fi); then
     grub2_standalone_cmd=grub-mkstandalone
 fi
+
 bootfiles_dir="${work_dir}/bootfiles"
 trap 'umount_chroot_airootfs' 0 2 15
 
