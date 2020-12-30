@@ -583,7 +583,10 @@ while :; do
             ;;
     esac
 done
-if [[ -f "/etc/arch-release" ]]; then
+#if [[ -f "/etc/arch-release" ]]; then
+#    grub2_standalone_cmd=grub-mkstandalone
+#fi
+if ( source "/etc/os-release"; if [[ "${ID}" = "arch" ]]; then true; else false; fi); then
     grub2_standalone_cmd=grub-mkstandalone
 fi
 bootfiles_dir="${work_dir}/bootfiles"
