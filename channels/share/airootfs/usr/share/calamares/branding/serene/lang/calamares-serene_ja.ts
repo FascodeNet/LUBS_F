@@ -41,10 +41,10 @@ Googleドキュメントはファイルをオンラインで安全に保存す�
         <translation>&lt;b&gt;助けが必要ですか&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>SereneLinux incorporate a Chromium as a default browser.
+        <source>SereneLinux incorporate a &quot;Flast on Gecko&quot; as a default browser.
 
 If you want to use other software, you can install it easy.</source>
-        <translation>SereneLinuxにはデフォルトのブラウザとしてChromiumが搭載されています。
+        <translation>SereneLinuxにはデフォルトのブラウザとして &quot;Flast on Gecko&quot; が搭載されています。
 
 もしほかのソフトを使いたいなら、それを簡単にインストールすることも可能です。</translation>
     </message>

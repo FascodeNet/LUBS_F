@@ -1,10 +1,10 @@
 [Desktop Entry]
 Encoding=UTF-8
 Version=1.0
-Name=AlterLinux Sidebar
+Name=SereneLinux Sidebar
 Comment=Generates sidebar items.
 Icon=utilities-terminal
-Exec=/usr/bin/alterlinux-gtk-bookmarks -f --alterlive init
+Exec=/usr/bin/serenelinux-gtk-bookmarks -f --serenelive init
 X-GNOME-Autostart-enabled=true
 Type=Application
 RunHook=0

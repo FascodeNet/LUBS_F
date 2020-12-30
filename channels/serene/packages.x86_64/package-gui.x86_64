@@ -1,2 +1,5 @@
 # package gui
-gnome-software 
+plasma-discover
+plasma-discover-notifier
+# gui tool (stub)
+serene-setup-wizard

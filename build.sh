@@ -20,7 +20,7 @@ channels_dir="${script_path}/channels"
 nfb_dir="${script_path}/nfb"
 codename="33"
 os_name="SereneLinux"
-iso_name="Fedora"
+iso_name="SereneLinux"
 language="ja_JP.UTF-8"
 channel_name="serene"
 cache_dir="${script_path}/cache"
@@ -33,8 +33,8 @@ iso_publisher='Fascode Network <https://fascode.net>'
 iso_application="${os_name} Live/Rescue CD"
 iso_version="${codename}-$(date +%Y.%m.%d)"
 iso_filename="${iso_name}-${iso_version}-${arch}.iso"
-liveuser_name="fedora"
-liveuser_password="fedora"
+liveuser_name="serene"
+liveuser_password="serene"
 liveuser_shell="/usr/bin/zsh"
 
 #-- language config --#
@@ -50,7 +50,7 @@ locale_fullname="global"
 debug=false
 cache_only=false
 grub2_standalone_cmd=grub2-mkstandalone
-
+gitversion=false
 start_time="$(date +%s)"
 
 _msg_common() {
@@ -201,6 +201,7 @@ _usage () {
     echo "                           Default: ${work_dir}"
     echo "    -c | --cache <dir>     Set the cache directory"
     echo "                           Default: ${cache_dir}"
+    echo "         --gitversion      Add Git commit hash to image file version"
     echo
     echo "    -d | --debug           Enable debug messages"
     echo "    -x | --bash-debug      Enable bash debug mode(set -xv)"
@@ -252,7 +253,7 @@ dnfstrap() {
 }
 
 make_basefs() {
-    _msg_info "Installing Fedora to '${work_dir}/airootfs'..."
+    _msg_info "Installing Base System to '${work_dir}/airootfs'..."
     dnfstrap @Core yamad-repo 
     _msg_info "${codename} installed successfully!"
     
@@ -401,14 +402,14 @@ make_squashfs() {
     mkdir "${work_dir}/airootfs/boot"
     cp ${bootfiles_dir}/boot/vmlinuz ${work_dir}/airootfs/boot/vmlinuz-$(run_cmd ls /lib/modules)
     kernelkun=$(run_cmd ls /lib/modules)
-    echo -e "\nkernel-install add ${kernelkun} /boot/vmlinuz-${kernelkun}" >> ${work_dir}/airootfs/usr/share/calamares/final-process
+    echo -e "\nkernel-install add ${kernelkun} /boot/vmlinuz-${kernelkun}\ngrub2-mkconfig" >> ${work_dir}/airootfs/usr/share/calamares/final-process
     umount "${work_dir}/airootfs"
     # _msg_info "e2fsck..."
     # e2fsck -f "${work_dir}/squashfsroot/LiveOS/rootfs.img"
     # _msg_info "Minimize rootfs..."
     # resize2fs -M "${work_dir}/squashfsroot/LiveOS/rootfs.img"
     _msg_info "Compress rootfs.."
-    mksquashfs "${work_dir}/squashfsroot/" "${bootfiles_dir}/LiveOS/squashfs.img" -noappend -no-recovery -comp zstd -Xcompression-level 19 -b 1048576
+    mksquashfs "${work_dir}/squashfsroot/" "${bootfiles_dir}/LiveOS/squashfs.img" -noappend -no-recovery -comp zstd -Xcompression-level 21 -b 1048576
     _msg_info "Deleting block image..."
     rm -rf "${work_dir}/squashfsroot/LiveOS/rootfs.img"
 }
@@ -416,7 +417,11 @@ make_squashfs() {
 make_nfb() {
     touch "${bootfiles_dir}/fedora_lfbs"
     # isolinux setup
-    sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/isolinux.cfg" | sed "s|%CD_LABEL%|${iso_label}|g"  > "${bootfiles_dir}/isolinux/isolinux.cfg"
+    if [[ ${bootsplash} = true ]]; then
+        sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/isolinux.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" | sed "s|selinux=0|selinux=0 quiet splash|g"  > "${bootfiles_dir}/isolinux/isolinux.cfg"
+    else
+        sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/isolinux.cfg" | sed "s|%CD_LABEL%|${iso_label}|g"  > "${bootfiles_dir}/isolinux/isolinux.cfg"
+    fi
     #grub
     if [[ ${bootsplash} = true ]]; then
         sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/grub.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" | sed "s|selinux=0|selinux=0 quiet splash|g" > "${bootfiles_dir}/grub/grub.cfg"
@@ -424,6 +429,7 @@ make_nfb() {
         sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/grub.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" > "${bootfiles_dir}/grub/grub.cfg"
     fi
     sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/grub.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" | sed "s|selinux=0|selinux=0 quiet splash|g" > "${bootfiles_dir}/grub/grub.cfg"
+    cp "${nfb_dir}/Shell_Full.efi" "${bootfiles_dir}/Shell_Full.efi"
 }
 make_efi() {
     # UEFI 32bit (ia32)
@@ -450,6 +456,11 @@ make_efi() {
     mkdir -p "${bootfiles_dir}/mnt/efi/boot"
     cp "${bootfiles_dir}/grub/bootia32.efi" "${bootfiles_dir}/mnt/efi/boot"
     cp "${bootfiles_dir}/grub/bootx64.efi" "${bootfiles_dir}/mnt/efi/boot"
+    mkdir -p "${bootfiles_dir}/mnt/EFI/BOOT/"
+    mkdir -p "${bootfiles_dir}/EFI/Boot/"
+    cp "${bootfiles_dir}/grub/bootx64.efi" "${bootfiles_dir}/mnt/EFI/BOOT/"    
+    cp "${bootfiles_dir}/grub/bootx64.efi" "${bootfiles_dir}/EFI/Boot/"    
+    cp "${bootfiles_dir}/Shell_Full.efi" "${bootfiles_dir}/mnt/"
     umount -d "${bootfiles_dir}/mnt"
     remove "${bootfiles_dir}/mnt"
 }
@@ -500,8 +511,8 @@ make_checksum() {
 }
 
 # 引数解析 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
-_opt_short="w:l:o:hba:-:c:dx"
-_opt_long="help,arch:,codename:,debug,help,lang,out:,work,cache-only,bootsplash,bash-debug"
+_opt_short="w:l:o:hba:-:m:c:dx"
+_opt_long="help,arch:,codename:,debug,help,lang,mirror:,out:,work,cache-only,bootsplash,bash-debug,gitversion"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 
 if [[ ${?} != 0 ]]; then
@@ -550,6 +561,10 @@ while :; do
             ;;
         -x | --bash-debug)
             set -xv
+            shift 1
+            ;;
+        --gitversion)
+            gitversion=true
             shift 1
             ;;
         --)
@@ -607,7 +622,12 @@ if [[ -n "${1}" ]]; then
         exit 1
     fi
 fi
-iso_filename="${iso_name}-${codename}-${channel_name}-${locale_name}-$(date +%Y.%m.%d)-${arch}.iso"
+if [[ "${gitversion}" == "true" ]]; then
+    cd ${script_path}
+    iso_filename="${iso_name}-${codename}-${channel_name}-${locale_name}-$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)-${arch}.iso"
+else
+    iso_filename="${iso_name}-${codename}-${channel_name}-${locale_name}-$(date +%Y.%m.%d)-${arch}.iso"
+fi
 umount_chroot_airootfs
 if [[ -d "${work_dir}" ]]; then
     _msg_info "deleting work dir..."
