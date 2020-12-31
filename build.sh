@@ -195,8 +195,6 @@ _usage () {
     echo "    -b | --bootsplash      Enable Plymouth"
     echo "    -l | --lang <lang>     Specifies the default language for the live environment"
     echo "                           Default: ${locale_name}"
-    echo "    -m | --mirror <url>    Set apt mirror server."
-    echo "                           Default: ${mirror}"
     echo "    -o | --out <dir>       Set the output directory"
     echo "                           Default: ${out_dir}"
     echo "    -w | --work <dir>      Set the working directory"
@@ -370,10 +368,14 @@ make_config() {
         _airootfs_script_options="${_airootfs_script_options} -b"
     fi
     _run_script() {
-        local _file
+        local _file _file_fullpath
         for _file in ${@}; do
-            if [[ -f "${work_dir}/airootfs${_file}" ]]; then run_cmd "${_file}" ${_airootfs_script_options}; fi
-            if [[ -f "${work_dir}/airootfs${_file}" ]]; then chmod 755 "${work_dir}/airootfs${_file}"; fi
+            _file_fullpath="${work_dir}/airootfs${_file}"
+            if [[ -f "${_file_fullpath}" ]]; then 
+                chmod 755 "${_file_fullpath}"
+                run_cmd "${_file}" ${_airootfs_script_options}
+                remove "${_file_fullpath}"
+            fi
         done
     }
 
@@ -513,8 +515,8 @@ make_checksum() {
 }
 
 # 引数解析 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
-_opt_short="w:l:o:hba:-:m:c:dx"
-_opt_long="help,arch:,codename:,debug,help,lang,mirror:,out:,work,cache-only,bootsplash,bash-debug,gitversion"
+_opt_short="a:bc:dhl:o:w:x"
+_opt_long="arch:,bootsplash,cache:,debug,help,lang:,out:,work:,cache-only,bash-debug,gitversion"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 
 if [[ ${?} != 0 ]]; then
@@ -544,10 +546,6 @@ while :; do
         -h | --help)
             _usage
             exit 0
-            ;;
-        -m | --mirror)
-            mirror="${2}"
-            shift 2
             ;;
         -l | --lang)
             locale_name="${2}"
@@ -583,12 +581,13 @@ while :; do
             ;;
     esac
 done
-#if [[ -f "/etc/arch-release" ]]; then
-#    grub2_standalone_cmd=grub-mkstandalone
-#fi
+
+# Arch Linuxかどうかチェック
+# /etc/os-releaseのIDがarchかどうかで判定
 if ( source "/etc/os-release"; if [[ "${ID}" = "arch" ]]; then true; else false; fi); then
     grub2_standalone_cmd=grub-mkstandalone
 fi
+
 bootfiles_dir="${work_dir}/bootfiles"
 trap 'umount_chroot_airootfs' 0 2 15
 
@@ -632,7 +631,7 @@ if [[ -n "${1}" ]]; then
     fi
 fi
 if [[ "${gitversion}" == "true" ]]; then
-    cd ${script_path}
+    cd "${script_path}"
     iso_filename="${iso_name}-${codename}-${channel_name}-${locale_name}-$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)-${arch}.iso"
 else
     iso_filename="${iso_name}-${codename}-${channel_name}-${locale_name}-$(date +%Y.%m.%d)-${arch}.iso"
