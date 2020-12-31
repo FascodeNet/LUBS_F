@@ -1,5 +1,5 @@
-## LUBS Fedora - Live Universal Build System  Fedora
+## LUBS F - Live Universal Build System on Fedora
 
 ![Travis](https://img.shields.io/travis/com/FascodeNet/LFBS)
 
-Script to build Fedora ISO image
+Script to build Fedora based ISO image
