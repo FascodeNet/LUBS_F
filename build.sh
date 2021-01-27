@@ -163,15 +163,12 @@ _dnf_install() {
 # If the file does not exist, skip it.
 # remove <file> <file> ...
 remove() {
-    local _list=($(echo "$@"))
-    local _file
-
+    local _list=($(echo "${@}")) _file
     for _file in "${_list[@]}"; do
-        _msg_debug "Removeing ${_file}"
-
-        if [[ -f ${_file} ]]; then
+        msg_debug "Removing ${_file}"
+        if [[ -f "${_file}" ]]; then    
             rm -f "${_file}"
-        elif [[ -d ${_file} ]]; then
+        elif [[ -d "${_file}" ]]; then
             rm -rf "${_file}"
         fi
     done
