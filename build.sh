@@ -346,11 +346,13 @@ make_cp_airootfs() {
 
 make_config() {
     # customize_airootfs options
+    # -a                        : Set architecture
     # -b                        : Enable boot splash.
     # -d                        : Enable debug mode.
     # -g <locale_gen_name>      : Set locale-gen.
     # -i <inst_dir>             : Set install dir
     # -k <kernel config line>   : Set kernel name.
+    # -l <locale_name>          : Set language.
     # -o <os name>              : Set os name.
     # -p <password>             : Set password.
     # -s <shell>                : Set user shell.
@@ -358,10 +360,7 @@ make_config() {
     # -u <username>             : Set live user name.
     # -x                        : Enable bash debug mode.
     # -z <locale_time>          : Set the time zone.
-    # -l <locale_name>          : Set language.
-    #
-    # -j is obsolete in AlterISO3 and cannot be used.
-    # -k changed in AlterISO3 from passing kernel name to passing kernel configuration.
+
     local _airootfs_script_options _run_script
     _airootfs_script_options="-p ${liveuser_password} -u ${liveuser_name} -o ${os_name} -s ${liveuser_shell} -a ${arch} -g ${locale_gen_name} -l ${locale_name} -z ${locale_time} "
     if [[ ${bootsplash} == true ]]; then

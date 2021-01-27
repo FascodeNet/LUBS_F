@@ -26,21 +26,21 @@ function user_check () {
 # Parse arguments
 while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
     case "${arg}" in
-        p) password="${OPTARG}" ;;
-        b) boot_splash=true ;;
-        t) theme_name="${OPTARG}" ;;
-        k) kernel_config_line=(${OPTARG}) ;;
-        r) rebuild=true ;;
-        u) username="${OPTARG}" ;;
-        o) os_name="${OPTARG}" ;;
-        i) install_dir="${OPTARG}" ;;
-        s) usershell="${OPTARG}" ;;
-        d) debug=true ;;
-        x) debug=true; set -xv ;;
         a) arch="${OPTARG}" ;;
+        b) boot_splash=true ;;
+        d) debug=true ;;
         g) localegen="${OPTARG}" ;;
-        z) timezone="${OPTARG}" ;;
+        i) install_dir="${OPTARG}" ;;
+        k) kernel_config_line=(${OPTARG}) ;;
         l) language="${OPTARG}" ;;
+        o) os_name="${OPTARG}" ;;
+        p) password="${OPTARG}" ;;
+        r) rebuild=true ;;
+        s) usershell="${OPTARG}" ;;
+        t) theme_name="${OPTARG}" ;;
+        u) username="${OPTARG}" ;;
+        x) debug=true; set -xv ;;
+        z) timezone="${OPTARG}" ;;
     esac
 done
 
