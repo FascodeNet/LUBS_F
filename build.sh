@@ -344,12 +344,10 @@ make_cp_airootfs() {
 
 make_config() {
     # customize_airootfs options
-    # -a                        : Set architecture
     # -b                        : Enable boot splash.
     # -d                        : Enable debug mode.
     # -g <locale_gen_name>      : Set locale-gen.
     # -i <inst_dir>             : Set install dir
-    # -k <kernel config line>   : Set kernel name.
     # -l <locale_name>          : Set language.
     # -o <os name>              : Set os name.
     # -p <password>             : Set password.
