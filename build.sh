@@ -359,24 +359,26 @@ make_config() {
     # -x                        : Enable bash debug mode.
     # -z <locale_time>          : Set the time zone.
 
-    local _airootfs_script_options _run_script
-    _airootfs_script_options="-p ${liveuser_password} -u ${liveuser_name} -o ${os_name} -s ${liveuser_shell} -a ${arch} -g ${locale_gen_name} -l ${locale_name} -z ${locale_time} "
+    local _main_script="root/customize_airootfs.sh" _script_list=("${work_dir}/airootfs/root/customize_airootfs_${channel_name}.sh") _file_fullpath="${work_dir}/airootfs/${_main_script}"
+    local _airootfs_script_options="-p ${liveuser_password} -u ${liveuser_name} -o ${os_name} -s ${liveuser_shell} -a ${arch} -g ${locale_gen_name} -l ${locale_name} -z ${locale_time}"
     if [[ ${bootsplash} == true ]]; then
-        _airootfs_script_options="${_airootfs_script_options} -b"
+        _airootfs_script_options+=" -b"
     fi
-    _run_script() {
-        local _file _file_fullpath
-        for _file in ${@}; do
-            _file_fullpath="${work_dir}/airootfs${_file}"
-            if [[ -f "${_file_fullpath}" ]]; then 
-                chmod 755 "${_file_fullpath}"
-                run_cmd "${_file}" ${_airootfs_script_options}
-                remove "${_file_fullpath}"
-            fi
-        done
-    }
 
-    _run_script "/root/customize_airootfs.sh" "/root/customize_airootfs_${channel_name}.sh"
+    # Create script
+    for _script in ${_script_list[@]}; do
+        if [[ -f "${_script}" ]]; then
+            echo -e "\n" >> "${_file_fullpath}"
+            cat "${_script}" >> "${_file_fullpath}"
+            remove "${_script}"
+        fi
+    done
+
+    if [[ -f "${_file_fullpath}" ]]; then 
+        chmod 755 "${_file_fullpath}"
+        run_cmd "${_file}" ${_airootfs_script_options}
+        remove "${_file_fullpath}"
+    fi
 }
 
 make_clean() {
