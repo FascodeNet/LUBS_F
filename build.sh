@@ -177,8 +177,7 @@ remove() {
 # Usage: echo_blank <number>
 # 指定されたぶんの半角空白文字を出力します
 echo_blank(){
-    local _blank
-    for _local in $(seq 1 "${1}"); do echo -ne " "; done
+    yes " " | head -n "${1}" | tr -d "\n"
 }
 
 # Show help
