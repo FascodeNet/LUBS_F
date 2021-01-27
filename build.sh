@@ -165,7 +165,7 @@ _dnf_install() {
 remove() {
     local _list=($(echo "${@}")) _file
     for _file in "${_list[@]}"; do
-        msg_debug "Removing ${_file}"
+        _msg_debug "Removing ${_file}"
         if [[ -f "${_file}" ]]; then    
             rm -f "${_file}"
         elif [[ -d "${_file}" ]]; then
