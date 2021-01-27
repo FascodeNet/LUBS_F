@@ -267,7 +267,7 @@ parse_files() {
 }
 
 prepare_build() {
-    if [[ ${EUID} -ne 0 ]]; then
+    if (( "${EUID}" != 0 )); then
         _msg_error "This script must be run as root." 1
     fi
     umount_chroot_airootfs
@@ -312,8 +312,8 @@ make_repo_packages() {
 }
 make_dnf_packages() {
     
-    #local  _pkg  _pkglist=($("${script_path}/tools/pkglist.sh" -a "x86_64" -k "${kernel}" -c "${channel_dir}" -l "${locale_name}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
-    local  _pkg  _pkglist=($("${script_path}/tools/pkglist.sh" -a "x86_64" -c "${channels_dir}/${channel_name}" -l "${locale_name}" $(if [[ "${bootsplash}" = true ]]; then echo -n "-b"; fi) ))
+    #local _pkg _pkglist=($("${script_path}/tools/pkglist.sh" -a "x86_64" -k "${kernel}" -c "${channel_dir}" -l "${locale_name}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
+    local  _pkg _pkglist=($("${script_path}/tools/pkglist.sh" -a "x86_64" -c "${channels_dir}/${channel_name}" -l "${locale_name}" $(if [[ "${bootsplash}" = true ]]; then echo -n "-b"; fi) ))
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
     echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
     for _pkg in ${_pkglist[@]}; do
@@ -326,18 +326,20 @@ make_dnf_packages() {
 }
 
 make_cp_airootfs() {
-    local _copy_airootfs
+    local _airootfs_list=(
+        "${channels_dir}/share/airootfs"
+        "${channels_dir}/share/airootfs.${locale_name}"
+        "${channels_dir}/${channel_name}/airootfs"
+        "${channels_dir}/${channel_name}/airootfs.${locale_name}"
+    )
 
-    _copy_airootfs() {
+    for _dir in ${_airootfs_list[@]}; do
         local _dir="${1%/}"
         if [[ -d "${_dir}" ]]; then
             cp -af "${_dir}"/* "${work_dir}/airootfs"
         fi
-    }
-    _copy_airootfs "${channels_dir}/share/airootfs"
-    _copy_airootfs "${channels_dir}/share/airootfs.${locale_name}"
-    _copy_airootfs "${channels_dir}/${channel_name}/airootfs"
-    _copy_airootfs "${channels_dir}/${channel_name}/airootfs.${locale_name}"
+    done
+
 }
 
 make_config() {
