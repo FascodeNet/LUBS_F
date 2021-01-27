@@ -25,8 +25,9 @@ function user_check () {
 
 # Parse arguments
 #while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
-while getopts 'bdg:i:l:o:p:s:t:u:xz:' arg; do
+while getopts 'a:bdg:i:l:o:p:s:t:u:xz:' arg; do
     case "${arg}" in
+        a) arch="${OPTARG}" ;;
         b) boot_splash=true ;;
         d) debug=true ;;
         g) localegen="${OPTARG}" ;;
