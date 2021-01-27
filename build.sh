@@ -186,8 +186,8 @@ _usage () {
     echo
     echo " General options:"
     echo
-    echo "    -a | --arch <str>      Set architecture"
-    echo "                           Default: ${arch}"
+    #echo "    -a | --arch <str>      Set architecture"
+    #echo "                           Default: ${arch}"
     echo "    -b | --bootsplash      Enable Plymouth"
     echo "    -l | --lang <lang>     Specifies the default language for the live environment"
     echo "                           Default: ${locale_name}"
@@ -525,7 +525,7 @@ eval set -- "${OPT}"
 while :; do
     case ${1} in
         -a | --arch)
-            arch="${2}"
+            #arch="${2}"
             shift 2
             ;;
         -b | --bootsplash)
