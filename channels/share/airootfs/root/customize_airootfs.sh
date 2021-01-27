@@ -13,29 +13,27 @@ export PATH=$PATH:/usr/sbin
 # Creating a root user.
 # usermod -s /usr/bin/zsh root
 function user_check () {
-    if [[ $(getent passwd $1 > /dev/null ; printf $?) = 0 ]]; then
-        if [[ -z $1 ]]; then
-            echo -n "false"
-        fi
-        echo -n "true"
+    if [[ -z "${1}" ]]; then
+        return 1
+    fi
+    if getent passwd "${1}" > /dev/null 2> /dev/null; then
+        return 0
     else
-        echo -n "false"
+        return 1
     fi
 }
 
 # Parse arguments
-while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
+#while getopts 'p:bt:k:rxu:o:i:s:da:g:z:l:' arg; do
+while getopts 'bdg:i:l:o:p:s:t:u:xz:' arg; do
     case "${arg}" in
-        a) arch="${OPTARG}" ;;
         b) boot_splash=true ;;
         d) debug=true ;;
         g) localegen="${OPTARG}" ;;
         i) install_dir="${OPTARG}" ;;
-        k) kernel_config_line=(${OPTARG}) ;;
         l) language="${OPTARG}" ;;
         o) os_name="${OPTARG}" ;;
         p) password="${OPTARG}" ;;
-        r) rebuild=true ;;
         s) usershell="${OPTARG}" ;;
         t) theme_name="${OPTARG}" ;;
         u) username="${OPTARG}" ;;
@@ -53,11 +51,8 @@ cp -aT /etc/skel/ /root/
 sed -i 's/^#\s*\(%sudo\s\+ALL=(ALL)\s\+ALL\)/\1/' /etc/sudoers
 
 function create_user () {
-    local _password
-    local _username
-
-    _username=${1}
-    _password=${2}
+    local _username="${1}"
+    local _password="${2}"
 
     set +u
     if [[ -z "${_username}" ]]; then
@@ -70,7 +65,7 @@ function create_user () {
     fi
     set -u
 
-    if [[ $(user_check ${_username}) = false ]]; then
+    if user_check "${_username}"; then
         useradd -m -s ${usershell} ${_username}
         echo ${_password} | passwd --stdin ${_username}
         passwd -u -f ${_username}
@@ -102,18 +97,17 @@ if [[ -f "/etc/systemd/system/getty@tty1.service.d/override.conf" ]]; then
 fi
 
 # Set to execute calamares without password as alter user.
-cat >> /etc/sudoers << "EOF"
-Defaults pwfeedback
-EOF
-echo "${username} ALL=NOPASSWD: ALL" >> /etc/sudoers.d/fedoralive
-echo "root ALL=NOPASSWD: ALL" >> /etc/sudoers.d/fedoralive
-echo "#!/usr/bin/env bash" > "/etc/profile.d/alias_systemctl_setup.sh"
-echo "alias reboot=\"sudo reboot\"" >> "/etc/profile.d/alias_systemctl_setup.sh"
-echo "alias shutdown=\"sudo shutdown\"" >> "/etc/profile.d/alias_systemctl_setup.sh"
-echo "alias poweroff=\"sudo poweroff\"" >> "/etc/profile.d/alias_systemctl_setup.sh"
-echo "alias halt=\"sudo halt\"" >> "/etc/profile.d/alias_systemctl_setup.sh"
-chmod +x "/etc/profile.d/alias_systemctl_setup.sh"
+echo -e "\nDefaults pwfeedback" >> /etc/sudoers
+echo -e "${username} ALL=NOPASSWD: ALL\nroot ALL=NOPASSWD: ALL" >> /etc/sudoers.d/fedoralive
 
+cat > "/etc/profile.d/alias_systemctl_setup.sh" << "EOF"
+#!/usr/bin/env bash
+alias reboot="sudo reboot"
+alias shutdown="sudo shutdown"
+alias poweroff="sudo poweroff"
+alias halt="sudo halt"
+EOF
+chmod 755 "/etc/profile.d/alias_systemctl_setup.sh"
 
 
 # Chnage sudoers permission
@@ -133,19 +127,20 @@ passwd -u -f root
 #remove /usr/share/calamares/modules/unpackfs/
 
 # Set up calamares removeuser
-sed -i s/%USERNAME%/${username}/g /usr/share/calamares/modules/removeuser.conf
+sed -i "s/%USERNAME%/${username}/g" "/usr/share/calamares/modules/removeuser.conf"
 
 # Set user shell
-sed -i "s|%USERSHELL%|'${usershell}'|g" /usr/share/calamares/modules/users.conf
+sed -i "s|%USERSHELL%|'${usershell}'|g" "/usr/share/calamares/modules/users.conf"
 
 # Add disabling of sudo setting
-echo -e "\nremove \"/etc/sudoers.d/fedoralive\"" >> /usr/share/calamares/final-process
-if [[ $boot_splash = true ]]; then
-    cat <<EOF > /etc/grub.d/99_plymouth_config
+echo -e "\nremove \"/etc/sudoers.d/fedoralive\"" >> "/usr/share/calamares/final-process"
+if [[ "${boot_splash}" = true ]]; then
+    cat > "/etc/grub.d/99_plymouth_config" <<EOF
 #!/usr/bin/env bash
 grubby --update-kernel=ALL --args="quiet splash"
+
 EOF
-    chmod +x /etc/grub.d/99_plymouth_config
+    chmod +x "/etc/grub.d/99_plymouth_config"
     echo -e "\ngrubby --update-kernel=ALL --args=\"quiet splash\"" >> /usr/share/calamares/final-process
 fi
-echo universal_hooks=true >> /etc/dnf/dnf.conf
+echo "universal_hooks=true" >> "/etc/dnf/dnf.conf"
