@@ -2,7 +2,7 @@
 ビルドは実機のFedora Linuxを利用する方法とDocker上でビルドする方法があります。
 Dockerでビルドする方法は[この手順](DOCKER.md)を参照してください。
 
-実機でビルドする場合は、必ずOSがSerene Linux（Beta８F以降）かFedora Linuxでなければなりません。
+実機でビルドする場合は、必ずOSがSerene Linux（Beta８F以降）か **SELinuxを無効化した**Fedora Linux、CentOS、または**dnfをインストールした**Arch Linuxでなければなりません。
 以下では実機でビルドする方法を解説します。
 
 
@@ -18,8 +18,13 @@ cd LFBS
 
 ビルドに必要なパッケージをインストールします。
 
+Serene LinuxやFedoraの場合
 ```bash
 dnf install -y squashfs-tools grub2 grub2-tools-extra e2fsprogs grub2-efi-ia32-modules grub2-efi-x64-modules dosfstools xorriso perl perl-core
+```
+Arch Linuxの場合
+```bash
+yay -S dnf squashfs-tools xorriso dosfstools grub2 squashfs-tools perl 
 ```
 
 ### 手動でオプションを指定してビルドする
@@ -68,5 +73,5 @@ sudo ./build.sh [options] [channel]
 --- | ---
 serene | ubuntuベースのSerene linuxをFedoraに移植したチャンネル
 lxde | LXDEと最小限のアプリケーションのみが入っている軽量なチャンネル
-i3 | i3を搭載したrelengを除いて最も軽量なチャンネル
+i3 | i3を搭載したrelengを除いて最も軽量なチャンネル(未整備)
 releng | 純粋なFedora Linuxのライブ起動ディスクをビルドできるチャンネル
