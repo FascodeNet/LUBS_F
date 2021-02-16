@@ -324,6 +324,25 @@ make_dnf_packages() {
     mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
     run_cmd dnf -y --nogpgcheck -c /dnf_conf install ${_pkglist[*]}
 }
+make_flatpak_packages() {
+    
+    #local _pkg _pkglist=($("${script_path}/tools/pkglist.sh" -a "x86_64" -k "${kernel}" -c "${channel_dir}" -l "${locale_name}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
+    local  _pkg _pkglist=($("${script_path}/tools/pkglist-flatpak.sh" -a "x86_64" -c "${channels_dir}/${channel_name}" -l "${locale_name}" $(if [[ "${bootsplash}" = true ]]; then echo -n "-b"; fi) ))
+    # Create a list of packages to be finally installed as packages.list directly under the working directory.
+    if [ ${#_pkglist[@]} -eq 0 ];then
+        return
+    fi
+    echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
+    for _pkg in ${_pkglist[@]}; do
+        echo ${_pkg} >> "${work_dir}/packages.list"
+    done
+
+    # Install packages on airootfs
+    #mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
+    #run_cmd dnf -y --nogpgcheck -c /dnf_conf install ${_pkglist[*]}
+    run_cmd flatpak install --system -y ${_pkglist[*]}
+}
+
 
 make_cp_airootfs() {
     local _airootfs_list=(
@@ -645,6 +664,7 @@ run_once make_basefs
 run_once make_systemd
 run_once make_repo_packages
 run_once make_dnf_packages
+run_once make_flatpak_packages
 run_once make_cp_airootfs
 run_once make_config
 run_once make_clean
