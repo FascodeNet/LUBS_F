@@ -9,7 +9,7 @@
             "url":"https://dl.fedoraproject.org/pub/fedora/linux/updates/33/Everything/x86_64/"
         },
         {
-            "name":"yamad",
+            "name":"yamad-lfbs",
             "url":"https://repo.dyama.net/serenelinux_fedora/33/"
         }
     ]
