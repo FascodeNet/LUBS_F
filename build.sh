@@ -357,9 +357,10 @@ make_config() {
     # -x                        : Enable bash debug mode.
     # -z <locale_time>          : Set the time zone.
 
-    local _main_script="root/customize_airootfs.sh" _script_list=("${work_dir}/airootfs/root/customize_airootfs_${channel_name}.sh") _file_fullpath="${work_dir}/airootfs/${_main_script}"
+    local _main_script="root/customize_airootfs.sh" _script_list=("${work_dir}/airootfs/root/customize_airootfs_${channel_name}.sh")
+    local _file_fullpath="${work_dir}/airootfs/${_main_script}"
     local _airootfs_script_options="-p ${liveuser_password} -u ${liveuser_name} -o ${os_name} -s ${liveuser_shell} -a ${arch} -g ${locale_gen_name} -l ${locale_name} -z ${locale_time}"
-    if [[ ${bootsplash} == true ]]; then
+    if [[ "${bootsplash}" == true ]]; then
         _airootfs_script_options+=" -b"
     fi
 
@@ -374,7 +375,7 @@ make_config() {
 
     if [[ -f "${_file_fullpath}" ]]; then 
         chmod 755 "${_file_fullpath}"
-        run_cmd "${_file}" ${_airootfs_script_options}
+        run_cmd "/${_main_script}" ${_airootfs_script_options}
         remove "${_file_fullpath}"
     fi
 }
