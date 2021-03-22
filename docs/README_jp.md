@@ -58,10 +58,5 @@
 
 <b>
     日本語版は<a href="README_jp.md">こちら</a>にあります
-</b><br/>
+</b>
 
-## (Overview)
-
-Alter Linux is a new OS developed based on Fedora.<br/>
-Check the <a href="https://github.com/orgs/FascodeNet/projects/8">project board</a> for the latest status of SereneLinux.<br>
-Please see the <a href="https://fascode.net/projects/linux/serene/">official website</a> for information on announcements and bugs for users.
