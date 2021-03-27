@@ -4,7 +4,6 @@ powerline-fonts
 zsh-autosuggestions
 zsh-syntax-highlighting
 neofetch
-lightdm-webkit2-theme-serene
-lightdm-webkit2-greeter
+lightdm-qtquick-greeter
 serenelinux-livetools
 serene-tools
