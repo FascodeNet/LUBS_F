@@ -2,15 +2,15 @@
     "repo":[
         {
             "name":"fedora-core",
-            "url":"https://ftp.yz.yamagata-u.ac.jp/pub/linux/fedora-projects/fedora/linux/releases/33/Everything/x86_64/os/"
+            "url":"https://ftp.yz.yamagata-u.ac.jp/pub/linux/fedora-projects/fedora/linux/development/34/Everything/x86_64/os/"
         },
         {
             "name":"fedora-core-update",
-            "url":"https://dl.fedoraproject.org/pub/fedora/linux/updates/33/Everything/x86_64/"
+            "url":"https://dl.fedoraproject.org/pub/fedora/linux/updates/34/Everything/x86_64/"
         },
         {
             "name":"yamad-lfbs",
-            "url":"https://repo.dyama.net/serenelinux_fedora/33/"
+            "url":"https://repo.dyama.net/serenelinux_fedora/34/"
         }
     ]
 }
