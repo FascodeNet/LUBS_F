@@ -2,7 +2,7 @@
     "repo":[
         {
             "name":"fedora-core",
-            "url":"https://ftp.yz.yamagata-u.ac.jp/pub/linux/fedora-projects/fedora/linux/development/34/Everything/x86_64/os/"
+            "url":"https://dl.fedoraproject.org/pub/fedora/linux/development/34/Everything/x86_64/os/"
         },
         {
             "name":"fedora-core-update",
