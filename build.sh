@@ -51,6 +51,8 @@ debug=false
 cache_only=false
 grub2_standalone_cmd=grub2-mkstandalone
 gitversion=false
+logging=false
+customized_logpath=false
 start_time="$(date +%s)"
 
 _msg_common() {
@@ -510,7 +512,7 @@ make_checksum() {
 
 # 引数解析 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
 _opt_short="a:bc:dhl:o:w:x"
-_opt_long="arch:,bootsplash,cache:,debug,help,lang:,out:,work:,cache-only,bash-debug,gitversion"
+_opt_long="arch:,bootsplash,cache:,debug,help,lang:,out:,work:,cache-only,bash-debug,gitversion,log,logpath:,nolog"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 
 if [[ ${?} != 0 ]]; then
@@ -563,6 +565,19 @@ while :; do
             ;;
         --gitversion)
             gitversion=true
+            shift 1
+            ;;
+        --log)
+            logging=true
+            shift 1
+            ;;
+        --logpath)
+            logging="${2}"
+            customized_logpath=true
+            shift 2
+            ;;
+        --nolog)
+            logging=false
             shift 1
             ;;
         --)
@@ -627,6 +642,7 @@ fi
 if [[ "${gitversion}" == "true" ]]; then
     cd "${script_path}"
     iso_filename="${iso_name}-${codename}-${channel_name}-${locale_name}-$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)-${arch}.iso"
+    cd "${OLDPWD}"
 else
     iso_filename="${iso_name}-${codename}-${channel_name}-${locale_name}-$(date +%Y.%m.%d)-${arch}.iso"
 fi
@@ -634,6 +650,23 @@ umount_chroot_airootfs
 if [[ -d "${work_dir}" ]]; then
     _msg_info "deleting work dir..."
     remove "${work_dir}"
+fi
+
+# Run with tee
+if [[ ! "${logging}" = false ]]; then
+    if [[ "${customized_logpath}" = false ]]; then
+        if [[ "${gitversion}" = true ]]; then
+            cd "${script_path}"
+            logging="${out_dir}/${iso_name}-${codename}-${channel_name%.add}-${locale_name}-$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)-${arch}.log"
+            cd "${OLDPWD}"
+        else
+            logging="${out_dir}/${iso_name}-${codename}-${channel_name%.add}-${locale_name}-$(date +%Y.%m.%d)-${arch}.log"
+        fi
+    fi
+    mkdir -p "$(dirname "${logging}")"; touch "${logging}"
+    _msg_debug "Re-run 'sudo ${0} ${@} --nolog 2>&1 | tee ${logging}'"
+    eval "sudo ${0} "${@}" --nolog 2>&1 | tee ${logging}"
+    exit "${?}"
 fi
 
 prepare_build
