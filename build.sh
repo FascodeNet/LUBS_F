@@ -391,11 +391,12 @@ make_squashfs() {
     if [[ -d "${work_dir}/airootfs/dnf_cache" ]]; then
         rm -rf "${work_dir}/airootfs/dnf_cache"
     fi
-    mkdir -p "${bootfiles_dir}"/{grub,LiveOS,boot,isolinux}
+    mkdir -p "${bootfiles_dir}"/{loader,LiveOS,boot,isolinux}
     #generate initrd
     _msg_info "make initrd..."
     run_cmd dracut --xz --add "dmsquash-live convertfs pollcdrom" --no-hostonly --no-early-microcode /boot/initrd0 `run_cmd ls /lib/modules`
     cp ${work_dir}/airootfs/boot/vmlinuz-$(run_cmd ls /lib/modules) ${bootfiles_dir}/boot/vmlinuz
+    cp "${work_dir}/airootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "${bootfiles_dir}/systemd-bootx64.efi"
     mv ${work_dir}/airootfs/boot/initrd0 ${bootfiles_dir}/boot/initrd
     #cp isolinux
     cp "${nfb_dir}"/isolinux/* "${bootfiles_dir}/isolinux/"
@@ -424,45 +425,40 @@ make_nfb() {
     else
         sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/isolinux.cfg" | sed "s|%CD_LABEL%|${iso_label}|g"  > "${bootfiles_dir}/isolinux/isolinux.cfg"
     fi
-    #grub
-    if [[ ${bootsplash} = true ]]; then
-        sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/grub.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" | sed "s|selinux=0|selinux=0 quiet splash|g" > "${bootfiles_dir}/grub/grub.cfg"
-    else
-        sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/grub.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" > "${bootfiles_dir}/grub/grub.cfg"
-    fi
-    sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/grub.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" | sed "s|selinux=0|selinux=0 quiet splash|g" > "${bootfiles_dir}/grub/grub.cfg"
+    # Systemd Boot
+    mkdir -p "${bootfiles_dir}/loader/entries"
+    for confkun in ${nfb_dir}/systemd-boot/entries/*; do
+        local basenamekun=$(basename "${confkun}")
+        sed "s|%OS_NAME%|${os_name}|g" ${confkun} | sed "s|%CD_LABEL%|${iso_label}|g" | sed "s|%KERNEL%|/boot/vmlinuz|g" | sed "s|%INITRAMFS%|/boot/initrd|g" > "${bootfiles_dir}/loader/entries/${basenamekun}"
+    done
     cp "${nfb_dir}/Shell_Full.efi" "${bootfiles_dir}/Shell_Full.efi"
 }
 make_efi() {
-    # UEFI 32bit (ia32)
-    ${grub2_standalone_cmd} \
-        --format=i386-efi \
-        --output="${bootfiles_dir}/grub/bootia32.efi" \
-        --locales="" \
-        --fonts="" \
-        "boot/grub/grub.cfg=${bootfiles_dir}/grub/grub.cfg"
-    
-    # UEFI 64bit (x64)
-    ${grub2_standalone_cmd} \
-        --format=x86_64-efi \
-        --output="${bootfiles_dir}/grub/bootx64.efi" \
-        --locales="" \
-        --fonts="" \
-        "boot/grub/grub.cfg=${bootfiles_dir}/grub/grub.cfg"
 
     # create efiboot.img
-    truncate -s 200M "${bootfiles_dir}/grub/efiboot.img"
-    mkfs.fat -F 16 -f 1 -r 112 "${bootfiles_dir}/grub/efiboot.img"
+    mkdir -p "${bootfiles_dir}/serene"
+    truncate -s 200M "${bootfiles_dir}/serene/efiboot.img"
+    mkfs.fat -F 16 -f 1 -r 112 "${bootfiles_dir}/serene/efiboot.img"
     mkdir "${bootfiles_dir}/mnt"
-    mount "${bootfiles_dir}/grub/efiboot.img" "${bootfiles_dir}/mnt"
-    mkdir -p "${bootfiles_dir}/mnt/efi/boot"
-    cp "${bootfiles_dir}/grub/bootia32.efi" "${bootfiles_dir}/mnt/efi/boot"
-    cp "${bootfiles_dir}/grub/bootx64.efi" "${bootfiles_dir}/mnt/efi/boot"
+    mount "${bootfiles_dir}/serene/efiboot.img" "${bootfiles_dir}/mnt"
     mkdir -p "${bootfiles_dir}/mnt/EFI/BOOT/"
     mkdir -p "${bootfiles_dir}/EFI/Boot/"
-    cp "${bootfiles_dir}/grub/bootx64.efi" "${bootfiles_dir}/mnt/EFI/BOOT/"    
-    cp "${bootfiles_dir}/grub/bootx64.efi" "${bootfiles_dir}/EFI/Boot/"    
+    cp "${bootfiles_dir}/systemd-bootx64.efi" "${bootfiles_dir}/mnt/EFI/BOOT/bootx64.efi"    
+    cp "${bootfiles_dir}/systemd-bootx64.efi" "${bootfiles_dir}/EFI/Boot/bootx64.efi"    
     cp "${bootfiles_dir}/Shell_Full.efi" "${bootfiles_dir}/mnt/"
+    cp "${bootfiles_dir}/boot/vmlinuz" "${bootfiles_dir}/mnt/"
+    cp "${bootfiles_dir}/boot/initrd" "${bootfiles_dir}/mnt/"
+    mkdir -p "${bootfiles_dir}/mnt/loader/entries/"
+    for confkun in ${nfb_dir}/systemd-boot/entries/*; do
+        local basenamekun=$(basename "${confkun}")
+        sed "s|%OS_NAME%|${os_name}|g" ${confkun} | sed "s|%CD_LABEL%|${iso_label}|g" | sed "s|%KERNEL%|/vmlinuz|g" | sed "s|%INITRAMFS%|/initrd|g" > "${bootfiles_dir}/mnt/loader/entries/${basenamekun}"
+    done
+    if [[ ${bootsplash} = true ]]; then
+        sed "s|%NOSPLASH%||g" "${nfb_dir}/systemd-boot/loader.conf" > "${bootfiles_dir}/mnt/loader/loader.conf"
+    else
+        sed "s|%NOSPLASH%|_nosplash|g" "${nfb_dir}/systemd-boot/loader.conf" > "${bootfiles_dir}/mnt/loader/loader.conf"
+    fi
+    
     umount -d "${bootfiles_dir}/mnt"
     remove "${bootfiles_dir}/mnt"
 }
@@ -496,7 +492,7 @@ make_iso() {
         -graft-points \
             "." \
             "/isolinux/isolinux.bin=isolinux/isolinux.bin" \
-            "/EFI/efiboot.img=grub/efiboot.img"
+            "/EFI/efiboot.img=serene/efiboot.img"
     
     cd - > /dev/null
 }
