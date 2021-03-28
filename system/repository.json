@@ -2,11 +2,11 @@
     "repo":[
         {
             "name":"fedora-core",
-            "url":"https://dl.fedoraproject.org/pub/fedora/linux/development/34/Everything/x86_64/os/"
+            "url":"https://ftp.iij.ad.jp/pub/linux/Fedora/fedora/linux/development/34/Everything/x86_64/os/"
         },
         {
             "name":"fedora-core-update",
-            "url":"https://dl.fedoraproject.org/pub/fedora/linux/updates/34/Everything/x86_64/"
+            "url":"https://ftp.iij.ad.jp/pub/linux/Fedora/fedora/linux/updates/34/Everything/x86_64/"
         },
         {
             "name":"yamad-lfbs",
