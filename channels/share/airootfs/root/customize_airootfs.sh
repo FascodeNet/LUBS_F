@@ -17,9 +17,9 @@ function user_check () {
         return 1
     fi
     if getent passwd "${1}" > /dev/null 2> /dev/null; then
-        return 0
-    else
         return 1
+    else
+        return 0
     fi
 }
 
