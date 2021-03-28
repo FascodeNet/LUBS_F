@@ -15,7 +15,7 @@
         <img src="https://img.shields.io/badge/BASE-Fedora-blue?style=flat-square&logo=fedora" alt="Base">
     </a>
     <a href="https://getfedora.org/">
-        <img src="https://img.shields.io/badge/Fedora--Version-33-blue?style=flat-square&logo=fedora" alt="Fedora-Version">
+        <img src="https://img.shields.io/badge/Fedora--Version-34-blue?style=flat-square&logo=fedora" alt="Fedora-Version">
     </a>
     <a href="https://travis-ci.com/github/FascodeNet/LUBS_F">
         <img src="https://img.shields.io/travis/com/FascodeNet/LUBS_F?style=flat-square">
