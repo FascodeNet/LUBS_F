@@ -334,7 +334,7 @@ make_cp_airootfs() {
     )
 
     for _dir in ${_airootfs_list[@]}; do
-        local _dir="${1%/}"
+        #local _dir="${1%/}"
         if [[ -d "${_dir}" ]]; then
             cp -af "${_dir}"/* "${work_dir}/airootfs"
         fi
