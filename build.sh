@@ -386,22 +386,27 @@ make_clean() {
     mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
     run_cmd dnf -c /dnf_conf -y remove $(run_cmd dnf -c /dnf_conf repoquery --installonly --latest-limit=-1 -q)
 }
+make_initramfs() { 
 
-make_squashfs() {
-    # prepare
     remove "${bootfiles_dir}"
-    if [[ -d "${work_dir}/airootfs/dnf_cache" ]]; then
-        rm -rf "${work_dir}/airootfs/dnf_cache"
-    fi
     mkdir -p "${bootfiles_dir}"/{loader,LiveOS,boot,isolinux}
     #generate initrd
     _msg_info "make initrd..."
     run_cmd dracut --xz --add "dmsquash-live convertfs pollcdrom" --no-hostonly --no-early-microcode /boot/initrd0 `run_cmd ls /lib/modules`
     cp ${work_dir}/airootfs/boot/vmlinuz-$(run_cmd ls /lib/modules) ${bootfiles_dir}/boot/vmlinuz
-    cp "${work_dir}/airootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "${bootfiles_dir}/systemd-bootx64.efi"
     mv ${work_dir}/airootfs/boot/initrd0 ${bootfiles_dir}/boot/initrd
+}
+make_boot(){
+
+    cp "${work_dir}/airootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "${bootfiles_dir}/systemd-bootx64.efi"
     #cp isolinux
     cp "${nfb_dir}"/isolinux/* "${bootfiles_dir}/isolinux/"
+}
+make_squashfs() {
+    # prepare
+    if [[ -d "${work_dir}/airootfs/dnf_cache" ]]; then
+        rm -rf "${work_dir}/airootfs/dnf_cache"
+    fi
     # make squashfs
     remove "${work_dir}/airootfs/boot"
     mkdir "${work_dir}/airootfs/boot"
@@ -679,6 +684,8 @@ run_once make_dnf_packages
 run_once make_cp_airootfs
 run_once make_config
 run_once make_clean
+run_once make_initramfs
+run_once make_boot
 run_once make_squashfs
 run_once make_nfb
 run_once make_efi
