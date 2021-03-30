@@ -302,9 +302,10 @@ make_systemd() {
     fi
     run_cmd ln -sf /etc/machine-id /var/lib/dbus/machine-id
 }
+
 make_repo_packages() {    
-    local  _pkg  _pkglist=($("${script_path}/tools/pkglist-repo.sh" -a "x86_64" -c "${channels_dir}/${channel_name}" -k "${codename}" -l "${locale_name}" $(if [[ "${bootsplash}" = true ]]; then echo -n "-b"; fi) ))
-    if [ -n "${_pkglist[*]}" ]; then
+    local _pkglist=($("${script_path}/tools/pkglist-repo.sh" -a "x86_64" -c "${channels_dir}/${channel_name}" -k "${codename}" -l "${locale_name}" $(if [[ "${bootsplash}" = true ]]; then echo -n "-b"; fi) ))
+    if (( "${#_pkglist[@]}" != 0 )); then
         # Create a list of packages to be finally installed as packages.list directly under the working directory.
         echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
         # Install packages on airootfs
@@ -312,15 +313,13 @@ make_repo_packages() {
         run_cmd dnf -y --nogpgcheck -c /dnf_conf install ${_pkglist[*]}
     fi
 }
+
 make_dnf_packages() {
-    
-    #local _pkg _pkglist=($("${script_path}/tools/pkglist.sh" -a "x86_64" -k "${kernel}" -c "${channel_dir}" -l "${locale_name}" $(if [[ "${boot_splash}" = true ]]; then echo -n "-b"; fi) ))
-    local  _pkg _pkglist=($("${script_path}/tools/pkglist.sh" -a "x86_64" -c "${channels_dir}/${channel_name}" -l "${locale_name}" $(if [[ "${bootsplash}" = true ]]; then echo -n "-b"; fi) ))
+    local  _pkglist=($("${script_path}/tools/pkglist.sh" -a "x86_64" -c "${channels_dir}/${channel_name}" -l "${locale_name}" $(if [[ "${bootsplash}" = true ]]; then echo -n "-b"; fi) ))
+
     # Create a list of packages to be finally installed as packages.list directly under the working directory.
-    echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
-    for _pkg in ${_pkglist[@]}; do
-        echo ${_pkg} >> "${work_dir}/packages.list"
-    done
+    echo -e "\n# The list of packages that is installed from dnf file in live cd.\n#\n\n" >> "${work_dir}/packages.list"
+    printf "%s\n" "${_pkglist[@]}" >> "${work_dir}/packages.list"
 
     # Install packages on airootfs
     mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
@@ -336,12 +335,11 @@ make_cp_airootfs() {
     )
 
     for _dir in ${_airootfs_list[@]}; do
-        #local _dir="${1%/}"
+
         if [[ -d "${_dir}" ]]; then
             cp -af "${_dir}"/* "${work_dir}/airootfs"
         fi
     done
-
 }
 
 make_config() {
@@ -393,8 +391,8 @@ make_initramfs() {
     #generate initrd
     _msg_info "make initrd..."
     run_cmd dracut --xz --add "dmsquash-live convertfs pollcdrom" --no-hostonly --no-early-microcode /boot/initrd0 `run_cmd ls /lib/modules`
-    cp ${work_dir}/airootfs/boot/vmlinuz-$(run_cmd ls /lib/modules) ${bootfiles_dir}/boot/vmlinuz
-    mv ${work_dir}/airootfs/boot/initrd0 ${bootfiles_dir}/boot/initrd
+    cp "${work_dir}/airootfs/boot/vmlinuz-$(run_cmd ls /lib/modules)" "${bootfiles_dir}/boot/vmlinuz"
+    mv "${work_dir}/airootfs/boot/initrd0" "${bootfiles_dir}/boot/initrd"
 }
 make_boot(){
 
@@ -412,7 +410,7 @@ make_squashfs() {
     mkdir "${work_dir}/airootfs/boot"
     cp ${bootfiles_dir}/boot/vmlinuz ${work_dir}/airootfs/boot/vmlinuz-$(run_cmd ls /lib/modules)
     kernelkun=$(run_cmd ls /lib/modules)
-    echo -e "\nkernel-install add ${kernelkun} /boot/vmlinuz-${kernelkun}\ngrub2-mkconfig" >> ${work_dir}/airootfs/usr/share/calamares/final-process
+    echo -e "\nkernel-install add ${kernelkun} /boot/vmlinuz-${kernelkun}\ngrub2-mkconfig" >> "${work_dir}/airootfs/usr/share/calamares/final-process"
     umount "${work_dir}/airootfs"
     # _msg_info "e2fsck..."
     # e2fsck -f "${work_dir}/squashfsroot/LiveOS/rootfs.img"
