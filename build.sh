@@ -426,12 +426,13 @@ make_squashfs() {
 
 make_nfb() {
     touch "${bootfiles_dir}/fedora_lfbs"
+
     # isolinux setup
+    sed "s|%OS_NAME%|${os_name}|g; s|%CD_LABEL%|${iso_label}|g" "${nfb_dir}/isolinux.cfg" > "${bootfiles_dir}/isolinux/isolinux.cfg"
     if [[ ${bootsplash} = true ]]; then
-        sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/isolinux.cfg" | sed "s|%CD_LABEL%|${iso_label}|g" | sed "s|selinux=0|selinux=0 quiet splash|g"  > "${bootfiles_dir}/isolinux/isolinux.cfg"
-    else
-        sed "s|%OS_NAME%|${os_name}|g" "${nfb_dir}/isolinux.cfg" | sed "s|%CD_LABEL%|${iso_label}|g"  > "${bootfiles_dir}/isolinux/isolinux.cfg"
+        sed -i "s|selinux=0|selinux=0 quiet splash|g" "${bootfiles_dir}/isolinux/isolinux.cfg"
     fi
+
     # Systemd Boot
     mkdir -p "${bootfiles_dir}/loader/entries"
     for confkun in ${nfb_dir}/systemd-boot/entries/*; do
