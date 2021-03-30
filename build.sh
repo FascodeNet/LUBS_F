@@ -438,15 +438,15 @@ make_nfb() {
 make_efi() {
 
     # create efiboot.img
-    mkdir -p "${bootfiles_dir}/serene"
-    truncate -s 200M "${bootfiles_dir}/serene/efiboot.img"
-    mkfs.fat -F 16 -f 1 -r 112 "${bootfiles_dir}/serene/efiboot.img"
+    truncate -s 200M "${work_dir}/efiboot.img"
+    mkfs.fat -F 16 -f 1 -r 112 "${work_dir}/efiboot.img"
     mkdir "${bootfiles_dir}/mnt"
-    mount "${bootfiles_dir}/serene/efiboot.img" "${bootfiles_dir}/mnt"
+    mount "${work_dir}/efiboot.img" "${bootfiles_dir}/mnt"
     mkdir -p "${bootfiles_dir}/mnt/EFI/BOOT/"
     mkdir -p "${bootfiles_dir}/EFI/Boot/"
     cp "${bootfiles_dir}/systemd-bootx64.efi" "${bootfiles_dir}/mnt/EFI/BOOT/bootx64.efi"    
     cp "${bootfiles_dir}/systemd-bootx64.efi" "${bootfiles_dir}/EFI/Boot/bootx64.efi"    
+    rm -rf  "${bootfiles_dir}/systemd-bootx64.efi"
     cp "${bootfiles_dir}/Shell_Full.efi" "${bootfiles_dir}/mnt/"
     cp "${bootfiles_dir}/boot/vmlinuz" "${bootfiles_dir}/mnt/"
     cp "${bootfiles_dir}/boot/initrd" "${bootfiles_dir}/mnt/"
@@ -483,9 +483,11 @@ make_iso() {
             -no-emul-boot \
             -boot-load-size 4 \
             -boot-info-table \
+        -append_partition 2 C12A7328-F81F-11D2-BA4B-00A0C93EC93B \
+            ${work_dir}/efiboot.img -appended_part_as_gpt \
         -eltorito-alt-boot \
-            -eltorito-platform efi \
-            -eltorito-boot EFI/efiboot.img \
+            -e \
+            --interval:appended_partition_2:all:: \
             -no-emul-boot \
         -isohybrid-mbr "${bootfiles_dir}/isolinux/isohdpfx.bin" \
         -isohybrid-gpt-basdat \
@@ -493,8 +495,7 @@ make_iso() {
         -output "${out_dir}/${iso_filename}" \
         -graft-points \
             "." \
-            "/isolinux/isolinux.bin=isolinux/isolinux.bin" \
-            "/EFI/efiboot.img=serene/efiboot.img"
+            "/isolinux/isolinux.bin=isolinux/isolinux.bin"
     
     cd - > /dev/null
 }
