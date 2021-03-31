@@ -2,6 +2,9 @@
 
 systemctl enable lightdm.service
 sed -i s/%USERNAME%/${username}/g /etc/lightdm/lightdm.conf
+if [[ -f /etc/dconf/db/local ]]; then
+    rm -rf /etc/dconf/db/local
+fi
 dconf update
 # Set os name
 sed -i s/%OS_NAME%/"${os_name}"/g /etc/skel/Desktop/calamares.desktop
