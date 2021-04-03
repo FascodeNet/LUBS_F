@@ -299,9 +299,7 @@ prepare_build() {
 make_systemd() {
     _dnf_install dbus-tools
     run_cmd dbus-uuidgen --ensure=/etc/machine-id
-    if [[ ! -d "${work_dir}/airootfs/var/lib/dbus" ]]; then
-        run_cmd mkdir /var/lib/dbus
-    fi
+    mkdir -p "${work_dir}/airootfs/var/lib/dbus"
     run_cmd ln -sf /etc/machine-id /var/lib/dbus/machine-id
 }
 
@@ -330,10 +328,8 @@ make_dnf_packages() {
 
 make_cp_airootfs() {
     local _airootfs_list=(
-        "${channels_dir}/share/airootfs"
-        "${channels_dir}/share/airootfs.${locale_name}"
-        "${channels_dir}/${channel_name}/airootfs"
-        "${channels_dir}/${channel_name}/airootfs.${locale_name}"
+        "${channels_dir}/share/airootfs" "${channels_dir}/share/airootfs.${locale_name}"
+        "${channels_dir}/${channel_name}/airootfs" "${channels_dir}/${channel_name}/airootfs.${locale_name}"
     )
 
     for _dir in ${_airootfs_list[@]}; do
@@ -398,14 +394,12 @@ make_initramfs() {
 make_boot(){
     cp "${work_dir}/airootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "${bootfiles_dir}/systemd-bootx64.efi"
     #cp isolinux
-    cp "${nfb_dir}"/isolinux/* "${bootfiles_dir}/isolinux/"
+    cp "${nfb_dir}/isolinux/"* "${bootfiles_dir}/isolinux/"
 }
 
 make_squashfs() {
     # prepare
-    if [[ -d "${work_dir}/airootfs/dnf_cache" ]]; then
-        rm -rf "${work_dir}/airootfs/dnf_cache"
-    fi
+    remove "${work_dir}/airootfs/dnf_cache"
     # make squashfs
     remove "${work_dir}/airootfs/boot"
     mkdir "${work_dir}/airootfs/boot"
@@ -474,7 +468,7 @@ make_iso() {
     cd "${bootfiles_dir}"
 
     # create checksum (using at booting)
-    bash -c "(find . -type f -print0 | xargs -0 md5sum | grep -v "\./md5sum.txt" > md5sum.txt)"
+    bash -c "(find . -type f -print0 | xargs -0 md5sum | grep -xv "\./md5sum.txt" > md5sum.txt)"
 
     # create iso
     xorriso \
