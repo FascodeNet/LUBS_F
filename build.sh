@@ -248,6 +248,19 @@ dnfstrap() {
 }
 
 make_basefs() {
+    mkdir -p "${work_dir}/squashfsroot/LiveOS/" "${work_dir}/airootfs/"
+    mkdir -p 
+    _msg_info "Creating ext4 image of 32 GiB..."
+    # truncate -s 32G "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+    # _msg_info "Format rootfs image..."
+    #mkfs.ext4 -F "${work_dir}/squashfsroot/LiveOS/rootfs.img"
+    mkfs.ext4 -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${work_dir}/squashfsroot/LiveOS/rootfs.img" 32G
+    tune2fs -c 0 -i 0 -- "${work_dir}/squashfsroot/LiveOS/rootfs.img" > /dev/null
+    _msg_info "Done!"
+
+    _msg_info "Mount rootfs image..."
+    mount -o loop,rw,sync "${work_dir}/squashfsroot/LiveOS/rootfs.img" "${work_dir}/airootfs"
+
     _msg_info "Installing Base System to '${work_dir}/airootfs'..."
     dnfstrap @Core yamad-repo 
     _msg_info "${codename} installed successfully!"
@@ -269,26 +282,14 @@ prepare_build() {
     if (( "${EUID}" != 0 )); then
         _msg_error "This script must be run as root." 1
     fi
+
     umount_chroot_airootfs
     # Check codename
     if [[ -z "$(grep -h -v ^'#' ${channels_dir}/${channel_name}/codename.${arch} | grep -x ${codename})" ]]; then
         _msg_error "This codename (${channel_name}) is not supported on this channel (${codename})."
     fi
-    if [[ ! -d "${work_dir}/squashfsroot/LiveOS/" ]]; then
-        mkdir -p "${work_dir}/squashfsroot/LiveOS/"
-        mkdir -p "${work_dir}/airootfs/"
-        _msg_info "Creating ext4 image of 32 GiB..."
-        # truncate -s 32G "${work_dir}/squashfsroot/LiveOS/rootfs.img"
-        # _msg_info "Format rootfs image..."
-        #mkfs.ext4 -F "${work_dir}/squashfsroot/LiveOS/rootfs.img"
-        mkfs.ext4 -O '^has_journal,^resize_inode' -E 'lazy_itable_init=0' -m 0 -F -- "${work_dir}/squashfsroot/LiveOS/rootfs.img" 32G
-        tune2fs -c 0 -i 0 -- "${work_dir}/squashfsroot/LiveOS/rootfs.img" > /dev/null
-        _msg_info "Done!"
-    fi    
-    mkdir -p "${out_dir}"
-    _msg_info "Mount rootfs image..."
-    mount -o loop,rw,sync "${work_dir}/squashfsroot/LiveOS/rootfs.img" "${work_dir}/airootfs"
 
+    mkdir -p "${out_dir}"
 }
 
 make_systemd() {
