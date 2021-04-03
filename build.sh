@@ -208,22 +208,17 @@ _usage () {
         "${script_path}/tools/locale.sh" -a "${_arch}" show
     done
 
-    echo  -e "\n Channel:"
-    local _channel channel_list description
+    echo -e "\n Channel:"
+    local _channel description
     for _channel in $(ls -l "${channels_dir}" | awk '$1 ~ /d/ {print $9 }'); do
         if [[ -n $(ls "${channels_dir}/${_channel}") ]] && [[ ! "${_channel}" = "share" ]]; then
-            channel_list+=( "${_channel}" )
+            if [[ -f "${channels_dir}/${_channel}/description.txt" ]]; then
+                description=$(cat "${channels_dir}/${_channel}/description.txt")
+            else
+                description="This channel does not have a description.txt."
+            fi
+            echo -e "    ${_channel}$(echo_blank "$(( ${blank} - ${#_channel} ))")${description}"
         fi
-    done
-    for _channel in ${channel_list[@]}; do
-        if [[ -f "${channels_dir}/${_channel}/description.txt" ]]; then
-            description=$(cat "${channels_dir}/${_channel}/description.txt")
-        else
-            description="This channel does not have a description.txt."
-        fi
-        echo -ne "    ${_channel}"
-        echo_blank "$(( ${blank} - ${#_channel} ))"
-        echo -ne "${description}\n"
     done
 }
 
