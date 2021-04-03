@@ -8,7 +8,7 @@ zsh
 NetworkManager-wifi
 iwl7260-firmware
 grub2-efi-x64-modules
-
+htop
 sqlite
 universal-hooks-os-release
 serene-logos
