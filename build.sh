@@ -168,9 +168,7 @@ remove() {
 
 # Usage: echo_blank <number>
 # 指定されたぶんの半角空白文字を出力します
-echo_blank(){
-    yes " " | head -n "${1}" | tr -d "\n"
-}
+echo_blank(){ yes " " | head -n "${1}" | tr -d "\n"; }
 
 # Show help
 _usage () {
@@ -198,13 +196,12 @@ _usage () {
     echo "You can switch between installed packages, files included in images, etc. by channel."
     echo
 
-    local blank="23" _arch  _list _dirname _channel
+    local blank="23" _arch _list _channel
 
     echo " Language for each architecture:"
     for _list in ${script_path}/system/locale-* ; do
         _arch="${_list#${script_path}/system/locale-}"
-        echo -n "    ${_arch}"
-        echo_blank "$(( ${blank} - ${#_arch} ))"
+        echo -n "    ${_arch}$(echo_blank "$(( ${blank} - ${#_arch} ))")"
         "${script_path}/tools/locale.sh" -a "${_arch}" show
     done
 
