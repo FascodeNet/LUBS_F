@@ -517,18 +517,15 @@ make_checksum() {
 }
 
 # 引数解析 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
-_opt_short="a:bc:dhl:o:w:x"
-_opt_long="arch:,bootsplash,cache:,debug,help,lang:,out:,work:,cache-only,bash-debug,gitversion,log,logpath:,nolog"
-OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
-
-if [[ ${?} != 0 ]]; then
+OPTS="a:bc:dhl:o:w:x"
+OPTL="arch:,bootsplash,cache:,debug,help,lang:,out:,work:,cache-only,bash-debug,gitversion,log,logpath:,nolog"
+if ! OPT="$(getopt -o ${OPTS} -l ${OPTL} -- "${@}")"; then
     exit 1
 fi
-
 eval set -- "${OPT}"
 
-while :; do
-    case ${1} in
+while true; do
+    case "${1}" in
         -a | --arch)
             #arch="${2}"
             shift 2
