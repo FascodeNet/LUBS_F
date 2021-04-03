@@ -292,6 +292,17 @@ prepare_build() {
         _msg_error "This codename (${channel_name}) is not supported on this channel (${codename})."
     fi
 
+    # Gitversion
+    if [[ "${gitversion}" = true ]]; then
+        cd "${script_path}"
+        iso_version="${iso_version}-$(git rev-parse --short HEAD)"
+        cd "${OLDPWD}"
+    fi
+
+    # Generate iso filename
+    local _channel_name="${channel_name%.add}-${locale_name}"
+    iso_filename="${iso_name}-${codename}-${_channel_name}-${iso_version}-${arch}.iso"
+
     mkdir -p "${out_dir}"
 }
 
@@ -640,15 +651,6 @@ if [[ -n "${1}" ]]; then
             fi
             ;;
     esac
-fi
-
-
-if [[ "${gitversion}" == "true" ]]; then
-    cd "${script_path}"
-    iso_filename="${iso_name}-${codename}-${channel_name}-${locale_name}-$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)-${arch}.iso"
-    cd "${OLDPWD}"
-else
-    iso_filename="${iso_name}-${codename}-${channel_name}-${locale_name}-$(date +%Y.%m.%d)-${arch}.iso"
 fi
 
 
