@@ -249,7 +249,6 @@ dnfstrap() {
 
 make_basefs() {
     mkdir -p "${work_dir}/squashfsroot/LiveOS/" "${work_dir}/airootfs/"
-    mkdir -p 
     _msg_info "Creating ext4 image of 32 GiB..."
     # truncate -s 32G "${work_dir}/squashfsroot/LiveOS/rootfs.img"
     # _msg_info "Format rootfs image..."
