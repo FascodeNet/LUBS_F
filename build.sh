@@ -502,7 +502,7 @@ make_iso() {
             "." \
             "/isolinux/isolinux.bin=isolinux/isolinux.bin"
     
-    cd - > /dev/null
+    cd "${OLDPWD}"
 }
 
 make_checksum() {
@@ -512,7 +512,7 @@ make_checksum() {
 
     _msg_info "Creating sha256 checksum ..."
     sha256sum "${iso_filename}" > "${iso_filename}.sha256"
-    cd - > /dev/null 2>&1
+    cd "${OLDPWD}"
     umount_chroot_airootfs
 }
 
