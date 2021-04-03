@@ -12,18 +12,19 @@
 set -e
 # set -u
 
-#export LANG=C
+
 
 script_path=$(readlink -f "${0%/*}")
 work_dir="${script_path}/work"
 channels_dir="${script_path}/channels"
 nfb_dir="${script_path}/nfb"
+cache_dir="${script_path}/cache"
+out_dir="${script_path}/out"
+
 codename="34"
 os_name="SereneLinux"
 iso_name="SereneLinux"
-language="ja_JP.UTF-8"
 channel_name="serene"
-cache_dir="${script_path}/cache"
 bootsplash=false
 arch="x86_64"
 
@@ -32,15 +33,11 @@ iso_label="${os_name}_${codename}_${arch}"
 iso_publisher='Fascode Network <https://fascode.net>'
 iso_application="${os_name} Live/Rescue CD"
 iso_version="${codename}-$(date +%Y.%m.%d)"
-iso_filename="${iso_name}-${iso_version}-${arch}.iso"
+
 liveuser_name="serene"
 liveuser_password="serene"
 liveuser_shell="/usr/bin/zsh"
 
-#-- language config --#
-
-# Sets the default locale for the live environment.
-# You can also place a package list for that locale name and install packages specific to that locale.
 locale_name="en"
 locale_gen_name="en_US.UTF-8"
 locale_version="gl"
@@ -49,7 +46,7 @@ locale_fullname="global"
 
 debug=false
 cache_only=false
-grub2_standalone_cmd=grub2-mkstandalone
+grub2_standalone_cmd="grub2-mkstandalone"
 gitversion=false
 logging=false
 customized_logpath=false
