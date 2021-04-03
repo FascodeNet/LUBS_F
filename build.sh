@@ -282,6 +282,17 @@ prepare_build() {
     local _channel_name="${channel_name%.add}-${locale_name}"
     iso_filename="${iso_name}-${codename}-${_channel_name}-${iso_version}-${arch}.iso"
 
+    # Re-run with tee
+    if [[ ! "${logging}" = false ]]; then
+        if [[ "${customized_logpath}" = false ]]; then
+            logging="${out_dir}/${iso_filename%.iso}.log"
+        fi
+        mkdir -p "$(dirname "${logging}")"; touch "${logging}"
+        _msg_debug "Re-run 'sudo ${0} ${@} --nolog 2>&1 | tee ${logging}'"
+        eval "sudo ${0} "${@}" --nolog 2>&1 | tee ${logging}"
+        exit "${?}"
+    fi
+
     mkdir -p "${out_dir}"
 }
 
@@ -632,28 +643,10 @@ if [[ -n "${1}" ]]; then
     esac
 fi
 
-
 umount_chroot_airootfs
 if [[ -d "${work_dir}" ]]; then
     _msg_info "deleting work dir..."
     remove "${work_dir}"
-fi
-
-# Run with tee
-if [[ ! "${logging}" = false ]]; then
-    if [[ "${customized_logpath}" = false ]]; then
-        if [[ "${gitversion}" = true ]]; then
-            cd "${script_path}"
-            logging="${out_dir}/${iso_name}-${codename}-${channel_name%.add}-${locale_name}-$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)-${arch}.log"
-            cd "${OLDPWD}"
-        else
-            logging="${out_dir}/${iso_name}-${codename}-${channel_name%.add}-${locale_name}-$(date +%Y.%m.%d)-${arch}.log"
-        fi
-    fi
-    mkdir -p "$(dirname "${logging}")"; touch "${logging}"
-    _msg_debug "Re-run 'sudo ${0} ${@} --nolog 2>&1 | tee ${logging}'"
-    eval "sudo ${0} "${@}" --nolog 2>&1 | tee ${logging}"
-    exit "${?}"
 fi
 
 prepare_build
