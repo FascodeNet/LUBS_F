@@ -149,10 +149,8 @@ run_cmd() {
     cp "/etc/resolv.conf" "${work_dir}/airootfs/etc/resolv.conf"
     unshare --fork --pid chroot "${work_dir}/airootfs" "${@}"
 
-    for mount in $(mount | awk '{print $3}' | grep "$(realpath "${work_dir}")" | sort -r); do
-        if [[ ! "${mount}" == "${work_dir}/airootfs" ]]; then
-            umount -fl "${mount}"
-        fi
+    for mount in $(cat "/proc/mounts" | cut -d " " -f 2 | grep "$(realpath "${work_dir}")" | tac | grep -xv "${work_dir}/airootfs"); do
+        umount -fl "${mount}"
     done
 }
 
