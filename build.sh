@@ -613,43 +613,36 @@ trap 'umount_chroot_airootfs' 0 2 15
 
 if [[ -n "${1}" ]]; then
     channel_name="${1}"
-    if [[ "${channel_name}" = "umount" ]]; then
-        umount_chroot_airootfs
-        exit 0
-    fi
-    if [[ "${channel_name}" = "clean" ]]; then
-        umount_chroot_airootfs
-        _msg_info "deleting work dir..."
-        remove "${work_dir}"
-        exit 0
-    fi
     check_channel() {
-        local channel_list
-        local i
-        channel_list=()
-        
-        for _channel in $(ls -l "${channels_dir}" | awk '$1 ~ /d/ {print $9 }'); do
-            if [[ -n "$(ls "${channels_dir}/${_channel}")" ]] && [[ ! "${_channel}" = "share" ]]; then
-                channel_list+=( "${_channel}" )
-            fi
-        done
-
-        for i in ${channel_list[@]}; do
-            if [[ "${i}" = "${channel_name}" ]]; then
-                echo -n "true"
+        while read -r _channel; do
+            if [[ -n "$(ls "${channels_dir}/${_channel}")" ]] && [[ ! "${_channel}" = "share" ]] && [[ "${_channel}" = "${channel_name}" ]]; then
                 return 0
             fi
-        done
-
-        echo -n "false"
+        done < <(ls -l "${channels_dir}" | awk '$1 ~ /d/ {print $9 }')
         return 1
     }
 
-    if [[ "$(check_channel ${channel_name})" = false ]]; then
-        _msg_error "Invalid channel ${channel_name}"
-        exit 1
-    fi
+    case "${channel_name}" in
+        "umount")
+            umount_chroot_airootfs
+            exit 0
+            ;;
+        "clean")
+            umount_chroot_airootfs
+            _msg_info "deleting work dir..."
+            remove "${work_dir}"
+            exit 0
+            ;;
+        *)
+            if ! check_channel "${channel_name}"; then
+                _msg_error "Invalid channel ${channel_name}"
+                exit 1
+            fi
+            ;;
+    esac
 fi
+
+
 if [[ "${gitversion}" == "true" ]]; then
     cd "${script_path}"
     iso_filename="${iso_name}-${codename}-${channel_name}-${locale_name}-$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)-${arch}.iso"
@@ -657,6 +650,8 @@ if [[ "${gitversion}" == "true" ]]; then
 else
     iso_filename="${iso_name}-${codename}-${channel_name}-${locale_name}-$(date +%Y.%m.%d)-${arch}.iso"
 fi
+
+
 umount_chroot_airootfs
 if [[ -d "${work_dir}" ]]; then
     _msg_info "deleting work dir..."
