@@ -159,21 +159,11 @@ _dnf_install() {
     run_cmd dnf -c /dnf_conf install -y ${@}
 }
 
-# rm helper
-# Delete the file if it exists.
-# For directories, rm -rf is used.
-# If the file does not exist, skip it.
+# Show message when file is removed
 # remove <file> <file> ...
 remove() {
-    local _list=($(echo "${@}")) _file
-    for _file in "${_list[@]}"; do
-        _msg_debug "Removing ${_file}"
-        if [[ -f "${_file}" ]]; then    
-            rm -f "${_file}"
-        elif [[ -d "${_file}" ]]; then
-            rm -rf "${_file}"
-        fi
-    done
+    local _file
+    for _file in "${@}"; do _msg_debug "Removing ${_file}"; rm -rf "${_file}"; done
 }
 
 # Usage: echo_blank <number>
