@@ -87,6 +87,13 @@ _msg_debug() {
     fi
 }
 
+# Show an warning message
+# _msg_warn <message>
+_msg_warn() {
+    _msg_common
+    "${script_path}/tools/msg.sh" -a "LFBS Core" -l "Warn:" -s "6" warn "${@}"
+}
+
 # Show an ERROR message then exit with status
 # _msg_error <message> <exit code>
 _msg_error() {
@@ -278,11 +285,8 @@ parse_files() {
 }
 
 prepare_build() {
-    if (( "${EUID}" != 0 )); then
-        _msg_error "This script must be run as root." 1
-    fi
-
     umount_chroot_airootfs
+
     # Check codename
     if [[ -z "$(grep -h -v ^'#' ${channels_dir}/${channel_name}/codename.${arch} | grep -x ${codename})" ]]; then
         _msg_error "This codename (${channel_name}) is not supported on this channel (${codename})."
@@ -332,7 +336,6 @@ make_cp_airootfs() {
     )
 
     for _dir in ${_airootfs_list[@]}; do
-
         if [[ -d "${_dir}" ]]; then
             cp -af "${_dir}"/* "${work_dir}/airootfs"
         fi
@@ -382,7 +385,6 @@ make_clean() {
     run_cmd dnf -c /dnf_conf -y remove $(run_cmd dnf -c /dnf_conf repoquery --installonly --latest-limit=-1 -q)
 }
 make_initramfs() { 
-
     remove "${bootfiles_dir}"
     mkdir -p "${bootfiles_dir}"/{loader,LiveOS,boot,isolinux}
     #generate initrd
@@ -391,12 +393,13 @@ make_initramfs() {
     cp "${work_dir}/airootfs/boot/vmlinuz-$(run_cmd ls /lib/modules)" "${bootfiles_dir}/boot/vmlinuz"
     mv "${work_dir}/airootfs/boot/initrd0" "${bootfiles_dir}/boot/initrd"
 }
-make_boot(){
 
+make_boot(){
     cp "${work_dir}/airootfs/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "${bootfiles_dir}/systemd-bootx64.efi"
     #cp isolinux
     cp "${nfb_dir}"/isolinux/* "${bootfiles_dir}/isolinux/"
 }
+
 make_squashfs() {
     # prepare
     if [[ -d "${work_dir}/airootfs/dnf_cache" ]]; then
@@ -436,24 +439,25 @@ make_nfb() {
     done
     cp "${nfb_dir}/Shell_Full.efi" "${bootfiles_dir}/Shell_Full.efi"
 }
-make_efi() {
 
+make_efi() {
     # create efiboot.img
     truncate -s 200M "${work_dir}/efiboot.img"
     mkfs.fat -F 16 -f 1 -r 112 "${work_dir}/efiboot.img"
-    mkdir "${bootfiles_dir}/mnt"
+    mkdir -p "${bootfiles_dir}/mnt" "${bootfiles_dir}/mnt/EFI/BOOT/" "${bootfiles_dir}/EFI/Boot/"
     mount "${work_dir}/efiboot.img" "${bootfiles_dir}/mnt"
-    mkdir -p "${bootfiles_dir}/mnt/EFI/BOOT/"
-    mkdir -p "${bootfiles_dir}/EFI/Boot/"
-    cp "${bootfiles_dir}/systemd-bootx64.efi" "${bootfiles_dir}/mnt/EFI/BOOT/bootx64.efi"    
-    cp "${bootfiles_dir}/systemd-bootx64.efi" "${bootfiles_dir}/EFI/Boot/bootx64.efi"    
-    rm -rf  "${bootfiles_dir}/systemd-bootx64.efi"
+
+    # Copy files
+    cp "${bootfiles_dir}/systemd-bootx64.efi" "${bootfiles_dir}/mnt/EFI/BOOT/bootx64.efi"
+    cp "${bootfiles_dir}/systemd-bootx64.efi" "${bootfiles_dir}/EFI/Boot/bootx64.efi"
+    remove "${bootfiles_dir}/systemd-bootx64.efi"
     cp "${bootfiles_dir}/Shell_Full.efi" "${bootfiles_dir}/mnt/"
     cp "${bootfiles_dir}/boot/vmlinuz" "${bootfiles_dir}/mnt/"
     cp "${bootfiles_dir}/boot/initrd" "${bootfiles_dir}/mnt/"
+
     mkdir -p "${bootfiles_dir}/mnt/loader/entries/"
-    for confkun in ${nfb_dir}/systemd-boot/entries/*; do
-        local basenamekun=$(basename "${confkun}")
+    for confkun in "${nfb_dir}/systemd-boot/entries/"*; do
+        local basenamekun="$(basename "${confkun}")"
         sed "s|%OS_NAME%|${os_name}|g" ${confkun} | sed "s|%CD_LABEL%|${iso_label}|g" | sed "s|%KERNEL%|/vmlinuz|g" | sed "s|%INITRAMFS%|/initrd|g" > "${bootfiles_dir}/mnt/loader/entries/${basenamekun}"
     done
     if [[ ${bootsplash} = true ]]; then
@@ -593,10 +597,18 @@ while :; do
     esac
 done
 
+# Check root.
+if (( ! "${EUID}" == 0 )); then
+    _msg_warn "This script must be run as root." >&2
+    _msg_warn "Re-run 'sudo ${0} ${*}'"
+    sudo ${0} "${@}"
+    exit "${?}"
+fi
+
 # Arch Linuxかどうかチェック
 # /etc/os-releaseのIDがarchかどうかで判定
 if ( source "/etc/os-release"; if [[ "${ID}" = "arch" ]]; then true; else false; fi); then
-    grub2_standalone_cmd=grub-mkstandalone
+    grub2_standalone_cmd="grub-mkstandalone"
 fi
 
 bootfiles_dir="${work_dir}/bootfiles"
