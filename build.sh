@@ -242,9 +242,7 @@ dnfstrap() {
         mkdir -p "${cache_dir}"
     fi
     cp -rf "${script_path}/system/dnfconf.conf" "${work_dir}/airootfs/dnf_conf"
-    if [[ ! -d "${work_dir}/airootfs/dnf_cache" ]]; then
-        mkdir -p "${work_dir}/airootfs/dnf_cache"
-    fi
+    mkdir -p "${work_dir}/airootfs/dnf_cache"
     mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
     dnf -c "${work_dir}/airootfs/dnf_conf" --installroot="${work_dir}/airootfs" $(${script_path}/system/repository-json-parser.py ${script_path}/system/repository.json) install ${@} -y
     umount -fl "${work_dir}/airootfs/dnf_cache"
