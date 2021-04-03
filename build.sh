@@ -104,34 +104,33 @@ _msg_error() {
     fi
 }
 
+_umount(){
+    _msg_info "Unmounting ${1}"
+    umount -fl "${1}"
+}
+
 # Unmount chroot dir
 umount_chroot () {
     local mount
-
-    for mount in $(mount | awk '{print $3}' | grep "$(realpath "${work_dir}")" | sort -r); do
-        if [[ ! "${mount}" == "${work_dir}/airootfs" ]]; then
-            _msg_info "Unmounting ${mount}"
-            umount -fl "${mount}"
-        fi
+    for mount in $(cat "/proc/mounts" | cut -d " " -f 2 | grep "$(realpath "${work_dir}")" | tac | grep -xv "${work_dir}/airootfs"); do
+        _umount "${mount}"
     done
 }
 
 # Unmount chroot dir and airootfs
 umount_chroot_airootfs () {
     local mount
-
-    for mount in $(mount | awk '{print $3}' | grep "$(realpath "${work_dir}")" | sort -r); do
-        _msg_info "Unmounting ${mount}"
-        umount -fl "${mount}"
+    for mount in $(cat "/proc/mounts" | cut -d " " -f 2 | grep "$(realpath "${work_dir}")" | tac); do
+        _umount "${mount}"
     done
 }
+
 # Helper function to run make_*() only one time.
 run_once() {
     umount_chroot
-
     if [[ ! -e "${work_dir}/build.${name}" ]]; then
         _msg_info "$(echo -n "${1}" | sed "s@_@ @g") is starting."
-        "${@}"
+        eval "${@}"
         _msg_info "$(echo -n "${1}" | sed "s@_@ @g") was done!"
         touch "${work_dir}/build.${name}"
     fi
@@ -139,19 +138,14 @@ run_once() {
 
 run_cmd() {
     local mount
-
     for mount in "dev" "dev/pts" "proc" "sys" ; do
-        mount --bind /${mount} "${work_dir}/airootfs/${mount}"
+        mount --bind "/${mount}" "${work_dir}/airootfs/${mount}"
     done
     
-    #mkdir -p "${work_dir}/airootfs/run/systemd/resolve/"
-    #cp /etc/resolv.conf "${work_dir}/airootfs/run/systemd/resolve/stub-resolv.conf"
     cp "/etc/resolv.conf" "${work_dir}/airootfs/etc/resolv.conf"
     unshare --fork --pid chroot "${work_dir}/airootfs" "${@}"
 
-    for mount in $(cat "/proc/mounts" | cut -d " " -f 2 | grep "$(realpath "${work_dir}")" | tac | grep -xv "${work_dir}/airootfs"); do
-        umount -fl "${mount}"
-    done
+    umount_chroot
 }
 
 _dnf_install() {    
