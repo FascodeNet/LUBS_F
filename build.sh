@@ -128,11 +128,11 @@ umount_chroot_airootfs () {
 # Helper function to run make_*() only one time.
 run_once() {
     umount_chroot
-    if [[ ! -e "${work_dir}/build.${name}" ]]; then
+    if [[ ! -e "${work_dir}/build.${1}" ]]; then
         _msg_info "$(echo -n "${1}" | sed "s@_@ @g") is starting."
         eval "${@}"
         _msg_info "$(echo -n "${1}" | sed "s@_@ @g") was done!"
-        touch "${work_dir}/build.${name}"
+        touch "${work_dir}/build.${1}"
     fi
 }
 
