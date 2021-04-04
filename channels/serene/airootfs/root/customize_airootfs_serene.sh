@@ -22,7 +22,8 @@ ln -s /usr/share/backgrounds/serene-wallpaper-1.png /usr/share/backgrounds/image
 echo -e "cp -f /lightdm.conf /etc/lightdm/lightdm.conf" >> /usr/share/calamares/final-process
 echo -e "rm -rf /lightdm.conf" >> /usr/share/calamares/final-process
 sed -i "s/- packages/- shellprocess\n  - removeuser\n  - packages/g" /usr/share/calamares/settings.conf
-sed -i "s/sb-shim/grub/g" /usr/share/calamares/modules/bootloader.conf
+sed -i "s/- grubcfg//g" /usr/share/calamares/settings.conf
+sed -i "s/sb-shim/refind/g" /usr/share/calamares/modules/bootloader.conf
 sed -i "s/fedora/Serene Linux F/g" /usr/share/calamares/modules/bootloader.conf
 sed -i "s/auto/serene/g" /usr/share/calamares/settings.conf
 sed -i "s/light-locker-command/echo/g" /home/${username}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-session.xml
