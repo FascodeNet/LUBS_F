@@ -487,15 +487,15 @@ make_iso() {
             -no-emul-boot \
             -boot-load-size 4 \
             -boot-info-table \
+        -isohybrid-mbr "${bootfiles_dir}/isolinux/isohdpfx.bin" \
+        -eltorito-catalog isolinux/boot.cat \
         -append_partition 2 C12A7328-F81F-11D2-BA4B-00A0C93EC93B \
             ${work_dir}/efiboot.img -appended_part_as_gpt \
         -eltorito-alt-boot \
             -e \
             --interval:appended_partition_2:all:: \
             -no-emul-boot \
-        -isohybrid-mbr "${bootfiles_dir}/isolinux/isohdpfx.bin" \
         -isohybrid-gpt-basdat \
-        -eltorito-catalog isolinux/boot.cat \
         -output "${out_dir}/${iso_filename}" \
         -graft-points \
             "." \
