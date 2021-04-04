@@ -154,8 +154,8 @@ def create_rEFInd_conf(install_path, uuid, kernel_type):
                              "refind_linux.conf")
 
     lines = [
-        "\"Boot with standard options\" \"{!s}\"".format(" ".join(kernel_params)),
-        "\"Boot to single-user mode\" \"{!s} single\"".format(" ".join(kernel_params)),
+        "\"Boot with standard options\" \"{!s}\"\n".format(" ".join(kernel_params)),
+        "\"Boot to single-user mode\" \"{!s} single\"\n".format(" ".join(kernel_params)),
     ]
 
     with open(conf_path, 'w') as conf_file:
@@ -371,7 +371,7 @@ def install_refind(efi_directory):
         "-L", "rEFInd",
         "-d", efi_disk,
         "-p", efi_partition_number,
-        "-l", install_efi_directory + "/" + "rEFInd/refind.efi"])
+        "-l", "\\rEFInd\\refind.efi"])
     create_rEFInd_conf(install_path,
                              uuid,
                              "default")
