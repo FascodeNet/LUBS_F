@@ -132,6 +132,7 @@ sed -i "s/%USERNAME%/${username}/g" "/usr/share/calamares/modules/removeuser.con
 
 # Set user shell
 sed -i "s|%USERSHELL%|'${usershell}'|g" "/usr/share/calamares/modules/users.conf"
+sed -i "s|btrfs|ext4|g'${usershell}'|g" "/usr/share/calamares/modules/partition.conf"
 
 # Add disabling of sudo setting
 echo -e "\nremove \"/etc/sudoers.d/fedoralive\"" >> "/usr/share/calamares/final-process"
