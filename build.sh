@@ -279,8 +279,8 @@ prepare_build() {
             logging="${out_dir}/${iso_filename%.iso}.log"
         fi
         mkdir -p "$(dirname "${logging}")"; touch "${logging}"
-        _msg_debug "Re-run 'sudo ${0} ${@} --nolog 2>&1 | tee ${logging}'"
-        eval "sudo ${0} "${@}" --nolog 2>&1 | tee ${logging}"
+        _msg_debug "Re-run 'sudo ${0} ${*} --nolog 2>&1 | tee ${logging}'"
+        sudo ${0} "${@}" --nolog 2>&1 | tee ${logging}
         exit "${?}"
     fi
 
