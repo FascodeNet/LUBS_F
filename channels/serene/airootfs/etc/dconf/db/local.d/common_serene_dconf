@@ -19,3 +19,9 @@ tooltips-enabled=true
 unhide-delay=0
 zoom-enabled=false
 zoom-percent=150
+[apps/light-locker]
+idle-hint=false
+late-locking=false
+lock-after-screensaver=uint32 1
+lock-on-lid=false
+lock-on-suspend=false
