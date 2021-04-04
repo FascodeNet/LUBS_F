@@ -22,6 +22,6 @@ zoom-percent=150
 [apps/light-locker]
 idle-hint=false
 late-locking=false
-lock-after-screensaver=uint32 1
+lock-after-screensaver=uint32 0
 lock-on-lid=false
 lock-on-suspend=false
