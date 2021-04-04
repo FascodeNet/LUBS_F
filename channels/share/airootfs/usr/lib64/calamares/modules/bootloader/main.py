@@ -397,6 +397,7 @@ def install_refind(efi_directory):
     #                             "fallback")
     #create_loader(loader_path, distribution_translated)
 
+    subprocess.call(["chroot",install_path,"dnf","remove","-y","grub2-common"])
 
 
 def install_grub(efi_directory, fw_type):
