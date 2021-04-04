@@ -258,7 +258,7 @@ prepare_build() {
     umount_chroot_airootfs
 
     # Check codename
-    if [[ -z "$(grep -h -v ^'#' ${channels_dir}/${channel_name}/codename.${arch} | grep -x ${codename})" ]]; then
+    if grep -h -v ^'#' "${channels_dir}/${channel_name}/codename.${arch}" | grep -x "${codename}" 1> /dev/null 2>&1 ; then
         _msg_error "This codename (${channel_name}) is not supported on this channel (${codename})."
     fi
 
