@@ -461,8 +461,10 @@ make_efi() {
     done
     if [[ ${bootsplash} = true ]]; then
         sed "s|%NOSPLASH%||g" "${nfb_dir}/systemd-boot/loader.conf" > "${bootfiles_dir}/mnt/loader/loader.conf"
+        sed "s|%NOSPLASH%||g" "${nfb_dir}/systemd-boot/loader.conf" > "${bootfiles_dir}/loader/loader.conf"
     else
         sed "s|%NOSPLASH%|_nosplash|g" "${nfb_dir}/systemd-boot/loader.conf" > "${bootfiles_dir}/mnt/loader/loader.conf"
+        sed "s|%NOSPLASH%|_nosplash|g" "${nfb_dir}/systemd-boot/loader.conf" > "${bootfiles_dir}/loader/loader.conf"
     fi
     
     umount -d "${bootfiles_dir}/mnt"
