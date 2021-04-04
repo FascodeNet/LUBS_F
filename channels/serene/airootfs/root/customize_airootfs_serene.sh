@@ -15,7 +15,7 @@ dnf remove -y xscreensaver-base
 dnf remove -y dnfdragora
 # Create Calamares Entry
 cp -f /etc/skel/Desktop/calamares.desktop /usr/share/applications/calamares.desktop
-
+mv /root/.VolumeIcon.png /.VolumeIcon.png
 unlink /usr/share/backgrounds/images/default.png
 ln -s /usr/share/backgrounds/serene-wallpaper-1.png /usr/share/backgrounds/images/default.png
 
