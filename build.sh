@@ -448,8 +448,10 @@ make_efi() {
     done
     if [[ ${bootsplash} = true ]]; then
         sed "s|%NOSPLASH%||g" "${nfb_dir}/systemd-boot/loader.conf" > "${bootfiles_dir}/mnt/loader/loader.conf"
+        sed "s|%NOSPLASH%||g" "${nfb_dir}/systemd-boot/loader.conf" > "${bootfiles_dir}/loader/loader.conf"
     else
         sed "s|%NOSPLASH%|_nosplash|g" "${nfb_dir}/systemd-boot/loader.conf" > "${bootfiles_dir}/mnt/loader/loader.conf"
+        sed "s|%NOSPLASH%|_nosplash|g" "${nfb_dir}/systemd-boot/loader.conf" > "${bootfiles_dir}/loader/loader.conf"
     fi
     
     umount -d "${bootfiles_dir}/mnt"
@@ -474,15 +476,17 @@ make_iso() {
             -no-emul-boot \
             -boot-load-size 4 \
             -boot-info-table \
+        -isohybrid-mbr "${bootfiles_dir}/isolinux/isohdpfx.bin" \
+        -eltorito-catalog isolinux/boot.cat \
+        -partition_offset 16 \
         -append_partition 2 C12A7328-F81F-11D2-BA4B-00A0C93EC93B \
             ${work_dir}/efiboot.img -appended_part_as_gpt \
         -eltorito-alt-boot \
             -e \
             --interval:appended_partition_2:all:: \
             -no-emul-boot \
-        -isohybrid-mbr "${bootfiles_dir}/isolinux/isohdpfx.bin" \
+            -eltorito-catalog EFI/boot.cat \
         -isohybrid-gpt-basdat \
-        -eltorito-catalog isolinux/boot.cat \
         -output "${out_dir}/${iso_filename}" \
         -graft-points \
             "." \
