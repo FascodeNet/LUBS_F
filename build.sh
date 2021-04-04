@@ -259,7 +259,7 @@ prepare_build() {
 
     # Check codename
     if ! grep -h -v ^'#' "${channels_dir}/${channel_name}/codename.${arch}" | grep -x "${codename}" 1> /dev/null 2>&1 ; then
-        _msg_error "This codename (${channel_name}) is not supported on this channel (${codename})."
+        _msg_error "This codename (${codename}) is not supported on this channel (${codename})."
         exit 1
     fi
 
