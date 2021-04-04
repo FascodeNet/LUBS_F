@@ -338,11 +338,10 @@ def install_refind(efi_directory):
     if not os.path.isdir(refind_dir):
         os.makedirs(refind_dir)
     subprocess.call(["cp","-f","/usr/share/refind/refind/refind_x64.efi",os.path.join(refind_dir,"refind.efi")])
-    subprocess.call(["cp","-rf","/usr/share/refind/refind/refind/drivers_x64",os.path.join(refind_dir,"drivers_x64")])
-    subprocess.call(["cp","-rf","/usr/share/refind/refind/refind/tools_x64",os.path.join(refind_dir,"tools_x64")])
-    subprocess.call(["cp","-rf","/usr/share/refind/refind/refind/icons",os.path.join(refind_dir,"icons")])
-    subprocess.call(["cp","-f","/usr/share/refind/refind/refind/refind.conf",os.path.join(refind_dir,"refind.conf")])
-    subprocess.call(["cp","-f","/usr/share/refind/refind/refind/refind.conf",os.path.join(refind_dir,"refind.conf")])    
+    subprocess.call(["cp","-rf","/usr/share/refind/refind/drivers_x64",os.path.join(refind_dir,"drivers_x64")])
+    subprocess.call(["cp","-rf","/usr/share/refind/refind/tools_x64",os.path.join(refind_dir,"tools_x64")])
+    subprocess.call(["cp","-rf","/usr/share/refind/refind/icons",os.path.join(refind_dir,"icons")])
+    subprocess.call(["cp","-f","/usr/share/refind/refind/refind.conf",os.path.join(refind_dir,"refind.conf")])
     efi_drive = subprocess.check_output([
         libcalamares.job.configuration["grubProbe"],
         "-t", "drive", "--device-map=", install_efi_directory]).decode("ascii")
