@@ -365,7 +365,7 @@ def install_refind(efi_directory):
         raise ValueError("No partition number found for %s" % install_efi_directory)
 
     subprocess.call([
-        libcalamares.job.configuration["efiBootMgr"],
+        "efibootmgr",
         "-c",
         "-w",
         "-L", "rEFInd",
