@@ -331,47 +331,10 @@ def install_refind(efi_directory):
     libcalamares.utils.debug("Bootloader: rEFInd")
     install_path = libcalamares.globalstorage.value("rootMountPoint")
     install_efi_directory = install_path + efi_directory
-    refind_dir=os.path.join(install_efi_directory,
-                               "rEFInd")
 
     uuid = get_uuid()
-    if not os.path.isdir(refind_dir):
-        os.makedirs(refind_dir)
-    subprocess.call(["cp","-f","/usr/share/refind/refind/refind_x64.efi",os.path.join(refind_dir,"refind.efi")])
-    subprocess.call(["cp","-rf","/usr/share/refind/refind/drivers_x64",os.path.join(refind_dir,"drivers_x64")])
-    subprocess.call(["cp","-rf","/usr/share/refind/refind/tools_x64",os.path.join(refind_dir,"tools_x64")])
-    subprocess.call(["cp","-rf","/usr/share/refind/refind/icons",os.path.join(refind_dir,"icons")])
-    subprocess.call(["cp","-f","/usr/share/refind/refind/refind.conf",os.path.join(refind_dir,"refind.conf")])
-    efi_drive = subprocess.check_output([
-        libcalamares.job.configuration["grubProbe"],
-        "-t", "drive", "--device-map=", install_efi_directory]).decode("ascii")
-    efi_disk = subprocess.check_output([
-        libcalamares.job.configuration["grubProbe"],
-        "-t", "disk", "--device-map=", install_efi_directory]).decode("ascii")
-
-    efi_drive_partition = efi_drive.replace("(","").replace(")","").split(",")[1]
-    # Get the first run of digits from the partition
-    efi_partition_number = None
-    c = 0
-    start = None
-    while c < len(efi_drive_partition):
-        if efi_drive_partition[c].isdigit() and start is None:
-            start = c
-        if not efi_drive_partition[c].isdigit() and start is not None:
-            efi_partition_number = efi_drive_partition[start:c]
-            break
-        c += 1
-    if efi_partition_number is None:
-        raise ValueError("No partition number found for %s" % install_efi_directory)
-
-    subprocess.call([
-        "efibootmgr",
-        "-c",
-        "-w",
-        "-L", "rEFInd",
-        "-d", efi_disk,
-        "-p", efi_partition_number,
-        "-l", "\\rEFInd\\refind.efi"])
+    subprocess.call(["/usr/share/refind/refind-install","--alldrivers"])
+    subprocess.call(["cp","-f","/usr/share/refind/refind/refind.conf",os.path.join(install_efi_directory + "/EFI/refind","refind.conf")])
     create_rEFInd_conf(install_path,
                              uuid,
                              "default")
