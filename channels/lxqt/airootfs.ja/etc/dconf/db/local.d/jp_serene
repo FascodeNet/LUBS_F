@@ -1,0 +1,4 @@
+[desktop/ibus/general]
+engines-order=['mozc-jp', 'xkb:jp::jpn']
+preload-engines=['xkb:jp::jpn', 'mozc-jp']
+version='1.5.23'
