@@ -35,3 +35,6 @@ if [[ ${localegen} == "en_US.UTF-8" ]]; then
     rm -rf /opt/flast-gecko-nightly/locale.ini
 fi
 chmod 755 /usr/bin/serenelinux-gtk-bookmarks
+dnf mark install grub2-pc
+dnf mark install grub2-efi-x64
+dnf mark install grub2-efi-ia32
