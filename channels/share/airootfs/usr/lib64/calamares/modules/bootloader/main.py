@@ -31,6 +31,7 @@
 import os
 import shutil
 import subprocess
+from subprocess import PIPE
 
 import libcalamares
 
@@ -146,13 +147,19 @@ def create_rEFInd_conf(install_path, uuid, kernel_type):
     if swap_uuid:
         kernel_params.append("resume=UUID={!s}".format(swap_uuid))
 
+    for partition in partitions:
+        if partition["mountPoint"] == "/" :
+            if partition["fs"] == "btrfs" :
+                prockun=subprocess.run(["sh","-c","cat /proc/mounts | grep \"" + "/boot/efi" + "\" | awk '{print $4}' | tr ',' '\n' | grep subvol | tr -d '\n' " ],stdout=PIPE,text=True)
+                if prockun.returncode==0:
+                    kernel_params.append("rootflags=" + prockun.stdout)
     kernel_line = get_kernel_line(kernel_type)
     libcalamares.utils.debug("Configure: \"{!s}\"".format(kernel_line))
 
     conf_path = os.path.join(install_path,
                              "boot",
                              "refind_linux.conf")
-
+    
     lines = [
         "\"Boot with standard options\" \"{!s}\"\n".format(" ".join(kernel_params)),
         "\"Boot to single-user mode\" \"{!s} single\"\n".format(" ".join(kernel_params)),
@@ -333,7 +340,7 @@ def install_refind(efi_directory):
     install_efi_directory = install_path + efi_directory
 
     uuid = get_uuid()
-    subprocess.call(["/usr/share/refind/refind-install","--alldrivers"])
+    subprocess.call(["/usr/share/refind/refind-install","--alldrivers","--yes"])
     subprocess.call(["cp","-f","/usr/share/refind/refind/refind.conf",os.path.join(install_efi_directory + "/EFI/refind","refind.conf")])
     create_rEFInd_conf(install_path,
                              uuid,
@@ -525,10 +532,10 @@ def prepare_bootloader(fw_type):
         install_systemd_boot(efi_directory)
     elif efi_boot_loader == "sb-shim" and fw_type == "efi":
         install_secureboot(efi_directory)
+    elif efi_boot_loader == "refind" and fw_type == "efi":
+        install_refind(efi_directory)
     elif efi_boot_loader == "grub" or fw_type != "efi":
         install_grub(efi_directory, fw_type)
-    elif efi_boot_loader == "refind" or fw_type == "efi":
-        install_refind(efi_directory)
     else:
         libcalamares.utils.debug( "WARNING: the combination of "
             "boot-loader '{!s}' and firmware '{!s}' "
