@@ -15,14 +15,15 @@ dnf remove -y xscreensaver-base
 dnf remove -y dnfdragora
 # Create Calamares Entry
 cp -f /etc/skel/Desktop/calamares.desktop /usr/share/applications/calamares.desktop
-
+mv /root/.VolumeIcon.png /.VolumeIcon.png
 unlink /usr/share/backgrounds/images/default.png
 ln -s /usr/share/backgrounds/serene-wallpaper-1.png /usr/share/backgrounds/images/default.png
 
 echo -e "cp -f /lightdm.conf /etc/lightdm/lightdm.conf" >> /usr/share/calamares/final-process
 echo -e "rm -rf /lightdm.conf" >> /usr/share/calamares/final-process
 sed -i "s/- packages/- shellprocess\n  - removeuser\n  - packages/g" /usr/share/calamares/settings.conf
-sed -i "s/sb-shim/grub/g" /usr/share/calamares/modules/bootloader.conf
+sed -i "s/- grubcfg//g" /usr/share/calamares/settings.conf
+sed -i "s/sb-shim/refind/g" /usr/share/calamares/modules/bootloader.conf
 sed -i "s/fedora/Serene Linux F/g" /usr/share/calamares/modules/bootloader.conf
 sed -i "s/auto/serene/g" /usr/share/calamares/settings.conf
 sed -i "s/light-locker-command/echo/g" /home/${username}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-session.xml
@@ -34,3 +35,6 @@ if [[ ${localegen} == "en_US.UTF-8" ]]; then
     rm -rf /opt/flast-gecko-nightly/locale.ini
 fi
 chmod 755 /usr/bin/serenelinux-gtk-bookmarks
+dnf mark install grub2-pc
+dnf mark install grub2-efi-x64
+dnf mark install grub2-efi-ia32
