@@ -145,7 +145,10 @@ run_cmd() {
     cp "/etc/resolv.conf" "${work_dir}/airootfs/etc/resolv.conf"
     unshare --fork --pid chroot "${work_dir}/airootfs" "${@}"
 
-    umount_chroot 1>&2
+    for mount in $(cat "/proc/mounts" | cut -d " " -f 2 | grep "$(realpath "${work_dir}")" | tac | grep -xv "${work_dir}/airootfs"); do
+        umount -fl "${mount}"
+    done
+    
 }
 
 _dnf_install() {    
