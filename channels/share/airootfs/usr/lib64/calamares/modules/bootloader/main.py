@@ -150,7 +150,7 @@ def create_rEFInd_conf(install_path, uuid, kernel_type):
     for partition in partitions:
         if partition["mountPoint"] == "/" :
             if partition["fs"] == "btrfs" :
-                prockun=subprocess.run(["sh","-c","cat /proc/mounts | grep \"" + install_path + "\" | awk '{print $4}' | tr ',' '\n' | grep subvol | tr -d '\n' " ],stdout=PIPE,text=True)
+                prockun=subprocess.run(["sh","-c","findmnt -n \"" + install_path +  "\"| awk '{print $4}' | tr ',' '\n' | grep subvol= | tr -d '\n' " ],stdout=PIPE,text=True)
                 if prockun.returncode==0:
                     kernel_params.append("rootflags=" + prockun.stdout)
     kernel_line = get_kernel_line(kernel_type)
