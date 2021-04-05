@@ -104,6 +104,11 @@ _msg_error() {
     fi
 }
 
+# マウントポイントの一覧から作業ディレクトリ以下のもののみの一覧を返します
+_mounted_path(){
+    cat "/proc/mounts" | cut -d " " -f 2 | grep "$(realpath "${work_dir}")" | tac
+}
+
 _umount(){
     _msg_info "Unmounting ${1}"
     umount -fl "${1}"
@@ -112,7 +117,7 @@ _umount(){
 # Unmount chroot dir
 umount_chroot () {
     local mount
-    for mount in $(cat "/proc/mounts" | cut -d " " -f 2 | grep "$(realpath "${work_dir}")" | tac | grep -xv "${work_dir}/airootfs"); do
+    for mount in $(_mounted_path | grep -xv "${work_dir}/airootfs"); do
         _umount "${mount}"
     done
 }
@@ -120,7 +125,7 @@ umount_chroot () {
 # Unmount chroot dir and airootfs
 umount_chroot_airootfs () {
     local mount
-    for mount in $(cat "/proc/mounts" | cut -d " " -f 2 | grep "$(realpath "${work_dir}")" | tac); do
+    for mount in $(_mounted_path); do
         _umount "${mount}"
     done
 }
@@ -145,7 +150,7 @@ run_cmd() {
     cp "/etc/resolv.conf" "${work_dir}/airootfs/etc/resolv.conf"
     unshare --fork --pid chroot "${work_dir}/airootfs" "${@}"
 
-    for mount in $(cat "/proc/mounts" | cut -d " " -f 2 | grep "$(realpath "${work_dir}")" | tac | grep -xv "${work_dir}/airootfs"); do
+    for mount in $(_mounted_path | grep -xv "${work_dir}/airootfs"); do
         umount -fl "${mount}"
     done
     
