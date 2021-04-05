@@ -10,7 +10,7 @@ dconf update
 sed -i s/%OS_NAME%/"${os_name}"/g /etc/skel/Desktop/calamares.desktop
 cp -f /etc/skel/Desktop/calamares.desktop /home/${username}/Desktop/calamares.desktop
 # delete xscreen
-dnf remove -y xscreensaver-base
+# dnf remove -y xscreensaver-base
 # delete dnfdragora
 dnf remove -y dnfdragora
 # Create Calamares Entry
