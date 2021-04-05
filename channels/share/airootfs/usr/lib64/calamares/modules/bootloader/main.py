@@ -342,6 +342,8 @@ def install_refind(efi_directory):
     uuid = get_uuid()
     subprocess.call(["/usr/share/refind/refind-install","--alldrivers","--yes"])
     subprocess.call(["cp","-f","/usr/share/refind/refind/refind.conf",os.path.join(install_efi_directory + "/EFI/refind","refind.conf")])
+    subprocess.call(["cp","-rf","/usr/share/refind-theme-regular",install_efi_directory + "/EFI/refind/"])
+    
     create_rEFInd_conf(install_path,
                              uuid,
                              "default")
