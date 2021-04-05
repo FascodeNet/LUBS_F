@@ -1,7 +1,8 @@
 # backgrounds
 serenelinux-wallpaper
 @lxqt
-xfwm4
+lxqt-panel
+xterm
 serene-google-menus
 serenelinux-icon 
 serene-update-assistant
