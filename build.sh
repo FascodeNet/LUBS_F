@@ -145,7 +145,7 @@ run_cmd() {
     cp "/etc/resolv.conf" "${work_dir}/airootfs/etc/resolv.conf"
     unshare --fork --pid chroot "${work_dir}/airootfs" "${@}"
 
-    umount_chroot
+    umount_chroot 1>&2
 }
 
 _dnf_install() {    
