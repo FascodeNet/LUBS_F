@@ -439,8 +439,9 @@ make_efi() {
     # create efiboot.img
     truncate -s 200M "${work_dir}/efiboot.img"
     mkfs.fat -F 16 -f 1 -r 112 "${work_dir}/efiboot.img"
-    mkdir -p "${bootfiles_dir}/mnt" "${bootfiles_dir}/mnt/EFI/BOOT/" "${bootfiles_dir}/EFI/Boot/"
+    mkdir -p "${bootfiles_dir}/mnt" 
     mount "${work_dir}/efiboot.img" "${bootfiles_dir}/mnt"
+    mkdir -p "${bootfiles_dir}/mnt/EFI/BOOT/" "${bootfiles_dir}/EFI/Boot/"
 
     # Copy files
     cp "${bootfiles_dir}/systemd-bootx64.efi" "${bootfiles_dir}/mnt/EFI/BOOT/bootx64.efi"
