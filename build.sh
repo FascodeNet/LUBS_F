@@ -145,7 +145,7 @@ run_cmd() {
     cp "/etc/resolv.conf" "${work_dir}/airootfs/etc/resolv.conf"
     unshare --fork --pid chroot "${work_dir}/airootfs" "${@}"
 
-    umount_chroot
+    umount_chroot 1>&2
 }
 
 _dnf_install() {    
@@ -258,8 +258,9 @@ prepare_build() {
     umount_chroot_airootfs
 
     # Check codename
-    if [[ -z "$(grep -h -v ^'#' ${channels_dir}/${channel_name}/codename.${arch} | grep -x ${codename})" ]]; then
-        _msg_error "This codename (${channel_name}) is not supported on this channel (${codename})."
+    if ! grep -h -v ^'#' "${channels_dir}/${channel_name}/codename.${arch}" | grep -x "${codename}" 1> /dev/null 2>&1 ; then
+        _msg_error "This codename (${codename}) is not supported on this channel (${codename})."
+        exit 1
     fi
 
     # Gitversion
@@ -279,8 +280,8 @@ prepare_build() {
             logging="${out_dir}/${iso_filename%.iso}.log"
         fi
         mkdir -p "$(dirname "${logging}")"; touch "${logging}"
-        _msg_debug "Re-run 'sudo ${0} ${@} --nolog 2>&1 | tee ${logging}'"
-        eval "sudo ${0} "${@}" --nolog 2>&1 | tee ${logging}"
+        _msg_debug "Re-run 'sudo ${0} ${*} --nolog 2>&1 | tee ${logging}'"
+        sudo ${0} "${@}" --nolog 2>&1 | tee ${logging}
         exit "${?}"
     fi
 
@@ -396,7 +397,7 @@ make_squashfs() {
     mkdir "${work_dir}/airootfs/boot"
     cp ${bootfiles_dir}/boot/vmlinuz ${work_dir}/airootfs/boot/vmlinuz-$(run_cmd ls /lib/modules)
     kernelkun=$(run_cmd ls /lib/modules)
-    echo -e "\nkernel-install add ${kernelkun} /boot/vmlinuz-${kernelkun}\ngrub2-mkconfig" >> "${work_dir}/airootfs/usr/share/calamares/final-process"
+    echo -e "\nkernel-install add ${kernelkun} /boot/vmlinuz-${kernelkun}" >> "${work_dir}/airootfs/usr/share/calamares/final-process"
     umount "${work_dir}/airootfs"
     # _msg_info "e2fsck..."
     # e2fsck -f "${work_dir}/squashfsroot/LiveOS/rootfs.img"

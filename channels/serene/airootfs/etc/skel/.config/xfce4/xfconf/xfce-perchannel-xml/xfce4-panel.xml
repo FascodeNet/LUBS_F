@@ -135,7 +135,10 @@
         <value type="string" value="ibus-ui-gtk3"/>
       </property>
     </property>
-    <property name="plugin-51" type="string" value="clock"/>
+    <property name="plugin-51" type="string" value="clock">
+      <property name="tooltip-format" type="string" value="%x"/>
+      <property name="digital-format" type="string" value="%m/%d %a %l:%M:%S"/>
+    </property>
     <property name="plugin-52" type="string" value="separator">
       <property name="expand" type="bool" value="true"/>
       <property name="style" type="uint" value="0"/>
