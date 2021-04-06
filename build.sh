@@ -269,7 +269,11 @@ prepare_build() {
     fi
 
     # Generate iso filename
-    local _channel_name="${channel_name%.add}-${locale_name}"
+    if [[ "${nochname-false}" = true ]]; then
+        local _channel_name="${channel_name%.add}-${locale_name}"
+    else
+        local _channel_name="${locale_name}"
+    fi
     iso_filename="${iso_name}-${base_ver}-${_channel_name}-${iso_version}-${arch}.iso"
 
     # Re-run with tee
