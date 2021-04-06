@@ -227,7 +227,7 @@ make_basefs() {
 
     _msg_info "Installing Base System to '${work_dir}/airootfs'..."
     dnfstrap @Core yamad-repo 
-    _msg_info "${codename} installed successfully!"
+    _msg_info "RHEL ${base_ver} installed successfully!"
     
     echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}' > "${work_dir}/airootfs/etc/bash.bashrc"
     mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
@@ -245,9 +245,9 @@ parse_files() {
 prepare_build() {
     umount_chroot_airootfs
 
-    # Check codename
-    if ! grep -h -v ^'#' "${channels_dir}/${channel_name}/codename.${arch}" | grep -x "${codename}" 1> /dev/null 2>&1 ; then
-        _msg_error "This codename (${codename}) is not supported on this channel (${codename})."
+    # Check fedora version
+    if ! grep -h -v ^'#' "${channels_dir}/${channel_name}/codename.${arch}" | grep -x "${base_ver}" 1> /dev/null 2>&1 ; then
+        _msg_error "This RHEL version (${base_ver}) is not supported on this channel (${base_ver})."
         exit 1
     fi
 
@@ -260,7 +260,7 @@ prepare_build() {
 
     # Generate iso filename
     local _channel_name="${channel_name%.add}-${locale_name}"
-    iso_filename="${iso_name}-${codename}-${_channel_name}-${iso_version}-${arch}.iso"
+    iso_filename="${iso_name}-${base_ver}-${_channel_name}-${iso_version}-${arch}.iso"
 
     # Re-run with tee
     if [[ ! "${logging}" = false ]]; then
@@ -284,7 +284,7 @@ make_systemd() {
 }
 
 make_repo_packages() {    
-    local _pkglist=($("${script_path}/tools/pkglist-repo.sh" -a "x86_64" -c "${channels_dir}/${channel_name}" -v "${codename}" -l "${locale_name}" $(if [[ "${bootsplash}" = true ]]; then echo -n "-b"; fi) ))
+    local _pkglist=($("${script_path}/tools/pkglist-repo.sh" -a "x86_64" -c "${channels_dir}/${channel_name}" -v "${base_ver}" -l "${locale_name}" $(if [[ "${bootsplash}" = true ]]; then echo -n "-b"; fi) ))
     if (( "${#_pkglist[@]}" != 0 )); then
         # Create a list of packages to be finally installed as packages.list directly under the working directory.
         echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
