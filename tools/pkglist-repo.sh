@@ -26,8 +26,9 @@ _help() {
     echo " General options:"
     echo "    -a | --arch [arch]        Specify the architecture"
     echo "    -b | --boot-splash        Enable boot splash"
-    echo "    -c | --channel            Specify the channel directory"
-    echo "    -k | --kernel             Specify the kernel"
+    echo "    -c | --channel [name]     Specify the channel directory"
+    echo "    -l | --locale [locale]    Specify the locale name"
+    echo "    -v | --basever            Specify the RHEL version"
     echo "    -h | --help               This help message"
 }
 
