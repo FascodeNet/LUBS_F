@@ -33,6 +33,9 @@ rm -rf /home/${username}/.config/autostart/light-locker.desktop
 #     rm -rf /opt/flast-gecko-nightly/locale.ini
 # fi
 # chmod 755 /usr/bin/serenelinux-gtk-bookmarks
+if [[ ${localegen} == "ja_JP.UTF-8" ]]; then
+    echo -e "QT_IM_MODULE=ibus" >> /etc/environment
+fi
 dnf mark install grub2-pc
 dnf mark install grub2-efi-x64
 dnf mark install grub2-efi-ia32
