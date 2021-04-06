@@ -54,15 +54,9 @@ start_time="$(date +%s)"
 
 _msg_common() {
     if [[ "${debug}" = true ]]; then
-        local _current_time
-        local _time
-        _current_time="$(date +%s)"
-        _time="$(("${_current_time}"-"${start_time}"))"
-
-        #if [[ "${_time}" -ge 3600 ]]; then
+        local _current_time="$(date +%s)" _time="$(("${_current_time}"-"${start_time}"))"
         if (( "${_time}" >= 3600 )); then
             echo -n "[$(date -d @${_time} +%H:%M.%S)] "
-        #elif [[ "${_time}" -ge 60 ]]; then
         elif (( "${_time}" >= 60 )); then
             echo -n "[00:$(date -d @${_time} +%M.%S)] "
         else
