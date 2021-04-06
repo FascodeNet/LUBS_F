@@ -283,8 +283,8 @@ prepare_build() {
             logging="${out_dir}/${iso_filename%.iso}.log"
         fi
         mkdir -p "$(dirname "${logging}")"; touch "${logging}"
-        _msg_debug "Re-run 'sudo ${0} ${*} --nolog 2>&1 | tee ${logging}'"
-        sudo ${0} "${@}" --nolog 2>&1 | tee ${logging}
+        _msg_debug "Re-run 'sudo ${0} ${ARGUMENT[*]} --nolog 2>&1 | tee ${logging}'"
+        sudo ${0} "${ARGUMENT[@]}" --nolog 2>&1 | tee ${logging}
         exit "${?}"
     fi
 
@@ -512,9 +512,10 @@ make_checksum() {
 }
 
 # 引数解析 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
+ARGUMENT=("${@}")
 OPTS="a:bc:dhl:o:w:x"
 OPTL="arch:,bootsplash,cache:,debug,help,lang:,out:,work:,bash-debug,gitversion,log,logpath:,nolog"
-if ! OPT="$(getopt -o ${OPTS} -l ${OPTL} -- "${@}")"; then
+if ! OPT="$(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}")"; then
     exit 1
 fi
 eval set -- "${OPT}"
