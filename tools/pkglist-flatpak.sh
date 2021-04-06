@@ -10,7 +10,7 @@ pkgdir_name="packages-flatpak"
 
 arch=""
 channel_dir=""
-codename=33
+codename=34
 locale_name=""
 
 #arch="x86_64"

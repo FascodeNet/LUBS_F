@@ -328,15 +328,13 @@ make_flatpak_packages() {
     if [ ${#_pkglist[@]} -eq 0 ];then
         return
     fi
-    echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
-    for _pkg in ${_pkglist[@]}; do
-        echo ${_pkg} >> "${work_dir}/packages.list"
-    done
+    #echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
+    #for _pkg in ${_pkglist[@]}; do
+    #    echo ${_pkg} >> "${work_dir}/packages.list"
+    #done
     mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
     run_cmd dnf -y --nogpgcheck -c /dnf_conf install flatpak-builder
     # Install packages on airootfs
-    #mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
-    #run_cmd dnf -y --nogpgcheck -c /dnf_conf install ${_pkglist[*]}
     for _pkg in ${_pkglist[@]}; do
         run_cmd flatpak install --system -y $(echo ${_pkg} | sed "s/\"//g")
     done
