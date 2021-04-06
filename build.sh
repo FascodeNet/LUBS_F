@@ -9,48 +9,34 @@
 # lfbs
 #
 
-set -e
-# set -u
+set -e # -u
 
-
-
-script_path=$(readlink -f "${0%/*}")
+# Internal config
+# Do not change these values.
+script_path="$( cd -P "$( dirname "$(readlink -f "${0}")" )" && pwd )"
+defaultconfig="$script_path/default.conf"
 work_dir="${script_path}/work"
 channels_dir="${script_path}/channels"
 nfb_dir="${script_path}/nfb"
 cache_dir="${script_path}/cache"
 out_dir="${script_path}/out"
-
-codename="34"
-os_name="SereneLinux"
-iso_name="SereneLinux"
-channel_name="serene"
-bootsplash=false
-arch="x86_64"
-
-out_dir="${script_path}/out"
-iso_label="${os_name}_${codename}_${arch}"
-iso_publisher='Fascode Network <https://fascode.net>'
-iso_application="${os_name} Live/Rescue CD"
-iso_version="${codename}-$(date +%Y.%m.%d)"
-
-liveuser_name="serene"
-liveuser_password="serene"
-liveuser_shell="/usr/bin/zsh"
-
-locale_name="en"
-locale_gen_name="en_US.UTF-8"
-locale_version="gl"
-locale_time="UTC"
-locale_fullname="global"
-
-debug=false
-cache_only=false
-grub2_standalone_cmd="grub2-mkstandalone"
-gitversion=false
-logging=false
 customized_logpath=false
 start_time="$(date +%s)"
+
+# Load config file
+if [[ -f "${defaultconfig}" ]]; then
+    source "${defaultconfig}"
+else
+    "${script_path}/tools/msg.sh" -a 'LFBS Core"' -s 6 error "${defaultconfig} was not found."
+    exit 1
+fi
+
+# Load custom.conf
+if [[ -f "${script_path}/custom.conf" ]]; then
+    source "${script_path}/custom.conf"
+fi
+
+umask 0022
 
 _msg_common() {
     if [[ "${debug}" = true ]]; then
@@ -96,6 +82,13 @@ _msg_error() {
     if [[ -n "${2:-}" ]]; then
         exit ${2}
     fi
+}
+
+# 設定ファイルを読み込む
+# load_config [file1] [file2] ...
+load_config() {
+    local _file
+    for _file in "${@}"; do if [[ -f "${_file}" ]] ; then source "${_file}" && msg_debug "The settings have been overwritten by the ${_file}"; fi; done
 }
 
 # マウントポイントの一覧から作業ディレクトリ以下のもののみの一覧を返します
@@ -241,7 +234,7 @@ make_basefs() {
 
     _msg_info "Installing Base System to '${work_dir}/airootfs'..."
     dnfstrap @Core yamad-repo 
-    _msg_info "${codename} installed successfully!"
+    _msg_info "RHEL ${base_ver} installed successfully!"
     
     echo 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}' > "${work_dir}/airootfs/etc/bash.bashrc"
     mount --bind "${cache_dir}" "${work_dir}/airootfs/dnf_cache"
@@ -259,11 +252,14 @@ parse_files() {
 prepare_build() {
     umount_chroot_airootfs
 
-    # Check codename
-    if ! grep -h -v ^'#' "${channels_dir}/${channel_name}/codename.${arch}" | grep -x "${codename}" 1> /dev/null 2>&1 ; then
-        _msg_error "This codename (${codename}) is not supported on this channel (${codename})."
+    # Check fedora version
+    if ! grep -h -v ^'#' "${channels_dir}/${channel_name}/version.${arch}" | grep -x "${base_ver}" 1> /dev/null 2>&1 ; then
+        _msg_error "This RHEL version (${base_ver}) is not supported on this channel (${base_ver})."
         exit 1
     fi
+
+    # Load channel configs
+    load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
 
     # Gitversion
     if [[ "${gitversion}" = true ]]; then
@@ -273,8 +269,13 @@ prepare_build() {
     fi
 
     # Generate iso filename
-    local _channel_name="${channel_name%.add}-${locale_name}"
-    iso_filename="${iso_name}-${codename}-${_channel_name}-${iso_version}-${arch}.iso"
+    if [[ "${nochname-false}" = true ]]; then
+        local _channel_name="${channel_name%.add}-${locale_name}"
+    else
+        local _channel_name="${locale_name}"
+    fi
+    iso_filename="${iso_name}-${base_ver}-${_channel_name}-${iso_version}-${arch}.iso"
+    _msg_debug "Iso filename is ${iso_filename}"
 
     # Re-run with tee
     if [[ ! "${logging}" = false ]]; then
@@ -282,8 +283,8 @@ prepare_build() {
             logging="${out_dir}/${iso_filename%.iso}.log"
         fi
         mkdir -p "$(dirname "${logging}")"; touch "${logging}"
-        _msg_debug "Re-run 'sudo ${0} ${*} --nolog 2>&1 | tee ${logging}'"
-        sudo ${0} "${@}" --nolog 2>&1 | tee ${logging}
+        _msg_debug "Re-run 'sudo ${0} ${ARGUMENT[*]} --nolog 2>&1 | tee ${logging}'"
+        sudo ${0} "${ARGUMENT[@]}" --nolog 2>&1 | tee ${logging}
         exit "${?}"
     fi
 
@@ -298,7 +299,7 @@ make_systemd() {
 }
 
 make_repo_packages() {    
-    local _pkglist=($("${script_path}/tools/pkglist-repo.sh" -a "x86_64" -c "${channels_dir}/${channel_name}" -k "${codename}" -l "${locale_name}" $(if [[ "${bootsplash}" = true ]]; then echo -n "-b"; fi) ))
+    local _pkglist=($("${script_path}/tools/pkglist-repo.sh" -a "x86_64" -c "${channels_dir}/${channel_name}" -v "${base_ver}" -l "${locale_name}" $(if [[ "${bootsplash}" = true ]]; then echo -n "-b"; fi) ))
     if (( "${#_pkglist[@]}" != 0 )); then
         # Create a list of packages to be finally installed as packages.list directly under the working directory.
         echo -e "# The list of packages that is installed in live cd.\n#\n\n" > "${work_dir}/packages.list"
@@ -511,9 +512,10 @@ make_checksum() {
 }
 
 # 引数解析 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
+ARGUMENT=("${@}")
 OPTS="a:bc:dhl:o:w:x"
-OPTL="arch:,bootsplash,cache:,debug,help,lang:,out:,work:,cache-only,bash-debug,gitversion,log,logpath:,nolog"
-if ! OPT="$(getopt -o ${OPTS} -l ${OPTL} -- "${@}")"; then
+OPTL="arch:,bootsplash,cache:,debug,help,lang:,out:,work:,bash-debug,gitversion,log,logpath:,nolog"
+if ! OPT="$(getopt -o ${OPTS} -l ${OPTL} -- "${ARGUMENT[@]}")"; then
     exit 1
 fi
 eval set -- "${OPT}"
@@ -551,10 +553,6 @@ while true; do
         -w | --work)
             work_dir="${2}"
             shift 2
-            ;;
-        --cache-only)
-            cache_only=true
-            shift 1
             ;;
         -x | --bash-debug)
             set -xv
