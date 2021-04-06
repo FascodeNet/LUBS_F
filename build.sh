@@ -9,48 +9,35 @@
 # lfbs
 #
 
-set -e
-# set -u
+set -e # -u
 
+script_path="$( cd -P "$( dirname "$(readlink -f "${0}")" )" && pwd )"
 
+defaultconfig="$script_path/default.conf"
 
-script_path=$(readlink -f "${0%/*}")
 work_dir="${script_path}/work"
 channels_dir="${script_path}/channels"
 nfb_dir="${script_path}/nfb"
 cache_dir="${script_path}/cache"
 out_dir="${script_path}/out"
 
-codename="34"
-os_name="SereneLinux"
-iso_name="SereneLinux"
-channel_name="serene"
-bootsplash=false
-arch="x86_64"
-
-out_dir="${script_path}/out"
-iso_label="${os_name}_${codename}_${arch}"
-iso_publisher='Fascode Network <https://fascode.net>'
-iso_application="${os_name} Live/Rescue CD"
-iso_version="${codename}-$(date +%Y.%m.%d)"
-
-liveuser_name="serene"
-liveuser_password="serene"
-liveuser_shell="/usr/bin/zsh"
-
-locale_name="en"
-locale_gen_name="en_US.UTF-8"
-locale_version="gl"
-locale_time="UTC"
-locale_fullname="global"
-
-debug=false
-cache_only=false
-grub2_standalone_cmd="grub2-mkstandalone"
-gitversion=false
-logging=false
 customized_logpath=false
 start_time="$(date +%s)"
+
+# Load config file
+if [[ -f "${defaultconfig}" ]]; then
+    source "${defaultconfig}"
+else
+    "${script_path}/tools/msg.sh" -a 'LFBS Core"' -s 6 error "${defaultconfig} was not found."
+    exit 1
+fi
+
+# Load custom.conf
+if [[ -f "${script_path}/custom.conf" ]]; then
+    source "${script_path}/custom.conf"
+fi
+
+umask 0022
 
 _msg_common() {
     if [[ "${debug}" = true ]]; then
