@@ -499,7 +499,7 @@ make_checksum() {
 
 # 引数解析 参考記事：https://0e0.pw/ci83 https://0e0.pw/VJlg
 OPTS="a:bc:dhl:o:w:x"
-OPTL="arch:,bootsplash,cache:,debug,help,lang:,out:,work:,cache-only,bash-debug,gitversion,log,logpath:,nolog"
+OPTL="arch:,bootsplash,cache:,debug,help,lang:,out:,work:,bash-debug,gitversion,log,logpath:,nolog"
 if ! OPT="$(getopt -o ${OPTS} -l ${OPTL} -- "${@}")"; then
     exit 1
 fi
@@ -538,10 +538,6 @@ while true; do
         -w | --work)
             work_dir="${2}"
             shift 2
-            ;;
-        --cache-only)
-            cache_only=true
-            shift 1
             ;;
         -x | --bash-debug)
             set -xv
