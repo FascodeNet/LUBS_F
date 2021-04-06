@@ -9,6 +9,11 @@ dconf update
 # Set os name
 sed -i s/%OS_NAME%/"${os_name}"/g /etc/skel/Desktop/calamares.desktop
 cp -f /etc/skel/Desktop/calamares.desktop /home/${username}/Desktop/calamares.desktop
+mv /root/grub_efi_remover /home/${username}/grub_efi_remover
+mv /root/grub_efi_remover.desktop /home/${username}/.config/autostart/
+sed -i "s/\${username}/${username}/g" /home/${username}/.config/autostart/grub_efi_remover.desktop
+chmod +x /home/${username}/grub_efi_remover
+
 # delete xscreen
 dnf remove -y xscreensaver-base
 # delete dnfdragora
@@ -22,7 +27,6 @@ ln -s /usr/share/backgrounds/serene-wallpaper-1.png /usr/share/backgrounds/image
 echo -e "cp -f /lightdm.conf /etc/lightdm/lightdm.conf" >> /usr/share/calamares/final-process
 echo -e "rm -rf /lightdm.conf" >> /usr/share/calamares/final-process
 sed -i "s/- packages/- shellprocess\n  - removeuser\n  - packages/g" /usr/share/calamares/settings.conf
-sed -i "s/- grubcfg//g" /usr/share/calamares/settings.conf
 sed -i "s/sb-shim/refind/g" /usr/share/calamares/modules/bootloader.conf
 sed -i "s/fedora/Serene Linux F/g" /usr/share/calamares/modules/bootloader.conf
 sed -i "s/auto/serene/g" /usr/share/calamares/settings.conf

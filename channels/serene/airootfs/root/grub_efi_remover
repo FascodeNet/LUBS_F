@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+if [[ -d /sys/firmware/efi/ ]]; then
+    sed -i "s/- grubcfg//g" /usr/share/calamares/settings.conf
+fi

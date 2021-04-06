@@ -1,7 +1,7 @@
 [Desktop Entry]
-Exec=ibus-daemon -r -d -x
+Exec=/home/${username}/grub_efi_remover
 Icon=system-run
-Name=grub_remover
+Name=echo
 Path=
 Terminal=True
 Type=Application
