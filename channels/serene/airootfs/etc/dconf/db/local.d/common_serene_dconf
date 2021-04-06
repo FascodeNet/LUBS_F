@@ -1,0 +1,27 @@
+[net/launchpad/plank/docks/dock1]
+alignment='center'
+auto-pinning=true
+current-workspace-only=false
+dock-items=['gimp.dockitem', 'firefox.dockitem', 'vlc.dockitem', 'xfce4-screenshooter.dockitem', 'thunar.dockitem', 'xfce4-terminal.dockitem']
+hide-delay=50
+hide-mode='intelligent'
+icon-size=45
+items-alignment='center'
+lock-items=false
+monitor=''
+offset=0
+pinned-only=false
+position='bottom'
+pressure-reveal=false
+show-dock-item=false
+theme='Arc'
+tooltips-enabled=true
+unhide-delay=0
+zoom-enabled=false
+zoom-percent=150
+[apps/light-locker]
+idle-hint=false
+late-locking=false
+lock-after-screensaver=uint32 0
+lock-on-lid=false
+lock-on-suspend=false

@@ -1,0 +1,4 @@
+{ 
+    "background_path":"file://usr/share/backgrounds/serene/serene-wallpaper-1.png",
+    "theme":"qrc:/Login.qml"
+}

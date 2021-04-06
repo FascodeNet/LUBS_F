@@ -123,10 +123,10 @@ navigation: widget
 strings:
     productName:         "Serene Linux"
     shortProductName:    Generic
-    version:             2020.2 LTS
-    shortVersion:        2020.2
+    version:             2021.1 LTS
+    shortVersion:        2021.1
     versionedName:       Serene Linux 
-    shortVersionedName:  Serene Linux 2020.09
+    shortVersionedName:  Serene Linux 2021.04
     bootloaderEntryName: Serene Linux
     productUrl:          https://calamares.io/
     supportUrl:          https://github.com/calamares/calamares/issues

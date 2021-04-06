@@ -1,0 +1,7 @@
+[Desktop Entry]
+Exec=ibus-daemon -r -d -x
+Icon=system-run
+Name=ibus
+Path=
+Terminal=False
+Type=Application

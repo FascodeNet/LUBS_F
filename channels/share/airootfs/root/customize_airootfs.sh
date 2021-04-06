@@ -17,9 +17,9 @@ function user_check () {
         return 1
     fi
     if getent passwd "${1}" > /dev/null 2> /dev/null; then
-        return 0
-    else
         return 1
+    else
+        return 0
     fi
 }
 
@@ -132,16 +132,17 @@ sed -i "s/%USERNAME%/${username}/g" "/usr/share/calamares/modules/removeuser.con
 
 # Set user shell
 sed -i "s|%USERSHELL%|'${usershell}'|g" "/usr/share/calamares/modules/users.conf"
+# sed -i "s|btrfs|ext4|g'${usershell}'|g" "/usr/share/calamares/modules/partition.conf"
 
 # Add disabling of sudo setting
 echo -e "\nremove \"/etc/sudoers.d/fedoralive\"" >> "/usr/share/calamares/final-process"
-if [[ "${boot_splash}" = true ]]; then
-    cat > "/etc/grub.d/99_plymouth_config" <<EOF
+#if [[ "${boot_splash}" = true ]]; then
+#    cat > "/etc/grub.d/99_plymouth_config" <<EOF
 #!/usr/bin/env bash
-grubby --update-kernel=ALL --args="quiet splash"
+#grubby --update-kernel=ALL --args="quiet splash"
 
-EOF
-    chmod +x "/etc/grub.d/99_plymouth_config"
-    echo -e "\ngrubby --update-kernel=ALL --args=\"quiet splash\"" >> /usr/share/calamares/final-process
-fi
+#EOF
+#    chmod +x "/etc/grub.d/99_plymouth_config"
+#    #echo -e "\ngrubby --update-kernel=ALL --args=\"quiet splash\"" >> /usr/share/calamares/final-process
+#fi
 echo "universal_hooks=true" >> "/etc/dnf/dnf.conf"

@@ -4,7 +4,6 @@
   <property name="configver" type="int" value="2"/>
   <property name="panels" type="array">
     <value type="int" value="1"/>
-    <value type="int" value="3"/>
     <property name="panel-1" type="empty">
       <property name="autohide-behavior" type="uint" value="0"/>
       <property name="background-alpha" type="uint" value="65"/>
@@ -43,40 +42,6 @@
         <value type="double" value="0.313333"/>
         <value type="double" value="0.306397"/>
       </property>
-    </property>
-    <property name="panel-3" type="empty">
-      <property name="autohide-behavior" type="uint" value="1"/>
-      <property name="background-alpha" type="uint" value="30"/>
-      <property name="background-color" type="array">
-        <value type="uint" value="18504"/>
-        <value type="uint" value="18504"/>
-        <value type="uint" value="18504"/>
-        <value type="uint" value="65535"/>
-      </property>
-      <property name="background-style" type="uint" value="1"/>
-      <property name="length" type="uint" value="100"/>
-      <property name="plugin-ids" type="array">
-        <value type="int" value="1"/>
-        <value type="int" value="19"/>
-        <value type="int" value="20"/>
-        <value type="int" value="21"/>
-        <value type="int" value="22"/>
-        <value type="int" value="57"/>
-        <value type="int" value="23"/>
-        <value type="int" value="25"/>
-        <value type="int" value="2"/>
-      </property>
-      <property name="position" type="string" value="p=10;x=649;y=751"/>
-      <property name="position-locked" type="bool" value="true"/>
-      <property name="size" type="uint" value="42"/>
-      <property name="background-rgba" type="array">
-        <value type="double" value="0.313333"/>
-        <value type="double" value="0.313333"/>
-        <value type="double" value="0.313333"/>
-        <value type="double" value="0.306397"/>
-      </property>
-      <property name="leave-opacity" type="uint" value="100"/>
-      <property name="enter-opacity" type="uint" value="100"/>
     </property>
   </property>
   <property name="plugins" type="empty">
@@ -170,7 +135,10 @@
         <value type="string" value="ibus-ui-gtk3"/>
       </property>
     </property>
-    <property name="plugin-51" type="string" value="clock"/>
+    <property name="plugin-51" type="string" value="clock">
+      <property name="tooltip-format" type="string" value="%x"/>
+      <property name="digital-format" type="string" value="%m/%d %a %l:%M:%S"/>
+    </property>
     <property name="plugin-52" type="string" value="separator">
       <property name="expand" type="bool" value="true"/>
       <property name="style" type="uint" value="0"/>
