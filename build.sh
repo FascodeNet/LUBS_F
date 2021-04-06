@@ -275,6 +275,7 @@ prepare_build() {
         local _channel_name="${locale_name}"
     fi
     iso_filename="${iso_name}-${base_ver}-${_channel_name}-${iso_version}-${arch}.iso"
+    msg_debug "Iso filename is ${iso_filename}"
 
     # Re-run with tee
     if [[ ! "${logging}" = false ]]; then
