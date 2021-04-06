@@ -11,16 +11,15 @@
 
 set -e # -u
 
+# Internal config
+# Do not change these values.
 script_path="$( cd -P "$( dirname "$(readlink -f "${0}")" )" && pwd )"
-
 defaultconfig="$script_path/default.conf"
-
 work_dir="${script_path}/work"
 channels_dir="${script_path}/channels"
 nfb_dir="${script_path}/nfb"
 cache_dir="${script_path}/cache"
 out_dir="${script_path}/out"
-
 customized_logpath=false
 start_time="$(date +%s)"
 
