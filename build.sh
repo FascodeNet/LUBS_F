@@ -246,7 +246,7 @@ prepare_build() {
     umount_chroot_airootfs
 
     # Check fedora version
-    if ! grep -h -v ^'#' "${channels_dir}/${channel_name}/codename.${arch}" | grep -x "${base_ver}" 1> /dev/null 2>&1 ; then
+    if ! grep -h -v ^'#' "${channels_dir}/${channel_name}/version.${arch}" | grep -x "${base_ver}" 1> /dev/null 2>&1 ; then
         _msg_error "This RHEL version (${base_ver}) is not supported on this channel (${base_ver})."
         exit 1
     fi
