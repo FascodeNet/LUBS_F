@@ -84,6 +84,13 @@ _msg_error() {
     fi
 }
 
+# 設定ファイルを読み込む
+# load_config [file1] [file2] ...
+load_config() {
+    local _file
+    for _file in "${@}"; do if [[ -f "${_file}" ]] ; then source "${_file}" && msg_debug "The settings have been overwritten by the ${_file}"; fi; done
+}
+
 # マウントポイントの一覧から作業ディレクトリ以下のもののみの一覧を返します
 _mounted_path(){
     cat "/proc/mounts" | cut -d " " -f 2 | grep "$(realpath "${work_dir}")" | tac
@@ -250,6 +257,9 @@ prepare_build() {
         _msg_error "This RHEL version (${base_ver}) is not supported on this channel (${base_ver})."
         exit 1
     fi
+
+    # Load channel configs
+    load_config "${channel_dir}/config.any" "${channel_dir}/config.${arch}"
 
     # Gitversion
     if [[ "${gitversion}" = true ]]; then
