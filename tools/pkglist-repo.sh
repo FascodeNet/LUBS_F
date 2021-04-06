@@ -10,7 +10,7 @@ pkgdir_name="packages-repo"
 
 arch=""
 channel_dir=""
-codename=34
+base_ver=34
 locale_name=""
 
 #arch="x86_64"
@@ -53,8 +53,8 @@ msg_debug() {
 
 # Parse options
 ARGUMENT="${@}"
-_opt_short="a:bc:k:l:h"
-_opt_long="arch:,boot-splash,channel:,codename:,locale:,help"
+_opt_short="a:bc:l:v:h"
+_opt_long="arch:,basever:,boot-splash,channel:,locale:,help"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- ${ARGUMENT})
 [[ ${?} != 0 ]] && exit 1
 
@@ -75,12 +75,12 @@ while true; do
             channel_dir="${2}"
             shift 2
             ;;
-        -k | --codename)
-            codename="${2}"
-            shift 2
-            ;;
         -l | --locale)
             locale_name="${2}"
+            shift 2
+            ;;
+        -v | --basever)
+            base_ver="${2}"
             shift 2
             ;;
         -h | --help)
@@ -102,8 +102,8 @@ if [[ -z "${arch}" ]]; then
 elif [[ -z "${channel_dir}" ]]; then
     msg_error "Channel directory not specified"
     exit 1
-elif [[ -z "${codename}" ]]; then
-    msg_error "codename not specified"
+elif [[ -z "${base_ver}" ]]; then
+    msg_error "RHEL version not specified"
     exit 1
 elif [[ -z "${locale_name}" ]]; then
     msg_error "Locale not specified"
@@ -180,4 +180,4 @@ fi
 # Sort the list of packages in abc order.
 _pkglist=($(for _pkg in ${_pkglist[@]}; do echo "${_pkg}"; done | sort | perl -pe 's/\n/ /g'))
 
-echo "${_pkglist[@]}" | sed -e "s/\${codename}/${codename}/g" >&1
+echo "${_pkglist[@]}" | sed -e "s/\${base_ver}/${base_ver}/g" >&1
