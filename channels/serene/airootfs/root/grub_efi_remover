@@ -3,4 +3,10 @@ if [[ -d /sys/firmware/efi/ ]]; then
     sudo sed -i "s/- grubcfg//g" /usr/share/calamares/settings.conf
 else
     sudo sed -i "s/btrfs/ext4/g" /usr/share/calamares/modules/partition.conf
+    sudo tee "/etc/grub.d/99_plymouth_config" <<EOF
+#!/usr/bin/env bash
+grubby --update-kernel=ALL --args="splash"
+EOF
+    echo -e "\ngrubby --update-kernel=ALL --args=\"quiet splash\"" | sudo tee "/usr/share/calamares/final-process"
+
 fi
