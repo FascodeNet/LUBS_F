@@ -1,4 +1,6 @@
 #!/usr/bin/bash
 if [[ -d /sys/firmware/efi/ ]]; then
     sudo sed -i "s/- grubcfg//g" /usr/share/calamares/settings.conf
+else
+    sudo sed -i "s/btrfs/ext4/g" /usr/share/calamares/modules/partition.conf
 fi
