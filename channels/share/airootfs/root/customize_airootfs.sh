@@ -114,7 +114,7 @@ chmod 755 "/etc/profile.d/alias_systemctl_setup.sh"
 # Chnage sudoers permission
 chmod 750 -R /etc/sudoers.d/
 chown root:root -R /etc/sudoers.d/
-
+restorecon -R /etc/sudoers.d/
 echo "LANG=${localegen}" > "/etc/locale.conf"
 truncate -s 0 /etc/machine-id
 passwd -u -f root
@@ -145,3 +145,4 @@ EOF
     echo -e "\ngrubby --update-kernel=ALL --args=\"quiet splash\"" >> /usr/share/calamares/final-process
 fi
 echo "universal_hooks=true" >> "/etc/dnf/dnf.conf"
+restorecon -R /home/%USERNAME%
